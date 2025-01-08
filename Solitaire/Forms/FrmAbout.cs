@@ -6,6 +6,7 @@ using System.Windows.Forms;
 
 namespace Solitaire.Forms
 {
+    /* Show info about the game */
     public partial class FrmAbout : Form
     {
         public FrmAbout()
