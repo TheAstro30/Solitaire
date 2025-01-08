@@ -2,12 +2,14 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Solitaire.Classes.Helpers;
 
 namespace Solitaire.Classes
 {
+    [Serializable]
     public sealed class Deck : IList<Card>
     {
         /* Penis */

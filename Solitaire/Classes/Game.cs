@@ -19,12 +19,11 @@ namespace Solitaire.Classes
 
     public class Game : Form
     {
-        private Size _cardSize;
-        private GameData _currentGame;
-
-        private int _gameCenter = 0;
-
+        private Size _cardSize;        
+        private int _gameCenter;
         private Rectangle _deckRegion;
+
+        public GameData CurrentGame { get; set; }
 
         public Game()
         {
@@ -42,12 +41,12 @@ namespace Solitaire.Classes
                 switch (HitTest(e.Location))
                 {
                     case HitTestType.Deck:
-                        _currentGame.Deal();
+                        CurrentGame.Deal();
                         Invalidate();
                         break;
 
                     case HitTestType.Dealt:
-                        var card = _currentGame.DealtCards[_currentGame.DealtCards.Count - 1];
+                        var card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
                         System.Diagnostics.Debug.Print("Dealt pile: " + card.Suit + " " + card.Value);
                         break;
                 }
@@ -60,7 +59,7 @@ namespace Solitaire.Classes
         protected override void OnResize(EventArgs e)
         {
             /* Calculate what the size of the images should be based on clientsize */
-            var img = _currentGame.CardBack;
+            var img = CurrentGame.CardBack;
             var ratioX = (double)ClientSize.Width / img.Width;
             var ratioY = (double)ClientSize.Height / img.Height;
             /* Use whichever multiplier is smaller */
@@ -94,11 +93,11 @@ namespace Solitaire.Classes
         public void NewGame()
         {
             /* Setup game data */
-            if (_currentGame == null)
+            if (CurrentGame == null)
             {
-                _currentGame = new GameData();
+                CurrentGame = new GameData(true);
             }
-            _currentGame.StartNewGame();
+            CurrentGame.StartNewGame();
             _deckRegion = new Rectangle();
         }
 
@@ -106,14 +105,14 @@ namespace Solitaire.Classes
         /* Private drawing methods */
         private void DrawDeck(Graphics e)
         {
-            var stackSize = _currentGame.GameDeck.Count > 20 ? 6 : _currentGame.GameDeck.Count > 10 ? 4 : _currentGame.GameDeck.Count > 1 ? 2 : 1;
+            var stackSize = CurrentGame.GameDeck.Count > 20 ? 6 : CurrentGame.GameDeck.Count > 10 ? 4 : CurrentGame.GameDeck.Count > 1 ? 2 : 1;
             var stackOffset = _gameCenter - ((_cardSize.Width + 40) * 3);
             var xOffset = 0;
             var yOffset = 0;
             _deckRegion = new Rectangle(stackOffset, 40, _cardSize.Width, _cardSize.Height);
             for (var i = 0; i <= stackSize; i++)
             {
-                e.DrawImage(_currentGame.CardBack, stackOffset + xOffset, 40 + yOffset, _cardSize.Width, _cardSize.Height);
+                e.DrawImage(CurrentGame.CardBack, stackOffset + xOffset, 40 + yOffset, _cardSize.Width, _cardSize.Height);
                 xOffset += 2;
                 yOffset += 2;
             }
@@ -122,12 +121,12 @@ namespace Solitaire.Classes
         private void DrawDealt(Graphics e)
         {
             /* For now, I'm just going to draw the last drawn */
-            if (_currentGame.DealtCards.Count == 0)
+            if (CurrentGame.DealtCards.Count == 0)
             {
                 /* Do nothing */
                 return;
             }
-            var card = _currentGame.DealtCards[_currentGame.DealtCards.Count - 1];
+            var card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
             var stackOffset = _gameCenter - ((_cardSize.Width + 40) * 2);
             e.DrawImage(card.CardImage, stackOffset , 40 , _cardSize.Width, _cardSize.Height);
             card.Region = new Rectangle(stackOffset, 40, _cardSize.Width, _cardSize.Height);
@@ -136,7 +135,7 @@ namespace Solitaire.Classes
         private void DrawHomeStacks(Graphics e)
         {
             var stackOffset = _gameCenter;
-            foreach (var stack in _currentGame.HomeStacks)
+            foreach (var stack in CurrentGame.HomeStacks)
             {
                 e.DrawImage(stack.StackImage, stackOffset, 40, _cardSize.Width, _cardSize.Height);                
                 /* Draw last card */
@@ -155,12 +154,12 @@ namespace Solitaire.Classes
             var yOffset = _cardSize.Height + 70;
             var cardOffset = _cardSize.Height / 15;            
             var stackOffset = _gameCenter - ((_cardSize.Width + 40) * 3);
-            foreach (var stack in _currentGame.PlayingStacks)
+            foreach (var stack in CurrentGame.PlayingStacks)
             {
                 var offset = 0;
                 foreach (var card in stack.Cards)
                 {
-                    var img = card.IsHidden ? _currentGame.CardBack : card.CardImage;
+                    var img = card.IsHidden ? CurrentGame.CardBack : card.CardImage;
                     e.DrawImage(img, stackOffset, yOffset + offset, _cardSize.Width, _cardSize.Height);
                     card.Region = new Rectangle(stackOffset, yOffset + offset, _cardSize.Width, _cardSize.Height);
                     offset += cardOffset;
@@ -180,12 +179,12 @@ namespace Solitaire.Classes
                 return HitTestType.Deck;
             }
             /* Dealt pile */
-            if (_currentGame.DealtCards.Count > 0 && _currentGame.DealtCards[_currentGame.DealtCards.Count - 1].IsHitTest(location))
+            if (CurrentGame.DealtCards.Count > 0 && CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1].IsHitTest(location))
             {
                 return HitTestType.Dealt;
             }
             /* Playing stacks - I may want to change this... */
-            foreach (var stack in _currentGame.PlayingStacks)
+            foreach (var stack in CurrentGame.PlayingStacks)
             {
                 foreach (var card in stack.Cards)
                 {

@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using Solitaire.Properties;
 
 namespace Solitaire.Classes
@@ -49,9 +48,16 @@ namespace Solitaire.Classes
         public List<StackData> PlayingStacks { get; private set; }
 
         private readonly Deck _masterDeck = new Deck();
-        
-        public GameData()
+
+        public GameData(bool initNewDeck)
         {
+            if (!initNewDeck)
+            {
+                /* We don't want to create a new deck (which lags a bit) when deserializing from a saved file
+                 * StartNewGame() should be called within the game for new games, and only call new GameData(true) 
+                 * on first load of the exe */
+                return;
+            }
             HomeStacks = new List<HomeStackData>();
             BuildDeck();
             StartNewGame();
@@ -86,7 +92,7 @@ namespace Solitaire.Classes
         }
 
         /* Deck building */
-        private void BuildDeck()
+        public void BuildDeck()
         {
             var cardSize = new Size(120, 184); /* Hard programmed for now */
 

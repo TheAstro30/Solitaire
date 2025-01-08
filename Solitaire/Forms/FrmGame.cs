@@ -24,6 +24,9 @@ namespace Solitaire.Forms
                 {
                     MenuHelper.AddMenuItem("New game", "NEW", Keys.Control | Keys.N, true, OnMenuClick),
                     new ToolStripSeparator(), 
+                    MenuHelper.AddMenuItem("Load saved game", "LOAD", Keys.Control | Keys.O, true, OnMenuClick),
+                    MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, true, OnMenuClick),
+                    new ToolStripSeparator(), 
                     MenuHelper.AddMenuItem("Exit", "EXIT", Keys.Alt | Keys.F4 ,true, OnMenuClick)
                 });
 
@@ -52,6 +55,27 @@ namespace Solitaire.Forms
                 case "NEW":
                     NewGame();
                     Invalidate();
+                    break;
+
+                case "LOAD":
+                    if (
+                        MessageBox.Show(this, @"Are you sure you want to quit the current game?", @"Quit Current Game",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    {
+                        return;
+                    }
+                    var d = new GameData(false);
+                    if (BinarySerialize<GameData>.Load(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), ref d))
+                    {
+                        /* Load a saved game */
+                        CurrentGame = d;
+                        Invalidate();
+                    }
+                    break;
+
+                case "SAVE":
+                    /* Save current game */
+                    BinarySerialize<GameData>.Save(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), CurrentGame);
                     break;
 
                 case "EXIT":

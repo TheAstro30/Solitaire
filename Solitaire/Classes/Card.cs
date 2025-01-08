@@ -2,10 +2,12 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
+using System;
 using System.Drawing;
 
 namespace Solitaire.Classes
 {
+    /* Suits of the deck */
     public enum Suit
     {
         Hearts = 0,
@@ -14,6 +16,7 @@ namespace Solitaire.Classes
         Spades = 3
     }
 
+    [Serializable]
     public sealed class Card
     {
         /* Is the card the card back or a normal card */
@@ -31,6 +34,7 @@ namespace Solitaire.Classes
         /* Card face or back */
         public Image CardImage { get; set; }
 
+        /* Rectangle to drawn region on the screen for dunny hit test */
         public Rectangle Region { get; set; }
 
         /* Constructors */
