@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿/* Solitaire
+ * Version 1.0.0
+ * Written by: Jason James Newland
+ * ©2025 Kangasoft Software */
 using System.Windows.Forms;
 
 namespace Solitaire.Forms
