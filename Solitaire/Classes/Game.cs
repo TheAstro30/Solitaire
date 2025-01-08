@@ -49,6 +49,10 @@ namespace Solitaire.Classes
                         var card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
                         System.Diagnostics.Debug.Print("Dealt pile: " + card.Suit + " " + card.Value);
                         break;
+
+                    default:
+                        System.Diagnostics.Debug.Print("Auto complete");
+                        break;
                 }
                 System.Diagnostics.Debug.Print(HitTest(e.Location).ToString());
             }
@@ -70,6 +74,7 @@ namespace Solitaire.Classes
             _cardSize = new Size(newWidth > img.Width ? img.Width : newWidth, newHeight > img.Height ? img.Height : newHeight);
             /* This is used for centering drawing of images on X axis and for mouse hit test */
             _gameCenter = (ClientSize.Width/2) - (_cardSize.Width/2);
+            Invalidate();
             base.OnResize(e);
         }
         #endregion
@@ -105,11 +110,33 @@ namespace Solitaire.Classes
         /* Private drawing methods */
         private void DrawDeck(Graphics e)
         {
-            var stackSize = CurrentGame.GameDeck.Count > 20 ? 6 : CurrentGame.GameDeck.Count > 10 ? 4 : CurrentGame.GameDeck.Count > 1 ? 2 : 1;
+            var stackSize = 4;
+            if (CurrentGame.GameDeck.Count < 8)
+            {
+                stackSize = 3;
+            }
+            if (CurrentGame.GameDeck.Count <= 4)
+            {
+                stackSize = 2;
+            }
+            if (CurrentGame.GameDeck.Count <= 1)
+            {
+                stackSize = 0;
+            }
+
             var stackOffset = _gameCenter - ((_cardSize.Width + 40) * 3);
             var xOffset = 0;
             var yOffset = 0;
+
             _deckRegion = new Rectangle(stackOffset, 40, _cardSize.Width, _cardSize.Height);
+
+            if (CurrentGame.GameDeck.Count == 0)
+            {
+                /* Deck is empty, draw empty deck image and piss off */
+                e.DrawImage(CurrentGame.EmptyDeck, stackOffset + xOffset, 40 + yOffset, _cardSize.Width, _cardSize.Height);
+                return;
+            }
+            /* Draw deck as if it's a pile of cards */
             for (var i = 0; i <= stackSize; i++)
             {
                 e.DrawImage(CurrentGame.CardBack, stackOffset + xOffset, 40 + yOffset, _cardSize.Width, _cardSize.Height);
@@ -169,7 +196,9 @@ namespace Solitaire.Classes
         }
         #endregion
 
+        #region Private methods
         #region Hit-test
+        /* I may want to change this as well */
         private HitTestType HitTest(Point location)
         {
             /* We need to work out what the mouse is over */
@@ -183,7 +212,7 @@ namespace Solitaire.Classes
             {
                 return HitTestType.Dealt;
             }
-            /* Playing stacks - I may want to change this... */
+            /* Playing stacks - I may want to change this... this seems .. weird to do */
             foreach (var stack in CurrentGame.PlayingStacks)
             {
                 foreach (var card in stack.Cards)
@@ -196,6 +225,15 @@ namespace Solitaire.Classes
             }
             return HitTestType.None;
         }
+        #endregion
+
+        #region IsValidMove
+        private bool IsValidMove(Card source, Card destination)
+        {
+            /* Place holder */
+            return false;
+        }
+        #endregion
         #endregion
     }
 }

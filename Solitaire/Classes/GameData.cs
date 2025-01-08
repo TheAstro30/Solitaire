@@ -40,6 +40,7 @@ namespace Solitaire.Classes
     public sealed class GameData
     {
         public Image CardBack { get; private set; }
+        public Image EmptyDeck { get; private set; }
 
         public Deck GameDeck { get; private set; }
         public Deck DealtCards { get; private set; }
@@ -126,6 +127,11 @@ namespace Solitaire.Classes
                                     };
                                     HomeStacks.Add(stack);
                                 }
+                                break;
+
+                            case 2:
+                                /* Set empty deck image */
+                                EmptyDeck = cardImage;
                                 break;
                         }
                     }

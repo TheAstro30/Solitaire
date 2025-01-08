@@ -4,6 +4,7 @@
  * ©2025 Kangasoft Software */
 using System;
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 using Solitaire.Classes;
 using Solitaire.Classes.Helpers;
@@ -16,7 +17,12 @@ namespace Solitaire.Forms
         public FrmGame()
         {
             InitializeComponent();
+
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            Text = string.Format("Kanga's Solitaire - {0}.{1}.{2} (Build: {3})", version.Major, version.Minor, version.Build, version.MinorRevision);
+
             /* Build menubar */
             var m = (ToolStripMenuItem)menuBar.Items.Add("Game");
             m.DropDownItems.AddRange(
@@ -32,6 +38,12 @@ namespace Solitaire.Forms
 
             m = (ToolStripMenuItem) menuBar.Items.Add("Help");
             m.DropDownItems.Add(MenuHelper.AddMenuItem("About", "ABOUT", OnMenuClick));
+        }
+
+        public override sealed string Text
+        {
+            get { return base.Text; }
+            set { base.Text = value; }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
