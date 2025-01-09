@@ -9,7 +9,6 @@ using System.Windows.Forms;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers;
 using Solitaire.Classes.Serialization;
-using Solitaire.Classes.Settings;
 using Solitaire.Classes.UI;
 
 namespace Solitaire.Forms
@@ -45,6 +44,12 @@ namespace Solitaire.Forms
 
             m = (ToolStripMenuItem) menuBar.Items.Add("Help");
             m.DropDownItems.Add(MenuHelper.AddMenuItem("About", "ABOUT", OnMenuClick));
+
+            /* Status bar */
+            var s = new ToolStripLabel("Elapsed time: 00:00");
+            statusBar.Items.Add(s);
+
+            OnGameTimerChanged += TimeChanged;
         }
 
         //to remove
@@ -57,7 +62,7 @@ namespace Solitaire.Forms
         protected override void OnLoad(EventArgs e)
         {
             /* Set window position and size */
-            var loc = SettingsManager.Settings.Window.Location;
+            var loc = SettingsManager.Settings.Location;
             if (loc == Point.Empty)
             {
                 /* Scale form to half the screen width/height */
@@ -71,8 +76,8 @@ namespace Solitaire.Forms
             else
             {
                 Location = loc;
-                Size = SettingsManager.Settings.Window.Size;
-                if (SettingsManager.Settings.Window.Maximized)
+                Size = SettingsManager.Settings.Size;
+                if (SettingsManager.Settings.Maximized)
                 {
                     WindowState = FormWindowState.Maximized;
                 }
@@ -91,10 +96,10 @@ namespace Solitaire.Forms
             }
             if (WindowState == FormWindowState.Normal)
             {
-                SettingsManager.Settings.Window.Location = Location;
-                SettingsManager.Settings.Window.Size = Size;
+                SettingsManager.Settings.Location = Location;
+                SettingsManager.Settings.Size = Size;
             }
-            SettingsManager.Settings.Window.Maximized = WindowState == FormWindowState.Maximized;
+            SettingsManager.Settings.Maximized = WindowState == FormWindowState.Maximized;
             /* Dump settings */
             SettingsManager.Save();
             /* Through the cockpit window, we can now piss off :) */
@@ -110,10 +115,16 @@ namespace Solitaire.Forms
             }
             if (WindowState == FormWindowState.Normal)
             {
-                SettingsManager.Settings.Window.Location = Location;
-                SettingsManager.Settings.Window.Size = Size;
+                SettingsManager.Settings.Location = Location;
+                SettingsManager.Settings.Size = Size;
             }
             base.OnResize(e);
+        }
+
+        private void TimeChanged(int seconds)
+        {
+            var ts = new TimeSpan(0, 0, 0, seconds);
+            statusBar.Items[0].Text = string.Format("Elapsed time: {0:00}:{1:00}", ts.Minutes, ts.Seconds);
         }
 
         /* Menu click callback */

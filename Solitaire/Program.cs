@@ -19,6 +19,7 @@ namespace Solitaire
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FrmGame());
+            //Application.Run(new FrmSplash());
         }
     }
 }

@@ -6,12 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Media;
-using System.Security.Cryptography;
 using System.Windows.Forms;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers;
-using Solitaire.Properties;
 
 namespace Solitaire.Classes.UI
 {
@@ -39,13 +36,17 @@ namespace Solitaire.Classes.UI
         private int _gameCenter;
         private Rectangle _deckRegion;
 
+        /* Timer */
+        private Timer _timerGame;
+        private int _gameTime;
+
         /* Dragging variables */
         private bool _isDragging;
         private bool _isHomeDrag;
         private List<Card> _draggingCards = new List<Card>();
         private int _dragStackIndex;
         private Point _dragLocation;        
-        private Bitmap _dragBitmap;
+        private Bitmap _dragBitmap; /* TODO implement this */
 
         private readonly Timer _checkWin;
         private readonly Timer _timerFireWorks;
@@ -56,11 +57,19 @@ namespace Solitaire.Classes.UI
 
         public GameData CurrentGame { get; set; }
 
+        public event Action<int> OnGameTimerChanged;
+
         public Game()
         {
             /* Double buffering */
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
-            UpdateStyles();            
+            UpdateStyles();
+
+            _timerGame = new Timer
+            {
+                Interval = 1000
+            };
+            _timerGame.Tick += OnGameTimer;
 
             _checkWin = new Timer
             {
@@ -79,108 +88,111 @@ namespace Solitaire.Classes.UI
 
         #region Overrides
         #region Mouse
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            switch (e.Button)
             {
-                _dragLocation = e.Location;
-                HitTestData data;
-                Card card;
-                switch (HitTest(e.Location, out data))
-                {
-                    case HitTestType.Deck:
-                        CurrentGame.Deal();
-                        Invalidate();
-                        break;
+                case MouseButtons.Left:
+                    _dragLocation = e.Location;
+                    HitTestData data;
+                    Card card;
+                    switch (HitTest(e.Location, out data))
+                    {
+                        case HitTestType.Deck:
+                            CurrentGame.Deal();
+                            Invalidate();
+                            break;
 
-                    case HitTestType.Dealt:
-                        /* Pick up first card on pile, begin drag */
-                        _dragStackIndex = -1;
-                        card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
-                        card.IsHidden = false;
-                        _draggingCards.Add(card);
-                        CurrentGame.DealtCards.Remove(card);
-                        _isDragging = true;
-                        Invalidate();
-                        break;
-
-                    case HitTestType.HomeStack:
-                        /* Pick up first card on stack, begin drag */
-                        var stack = CurrentGame.HomeStacks[data.StackIndex];
-                        if (stack.Cards.Count == 0)
-                        {
-                            return;
-                        }
-                        card = stack.Cards[stack.Cards.Count - 1];
-                        _dragStackIndex = data.StackIndex;
-                        _draggingCards.Add(card);
-                        stack.Cards.Remove(card);
-                        if (stack.Cards.Count == 0)
-                        {
-                            stack.Suit = Suit.None;
-                        }
-                        _isHomeDrag = true;
-                        _isDragging = true;
-                        Invalidate();
-                        break;
-
-                    case HitTestType.PlayStack:
-                        /* Begin stack drag - validate clicked area can be dragged */
-                        if (data.Cards != null)
-                        {
-                            if (data.Cards[data.CardIndex].IsHidden)
-                            {
-                                if (data.CardIndex == data.Cards.Count - 1)
-                                {
-                                    /* Turn card over */
-                                    data.Cards[data.CardIndex].IsHidden = false;
-                                    Invalidate();
-                                    AudioManager.Play(SoundType.Deal);
-                                    return;
-                                }
-                                /* Invalid drag */
-                                return;
-                            }
-                            if (data.CardIndex < data.Cards.Count - 1)
-                            {
-                                /* Valid cards on top of this card */                                
-                                for (var i = data.CardIndex; i <= data.Cards.Count - 1; i++)
-                                {
-                                    card = data.Cards[i];
-                                    if (i < data.Cards.Count - 1)
-                                    {
-                                        if (!IsValidMove(data.Cards[i + 1], card))
-                                        {
-                                            return;
-                                        }
-                                    }
-                                    /* Add card to list */
-                                    _draggingCards.Add(card);
-                                }
-                                _dragStackIndex = data.StackIndex;
-                                /* Remove dragging cards from stack - I can't do it in above loop as it modifies the list it's comparing */
-                                foreach (var c in _draggingCards)
-                                {
-                                    CurrentGame.PlayingStacks[_dragStackIndex].Cards.Remove(c);
-                                }
-                            }
-                            else
-                            {
-                                /* Single card */
-                                _dragStackIndex = data.StackIndex;
-                                card = data.Cards[data.CardIndex];
-                                _draggingCards.Add(card);
-                                CurrentGame.PlayingStacks[data.StackIndex].Cards.Remove(card);
-                            }
+                        case HitTestType.Dealt:
+                            /* Pick up first card on pile, begin drag */
+                            _dragStackIndex = -1;
+                            card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
+                            card.IsHidden = false;
+                            _draggingCards.Add(card);
+                            CurrentGame.DealtCards.Remove(card);
                             _isDragging = true;
                             Invalidate();
-                        }
-                        break;
+                            break;
 
-                    default:
-                        AutoComplete();
-                        break;
-                }
+                        case HitTestType.HomeStack:
+                            /* Pick up first card on stack, begin drag */
+                            var stack = CurrentGame.HomeStacks[data.StackIndex];
+                            if (stack.Cards.Count == 0)
+                            {
+                                return;
+                            }
+                            card = stack.Cards[stack.Cards.Count - 1];
+                            _dragStackIndex = data.StackIndex;
+                            _draggingCards.Add(card);
+                            stack.Cards.Remove(card);
+                            if (stack.Cards.Count == 0)
+                            {
+                                stack.Suit = Suit.None;
+                            }
+                            _isHomeDrag = true;
+                            _isDragging = true;
+                            Invalidate();
+                            break;
+
+                        case HitTestType.PlayStack:
+                            /* Begin stack drag - validate clicked area can be dragged */
+                            if (data.Cards != null)
+                            {
+                                if (data.Cards[data.CardIndex].IsHidden)
+                                {
+                                    if (data.CardIndex == data.Cards.Count - 1)
+                                    {
+                                        /* Turn card over */
+                                        data.Cards[data.CardIndex].IsHidden = false;
+                                        Invalidate();
+                                        AudioManager.Play(SoundType.Deal);
+                                        return;
+                                    }
+                                    /* Invalid drag */
+                                    return;
+                                }
+                                if (data.CardIndex < data.Cards.Count - 1)
+                                {
+                                    /* Valid cards on top of this card */
+                                    for (var i = data.CardIndex; i <= data.Cards.Count - 1; i++)
+                                    {
+                                        card = data.Cards[i];
+                                        if (i < data.Cards.Count - 1)
+                                        {
+                                            if (!IsValidMove(data.Cards[i + 1], card))
+                                            {
+                                                return;
+                                            }
+                                        }
+                                        /* Add card to list */
+                                        _draggingCards.Add(card);
+                                    }
+                                    _dragStackIndex = data.StackIndex;
+                                    /* Remove dragging cards from stack - I can't do it in above loop as it modifies the list it's comparing */
+                                    foreach (var c in _draggingCards)
+                                    {
+                                        CurrentGame.PlayingStacks[_dragStackIndex].Cards.Remove(c);
+                                    }
+                                }
+                                else
+                                {
+                                    /* Single card */
+                                    _dragStackIndex = data.StackIndex;
+                                    card = data.Cards[data.CardIndex];
+                                    _draggingCards.Add(card);
+                                    CurrentGame.PlayingStacks[data.StackIndex].Cards.Remove(card);
+                                }
+                                _isDragging = true;
+                                Invalidate();
+                            }
+                            break;
+                    }
+                    break;            
+
+                case MouseButtons.Right:
+                    AutoComplete();
+                    break;
             }
             base.OnMouseDown(e);
         }
@@ -226,14 +238,12 @@ namespace Solitaire.Classes.UI
                             }                                
                             else if (stack.Cards.Count > 0 && card.Suit == stack.Suit && card.Value == stack.Cards[stack.Cards.Count - 1].Value + 1)
                             {
-                                System.Diagnostics.Debug.Print("valid");
                                 /* Valid drop */
                                 stack.Cards.Add(card);
                             }
                             else
                             {
                                 /* Invalid */
-                                System.Diagnostics.Debug.Print("invalid");
                                 ReturnCardsToSource(_isHomeDrag);
                             }
                         }
@@ -363,8 +373,12 @@ namespace Solitaire.Classes.UI
                 {
                     return;
                 }
+                SettingsManager.Settings.Statistics.GamesLost++;
             }
+            SettingsManager.Settings.Statistics.TotalGamesPlayed++;
             _timerFireWorks.Enabled = false;
+            _gameTime = 0;
+            _timerGame.Enabled = true;
             CurrentGame.StartNewGame();
             _deckRegion = new Rectangle();
             AudioManager.Play(SoundType.Shuffle);
@@ -518,6 +532,15 @@ namespace Solitaire.Classes.UI
         #endregion
 
         #region Timers
+        private void OnGameTimer(object sender, EventArgs e)
+        {
+            if (OnGameTimerChanged != null)
+            {
+                OnGameTimerChanged(_gameTime);
+            }
+            _gameTime++;
+        }
+
         private void OnCheckWin(object sender, EventArgs e)
         {
             _checkWin.Enabled = false;            
@@ -525,6 +548,8 @@ namespace Solitaire.Classes.UI
             {
                 return;
             }
+            SettingsManager.Settings.Statistics.GamesWon++;
+            _timerGame.Enabled = false;
             _timerFireWorks.Enabled = true;
             /* Game is won. It's kind of easier to do this check here from the paint method, as it's called most of the time */
             AudioManager.Play(SoundType.Win);
@@ -684,7 +709,7 @@ namespace Solitaire.Classes.UI
 
         private bool AddAceToFreeSlot(Card card)
         {
-            foreach (var stack in CurrentGame.HomeStacks.Where(stack => stack.Cards.Count == 0))
+            foreach (var stack in CurrentGame.HomeStacks.Where(stack => stack.Cards.Count == 0).Where(stack => !card.IsHidden))
             {
                 stack.Cards.Add(card);
                 return true;

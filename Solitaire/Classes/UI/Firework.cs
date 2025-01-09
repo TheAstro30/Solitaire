@@ -4,25 +4,31 @@
 using System;
 using System.Drawing;
 
-namespace Solitaire.Classes
+namespace Solitaire.Classes.UI
 {
     public class FireWork
     {
+        /* Draw some simple pretty fireworks on the background :) */
+        private const double Step = 0.5;
         private const int MaxRays = 10;
+
         private readonly double _start;
         private readonly double _stop;
         private readonly double _len;
         private double _curpos;
+
         private readonly SolidBrush _brush;
+
         private readonly int _nrays;
         private readonly int _cx;
         private readonly int _cy;
         private readonly double[] _sintab;
         private readonly double[] _costab;
         private readonly double _descent;
-        private static readonly Random Rand = new Random();
-        private const double Step = 0.5;
 
+        private static readonly Random Rand = new Random();       
+
+        /* Constructor */
         public FireWork(int xsize, int ysize)
         {
             _cx = Rand.Next(xsize);

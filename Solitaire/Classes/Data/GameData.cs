@@ -5,43 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Media;
 using Solitaire.Classes.Helpers;
 using Solitaire.Properties;
 
 namespace Solitaire.Classes.Data
 {
-    [Serializable]
-    public class StackData
-    {
-        /* This is the 7 rows of playable cards */
-        public Rectangle Region { get; set; }
-
-        public List<Card> Cards { get; set; }
-
-        public StackData()
-        {
-            Region = new Rectangle();
-            Cards = new List<Card>();
-        }
-    }
-
-    [Serializable]
-    public class HomeStackData : StackData
-    {
-        /* Class for the "home" stacks (where all 4 suits are built from Ace - King) */
-        public Suit Suit { get; set; }
-        public Image StackImage { get; set; }
-
-        //public List<Card> Cards { get; private set; }
-
-        public HomeStackData()
-        {
-            Region = new Rectangle();
-            Cards = new List<Card>();
-        }
-    }
-
     [Serializable]
     public sealed class GameData
     {
@@ -51,7 +19,7 @@ namespace Solitaire.Classes.Data
         public Deck GameDeck { get; private set; }
         public List<Card> DealtCards { get; private set; }
 
-        public List<HomeStackData> HomeStacks { get; private set; }       
+        public List<StackData> HomeStacks { get; private set; }       
         public List<StackData> PlayingStacks { get; private set; }
 
         private readonly Deck _masterDeck = new Deck();
@@ -65,7 +33,7 @@ namespace Solitaire.Classes.Data
                  * on first load of the exe */
                 return;
             }
-            HomeStacks = new List<HomeStackData>();
+            HomeStacks = new List<StackData>();
             BuildDeck();
             StartNewGame();
         }
@@ -91,6 +59,7 @@ namespace Solitaire.Classes.Data
             if (GameDeck.Count > 0)
             {
                 var card = GameDeck[0];
+                card.IsHidden = false;
                 DealtCards.Add(card);
                 GameDeck.Remove(card);
                 AudioManager.Play(SoundType.Deal);
@@ -138,7 +107,7 @@ namespace Solitaire.Classes.Data
                                 /* Set home stack image */
                                 for (var i = 0; i <= 3; i++)
                                 {
-                                    var stack = new HomeStackData
+                                    var stack = new StackData
                                     {
                                         Suit = (Suit)i,
                                         StackImage = cardImage

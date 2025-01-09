@@ -6,49 +6,49 @@ using System;
 using System.Drawing;
 using System.Xml.Serialization;
 using Solitaire.Classes.Helpers;
+using Solitaire.Classes.Settings.SettingsData;
 
 namespace Solitaire.Classes.Settings
 {
+    /* TODO: Add statistics - longest game, shortest game (after games have been completed?), total number of games played, highest score */
     [Serializable, XmlRoot("settings")]
     public sealed class Settings
     {
-        [Serializable]
-        public sealed class WindowData
+        [XmlAttribute("location")]
+        public string LocationString
         {
-            [XmlAttribute("location")]
-            public string LocationString
-            {
-                get { return XmlFormatting.WritePointFormat(Location); }
-                set { Location = XmlFormatting.ParsePointFormat(value); }
-            }
-
-            [XmlAttribute("size")]
-            public string SizeString
-            {
-                get { return XmlFormatting.WriteSizeFormat(Size); }
-                set { Size = XmlFormatting.ParseSizeFormat(value); }
-            }
-
-            [XmlAttribute("max")]
-            public bool Maximized { get; set; }
-
-            [XmlIgnore]
-            public Point Location { get; set; }
-
-            [XmlIgnore]
-            public Size Size { get; set; }
+            get { return XmlFormatting.WritePointFormat(Location); }
+            set { Location = XmlFormatting.ParsePointFormat(value); }
         }
 
-        [XmlElement("window")]
-        public WindowData Window { get; set; }
+        [XmlAttribute("size")]
+        public string SizeString
+        {
+            get { return XmlFormatting.WriteSizeFormat(Size); }
+            set { Size = XmlFormatting.ParseSizeFormat(value); }
+        }
 
+        [XmlAttribute("max")]
+        public bool Maximized { get; set; }
+
+        [XmlIgnore]
+        public Point Location { get; set; }
+
+        [XmlIgnore]
+        public Size Size { get; set; }
+
+        /* Stats and high scores */
+        [XmlElement("stats")]
+        public StatisticsData Statistics = new StatisticsData();
+
+        [XmlElement("highScores")]
+        public HighScoreData HighScores = new HighScoreData();
+
+        /* Constructor */
         public Settings()
         {
             /* Set default settings */
-            Window = new WindowData
-            {
-                Size = new Size(720, 470)
-            };
+            Size = new Size(720, 470);
         }
     }
 }

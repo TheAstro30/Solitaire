@@ -32,7 +32,6 @@ namespace Solitaire.Classes.Helpers
         
         static AudioManager()
         {
-            System.Diagnostics.Debug.Print("static constructor");
             Sounds.AddRange(
                 new[]
                 {

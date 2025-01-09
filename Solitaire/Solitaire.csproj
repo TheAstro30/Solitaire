@@ -46,7 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\Firework.cs" />
+    <Compile Include="Classes\Data\StackData.cs" />
+    <Compile Include="Classes\Settings\SettingsData\HighScoreData.cs" />
+    <Compile Include="Classes\Settings\SettingsData\StatisticsData.cs" />
+    <Compile Include="Classes\UI\Firework.cs" />
     <Compile Include="Classes\Helpers\AudioManager.cs" />
     <Compile Include="Classes\Helpers\Monitor.cs" />
     <Compile Include="Classes\Helpers\XmlFormatting.cs" />
@@ -54,7 +57,7 @@
     <Compile Include="Classes\Data\Card.cs" />
     <Compile Include="Classes\Data\Deck.cs" />
     <Compile Include="Classes\Settings\Settings.cs" />
-    <Compile Include="Classes\Settings\SettingsManager.cs" />
+    <Compile Include="Classes\Helpers\SettingsManager.cs" />
     <Compile Include="Classes\UI\FormEx.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -72,19 +75,46 @@
     <Compile Include="Forms\FrmAbout.Designer.cs">
       <DependentUpon>FrmAbout.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FrmCustomMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmCustomMessage.Designer.cs">
+      <DependentUpon>FrmCustomMessage.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FrmGame.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FrmGame.Designer.cs">
       <DependentUpon>FrmGame.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FrmScores.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmScores.Designer.cs">
+      <DependentUpon>FrmScores.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FrmSplash.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmSplash.Designer.cs">
+      <DependentUpon>FrmSplash.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\FrmAbout.resx">
       <DependentUpon>FrmAbout.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FrmCustomMessage.resx">
+      <DependentUpon>FrmCustomMessage.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmGame.resx">
       <DependentUpon>FrmGame.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FrmScores.resx">
+      <DependentUpon>FrmScores.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FrmSplash.resx">
+      <DependentUpon>FrmSplash.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -107,13 +137,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\card-set.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Images\card-set.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\bg.jpg" />
+    <None Include="Icons\aboutIcon.ico" />
+    <None Include="Images\splash.png" />
+    <None Include="Images\bg.png" />
     <Content Include="mainIcon.ico" />
   </ItemGroup>
   <ItemGroup />
