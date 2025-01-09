@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Solitaire.Classes
+namespace Solitaire.Classes.Serialization
 {
     public class BinarySerialize<TType>
     {

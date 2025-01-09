@@ -5,33 +5,39 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Media;
+using Solitaire.Classes.Helpers;
 using Solitaire.Properties;
 
-namespace Solitaire.Classes
+namespace Solitaire.Classes.Data
 {
     [Serializable]
-    public sealed class StackData
+    public class StackData
     {
         /* This is the 7 rows of playable cards */
-        public List<Card> Cards { get; private set; }
+        public Rectangle Region { get; set; }
+
+        public List<Card> Cards { get; set; }
 
         public StackData()
         {
+            Region = new Rectangle();
             Cards = new List<Card>();
         }
     }
 
     [Serializable]
-    public sealed class HomeStackData
+    public class HomeStackData : StackData
     {
         /* Class for the "home" stacks (where all 4 suits are built from Ace - King) */
         public Suit Suit { get; set; }
         public Image StackImage { get; set; }
 
-        public List<Card> Cards { get; private set; }
+        //public List<Card> Cards { get; private set; }
 
         public HomeStackData()
         {
+            Region = new Rectangle();
             Cards = new List<Card>();
         }
     }
@@ -43,7 +49,7 @@ namespace Solitaire.Classes
         public Image EmptyDeck { get; private set; }
 
         public Deck GameDeck { get; private set; }
-        public Deck DealtCards { get; private set; }
+        public List<Card> DealtCards { get; private set; }
 
         public List<HomeStackData> HomeStacks { get; private set; }       
         public List<StackData> PlayingStacks { get; private set; }
@@ -70,25 +76,37 @@ namespace Solitaire.Classes
             _masterDeck.Shuffle();
             /* Copy master deck */
             GameDeck = new Deck(_masterDeck);            
-            DealtCards = new Deck();
+            DealtCards = new List<Card>();
+            foreach (var stack in HomeStacks)
+            {
+                stack.Cards = new List<Card>();
+            }
             PlayingStacks = new List<StackData>();
             BuildStacks();
         }
 
         public void Deal()
         {
-            /* Deal cards from deck */
+            /* Deal cards from deck - may need to consult the NTSB */
             if (GameDeck.Count > 0)
             {
                 var card = GameDeck[0];
                 DealtCards.Add(card);
                 GameDeck.Remove(card);
+                AudioManager.Play(SoundType.Deal);
             }
             else
             {
+                if (DealtCards.Count == 0)
+                {
+                    /* Nothing to do */
+                    AudioManager.Play(SoundType.Empty);
+                    return;
+                }
                 /* Copy cards from disposed back to normal deck */
                 GameDeck.AddRange(DealtCards);
-                DealtCards = new Deck();
+                DealtCards = new List<Card>();
+                AudioManager.Play(SoundType.Shuffle);
             }
         }
 

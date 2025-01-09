@@ -5,7 +5,7 @@
 using System;
 using System.Drawing;
 
-namespace Solitaire.Classes
+namespace Solitaire.Classes.Data
 {
     /* Suits of the deck */
     public enum Suit
@@ -13,7 +13,8 @@ namespace Solitaire.Classes
         Hearts = 0,
         Diamonds = 1,
         Clubs = 2,
-        Spades = 3
+        Spades = 3,
+        None = 4
     }
 
     [Serializable]

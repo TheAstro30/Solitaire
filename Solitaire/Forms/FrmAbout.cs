@@ -3,6 +3,7 @@
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
 using Solitaire.Classes;
+using Solitaire.Classes.UI;
 
 namespace Solitaire.Forms
 {

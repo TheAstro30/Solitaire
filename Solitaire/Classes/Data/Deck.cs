@@ -7,7 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Solitaire.Classes.Helpers;
 
-namespace Solitaire.Classes
+namespace Solitaire.Classes.Data
 {
     [Serializable]
     public sealed class Deck : IList<Card>
