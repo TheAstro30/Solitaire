@@ -10,6 +10,7 @@ namespace Solitaire.Classes.Helpers
 {
     public static class SettingsManager
     {
+        /* It's worse than that, he's DEAD Jim! */
         private const string FilePath = @"\KangaSoft\Solitaire\settings.xml";
 
         public static Settings.Settings Settings { get; set; }
@@ -37,6 +38,23 @@ namespace Solitaire.Classes.Helpers
         public static void Save()
         {
             XmlSerialize<Settings.Settings>.Save(AppPath.MainDir(FilePath, true), Settings);
+        }
+
+        /* Shortest/longest game times */
+        public static void UpdateStats(int seconds, int score)
+        {
+            if (Settings.Statistics.ShortestGameTime == 0 || seconds < Settings.Statistics.ShortestGameTime)
+            {
+                Settings.Statistics.ShortestGameTime = seconds;
+            }
+            if (Settings.Statistics.LongestGameTime == 0 || seconds > Settings.Statistics.LongestGameTime)
+            {
+                Settings.Statistics.LongestGameTime = seconds;
+            }
+            if (score > Settings.Statistics.HighestScore)
+            {
+                Settings.Statistics.HighestScore = score;
+            }
         }
 
         /* High scores */

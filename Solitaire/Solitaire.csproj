@@ -47,11 +47,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Data\StackData.cs" />
+    <Compile Include="Classes\Helpers\CustomMessageBox.cs" />
+    <Compile Include="Classes\Helpers\GraphicsBitmapConverter.cs" />
     <Compile Include="Classes\Settings\SettingsData\HighScoreData.cs" />
     <Compile Include="Classes\Settings\SettingsData\StatisticsData.cs" />
     <Compile Include="Classes\UI\Firework.cs" />
     <Compile Include="Classes\Helpers\AudioManager.cs" />
-    <Compile Include="Classes\Helpers\Monitor.cs" />
+    <Compile Include="Classes\Helpers\MonitorUtil.cs" />
     <Compile Include="Classes\Helpers\XmlFormatting.cs" />
     <Compile Include="Classes\Serialization\BinarySerialize.cs" />
     <Compile Include="Classes\Data\Card.cs" />
@@ -99,6 +101,12 @@
     <Compile Include="Forms\FrmSplash.Designer.cs">
       <DependentUpon>FrmSplash.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FrmStatistics.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmStatistics.Designer.cs">
+      <DependentUpon>FrmStatistics.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\FrmAbout.resx">
@@ -115,6 +123,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmSplash.resx">
       <DependentUpon>FrmSplash.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FrmStatistics.resx">
+      <DependentUpon>FrmStatistics.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

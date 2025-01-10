@@ -5,10 +5,16 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers;
+using Solitaire.Classes.Serialization;
+using Solitaire.Forms;
+using Solitaire.Properties;
+using Timer = System.Windows.Forms.Timer;
 
 namespace Solitaire.Classes.UI
 {
@@ -32,35 +38,49 @@ namespace Solitaire.Classes.UI
 
     public class Game : Form
     {
+        private bool _isInit;
         private Size _cardSize;        
         private int _gameCenter;
         private Rectangle _deckRegion;
 
-        /* Timer */
-        private Timer _timerGame;
-        private int _gameTime;
+        /* Timers */
+        private readonly Timer _timerGame;
+        private readonly Timer _checkWin;
+        private readonly Timer _timerFireWorks;
 
         /* Dragging variables */
         private bool _isDragging;
         private bool _isHomeDrag;
         private List<Card> _draggingCards = new List<Card>();
         private int _dragStackIndex;
-        private Point _dragLocation;        
-        private Bitmap _dragBitmap; /* TODO implement this */
+        private Point _dragLocation;
+        private Bitmap _dragBitmap;
 
-        private readonly Timer _checkWin;
-        private readonly Timer _timerFireWorks;
-
+        /* Fireworks variables */
         private const int MaxFireWorks = 10;
-        private readonly FireWork[] _fireWork = new FireWork[MaxFireWorks];
+        private readonly FireWork[] _fireWorks = new FireWork[MaxFireWorks];
         private static readonly Random FireWorkPosition = new Random();
 
+        /* Current game being played */
         public GameData CurrentGame { get; set; }
 
+        public bool GameCompleted { get; set; }
+
+        /* Events raised back to form */
         public event Action<int> OnGameTimerChanged;
+        public event Action<int> OnScoreChanged;
 
         public Game()
         {
+            _isInit = true;
+            /* Splash screen */
+            var t = new Thread(ShowSplashScreen);
+            t.Start();
+            Thread.Sleep(5000);
+            t.Abort();
+
+            /* Settings - this class is called first, before FrmGame, so load settings here */
+            SettingsManager.Load();
             /* Double buffering */
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
@@ -81,14 +101,31 @@ namespace Solitaire.Classes.UI
             {
                 Interval = 10
             };
-            _timerFireWorks.Tick += OnFireWorks;
+            _timerFireWorks.Tick += OnFireWorks;            
+        }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            _isInit = false;
             NewGame();
+            OnResize(e);
+            base.OnLoad(e);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            /* Update stats */
+            if (!GameCompleted)
+            {
+                SettingsManager.Settings.Statistics.GamesLost++;
+            }
+            /* Dump settings */
+            SettingsManager.Save();
+            base.OnFormClosing(e);
         }
 
         #region Overrides
         #region Mouse
-
         protected override void OnMouseDown(MouseEventArgs e)
         {
             switch (e.Button)
@@ -101,6 +138,15 @@ namespace Solitaire.Classes.UI
                     {
                         case HitTestType.Deck:
                             CurrentGame.Deal();
+                            if (CurrentGame.GameDeck.IsDeckReshuffled)
+                            {
+                                CurrentGame.GameDeck.IsDeckReshuffled = false;
+                                CurrentGame.GameScore -= 15;
+                                if (OnScoreChanged != null)
+                                {
+                                    OnScoreChanged(CurrentGame.GameScore);
+                                }
+                            }
                             Invalidate();
                             break;
 
@@ -147,6 +193,11 @@ namespace Solitaire.Classes.UI
                                         data.Cards[data.CardIndex].IsHidden = false;
                                         Invalidate();
                                         AudioManager.Play(SoundType.Deal);
+                                        CurrentGame.GameScore += 5;
+                                        if (OnScoreChanged != null)
+                                        {
+                                            OnScoreChanged(CurrentGame.GameScore);
+                                        }
                                         return;
                                     }
                                     /* Invalid drag */
@@ -218,6 +269,7 @@ namespace Solitaire.Classes.UI
                     return;
                 }
                 HitTestData data;
+                /* I need to think of a way of modifying the hittest to include the area of the dragging card... */
                 switch (HitTest(e.Location, out data))
                 {
                     case HitTestType.HomeStack:
@@ -235,11 +287,21 @@ namespace Solitaire.Classes.UI
                                 /* It's an ace, drop it here */
                                 stack.Suit = card.Suit;
                                 stack.Cards.Add(card);
+                                CurrentGame.GameScore += 10;
+                                if (OnScoreChanged != null)
+                                {
+                                    OnScoreChanged(CurrentGame.GameScore);
+                                }                                
                             }                                
                             else if (stack.Cards.Count > 0 && card.Suit == stack.Suit && card.Value == stack.Cards[stack.Cards.Count - 1].Value + 1)
                             {
                                 /* Valid drop */
                                 stack.Cards.Add(card);
+                                CurrentGame.GameScore += 10;
+                                if (OnScoreChanged != null)
+                                {
+                                    OnScoreChanged(CurrentGame.GameScore);
+                                }
                             }
                             else
                             {
@@ -266,6 +328,11 @@ namespace Solitaire.Classes.UI
                             if (IsValidMove(_draggingCards[0], data.Cards[data.CardIndex]))
                             {
                                 data.Cards.AddRange(_draggingCards);
+                                CurrentGame.GameScore += _isHomeDrag ? -15 : 5;
+                                if (OnScoreChanged != null)
+                                {
+                                    OnScoreChanged(CurrentGame.GameScore);
+                                }
                             }
                             else
                             {
@@ -288,6 +355,11 @@ namespace Solitaire.Classes.UI
                 _isDragging = false;
                 _isHomeDrag = false;
                 _draggingCards = new List<Card>();
+                if (_dragBitmap != null)
+                {
+                    _dragBitmap.Dispose();
+                    _dragBitmap = null;
+                }
                 Invalidate();
                 AudioManager.Play(SoundType.Drop);
             }
@@ -298,6 +370,10 @@ namespace Solitaire.Classes.UI
         #region Resize override
         protected override void OnResize(EventArgs e)
         {
+            if (!Visible || _isInit)
+            {
+                return;
+            }
             /* Calculate what the size of the images should be based on clientsize */
             var img = CurrentGame.CardBack;
             var ratioX = (double)ClientSize.Width / img.Width;
@@ -320,20 +396,40 @@ namespace Solitaire.Classes.UI
         {
             if (!_timerFireWorks.Enabled)
             {
-                /* Now, the fun part - drawing all the data... - start with deck */
-                DrawDeck(e.Graphics);
-                /* Draw dealt hand */
-                DrawDealt(e.Graphics);
-                /* Draw "foundation" slots */
-                DrawHomeStacks(e.Graphics);
-                /* Draw playing stacks */
-                DrawPlayStacks(e.Graphics);
+                if (_dragBitmap == null)
+                {
+                    /* Now, the fun part - drawing all the data... draw background tiled */
+                    using (var brush = new TextureBrush(Resources.bg, WrapMode.Tile))
+                    {
+                        /* Yes, we can set the forms background image property... */
+                        e.Graphics.FillRectangle(brush, 0, 0, ClientSize.Width, ClientSize.Height);
+                    }
+                    /* Draw deck */
+                    DrawDeck(e.Graphics);
+                    /* Draw dealt hand */
+                    DrawDealt(e.Graphics);
+                    /* Draw "foundation" slots */
+                    DrawHomeStacks(e.Graphics);
+                    /* Draw playing stacks */
+                    DrawPlayStacks(e.Graphics);
+                }
                 /* Draw dragging cards */
                 if (_isDragging)
                 {
-                    /* I really should refactor this paint method to take a bitmap of the screen (with cards removed from where they're
-                 * being dragged), and just draw out the bitmap and the drag. This would probably be faster and less "laggy"
-                 * as we're not doing the above 4 methods all the time as the mouse moves */
+                    if (_dragBitmap == null)
+                    {
+                        /* Clone the screen - this just speeds up drawing dragging cards as we don't have to do the above loops in the drawing methods */
+                        _dragBitmap = new Bitmap(ClientSize.Width, ClientSize.Height);
+                        using (var g = Graphics.FromImage(_dragBitmap))
+                        {
+                            g.DrawImage(
+                                GraphicsBitmapConverter.GraphicsToBitmap(e.Graphics,
+                                    new Rectangle(0, 0, ClientSize.Width, ClientSize.Height)), 0, 0, ClientSize.Width,
+                                ClientSize.Height);
+
+                        }
+                    }
+                    e.Graphics.DrawImage(_dragBitmap, 0, 0, ClientSize.Width, ClientSize.Height);
                     DrawDrag(e.Graphics);
                 }
                 else
@@ -343,13 +439,11 @@ namespace Solitaire.Classes.UI
             }
             else
             {
+                /* Draw fireworks winning sequence */
                 e.Graphics.Clear(Color.Black);
-                foreach (var fw in _fireWork)
+                foreach (var fw in _fireWorks.Where(fw => fw != null))
                 {
-                    if (fw != null)
-                    {
-                        fw.Paint(e.Graphics);
-                    }
+                    fw.Paint(e.Graphics);
                 }
             }
             base.OnPaint(e);
@@ -365,30 +459,71 @@ namespace Solitaire.Classes.UI
             {
                 CurrentGame = new GameData(true);
             }
-            else if (ask)
+            else if (ask && !GameCompleted)
             {
                 /* Ask user if they want to start a new game */
-                if (MessageBox.Show(this, @"Are you sure you want to quit the current game?", @"Quit Current Game",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                if (CustomMessageBox.Show(this, "Are you sure you want to quit the current game?", "Quit Current Game") == DialogResult.No)
                 {
                     return;
                 }
                 SettingsManager.Settings.Statistics.GamesLost++;
             }
             SettingsManager.Settings.Statistics.TotalGamesPlayed++;
+            GameCompleted = false;
             _timerFireWorks.Enabled = false;
-            _gameTime = 0;
             _timerGame.Enabled = true;
             CurrentGame.StartNewGame();
             _deckRegion = new Rectangle();
             AudioManager.Play(SoundType.Shuffle);
+            if (OnGameTimerChanged != null)
+            {
+                OnGameTimerChanged(CurrentGame.GameTime);
+            }
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore);
+            }
             Invalidate();
+        }
+
+        public void LoadSavedGame()
+        {
+            /* Load a saved game */
+            var d = new GameData(false);
+            if (!BinarySerialize<GameData>.Load(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), ref d))
+            {
+                return;
+            }
+            CurrentGame = d;
+            AudioManager.Play(SoundType.Shuffle);
+            if (OnGameTimerChanged != null)
+            {
+                OnGameTimerChanged(CurrentGame.GameTime);
+            }
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore);
+            }
+            _timerFireWorks.Enabled = false;
+            _timerGame.Enabled = true;
+            Invalidate();
+        }
+
+        public void SaveCurrentGame()
+        {
+            /* Save current game */
+            if (GameCompleted)
+            {
+                return; /* No point saving a completed game */
+            }
+            BinarySerialize<GameData>.Save(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), CurrentGame);
         }
 
         public void AutoComplete()
         {
             /* Iterate through any drawn cards and play stacks moving them to each ace home stack */
             var complete = true;
+            var success = false;
             while (complete)
             {
                 /* Deck card */
@@ -400,8 +535,10 @@ namespace Solitaire.Classes.UI
                     /* Is it an ace ? - Find free home slot; if not see if it can be completed */
                     if (card.Value == 1 && AddAceToFreeSlot(card) || IsCompleted(card))
                     {
+                        success = true;
                         CurrentGame.DealtCards.Remove(card);
                         movedCards++;
+                        CurrentGame.GameScore += 10;
                     }
                 }
                 /* Each stack */
@@ -413,12 +550,23 @@ namespace Solitaire.Classes.UI
                     {
                         continue;
                     }
+                    success = true;
                     stack.Cards.Remove(card);
                     movedCards++;
+                    CurrentGame.GameScore += 10;
                 }
                 complete = movedCards != 0;
             }
+            if (!success)
+            {
+                return;
+            }
             Invalidate();
+            AudioManager.Play(SoundType.Complete);
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore);
+            }
         }
         #endregion
 
@@ -536,9 +684,18 @@ namespace Solitaire.Classes.UI
         {
             if (OnGameTimerChanged != null)
             {
-                OnGameTimerChanged(_gameTime);
+                OnGameTimerChanged(CurrentGame.GameTime);
             }
-            _gameTime++;
+            CurrentGame.GameTime++;
+            if (CurrentGame.GameTime % 10 != 0)
+            {
+                return;
+            }
+            CurrentGame.GameScore -= 5;
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore);
+            }
         }
 
         private void OnCheckWin(object sender, EventArgs e)
@@ -548,13 +705,31 @@ namespace Solitaire.Classes.UI
             {
                 return;
             }
-            SettingsManager.Settings.Statistics.GamesWon++;
             _timerGame.Enabled = false;
             _timerFireWorks.Enabled = true;
             /* Game is won. It's kind of easier to do this check here from the paint method, as it's called most of the time */
+            GameCompleted = true;
+            SettingsManager.Settings.Statistics.GamesWon++;
+            /* Award time bonuses */
+            if (CurrentGame.GameTime <= 120)
+            {
+                CurrentGame.GameScore += 120;
+            }
+            else if (CurrentGame.GameTime <= 300)
+            {
+                CurrentGame.GameScore += 60;
+            }
+            if (OnGameTimerChanged != null)
+            {
+                OnGameTimerChanged(CurrentGame.GameTime);
+            }
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore);
+            }
+            SettingsManager.UpdateStats(CurrentGame.GameTime, CurrentGame.GameScore);
             AudioManager.Play(SoundType.Win);
-            if (MessageBox.Show(this, @"You win! Would you like to deal again?", @"Congratulations",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (CustomMessageBox.Show(this, "Congratulations! You win!\r\n\r\nWould you like to deal again?", "Congratulations!") == DialogResult.Yes)
             {
                 NewGame(false);
             }
@@ -564,9 +739,9 @@ namespace Solitaire.Classes.UI
         {
             for (var i = 0; i < MaxFireWorks; ++i)
             {
-                if (_fireWork[i] != null && !_fireWork[i].Update())
+                if (_fireWorks[i] != null && !_fireWorks[i].Update())
                 {
-                    _fireWork[i] = null;
+                    _fireWorks[i] = null;
                 }
             }
 
@@ -574,11 +749,11 @@ namespace Solitaire.Classes.UI
             {
                 for (var i = 0; i < MaxFireWorks; ++i)
                 {
-                    if (_fireWork[i] != null)
+                    if (_fireWorks[i] != null)
                     {
                         continue;
                     }
-                    _fireWork[i] = new FireWork(ClientRectangle.Width, ClientRectangle.Height);
+                    _fireWorks[i] = new FireWork(ClientRectangle.Width, ClientRectangle.Height);
                     break;
                 }
             }
@@ -670,6 +845,11 @@ namespace Solitaire.Classes.UI
         #endregion
 
         #region Misc
+        private static void ShowSplashScreen()
+        {
+            Application.Run(new FrmSplash());
+        }
+
         private static bool IsRegion(Point src, Rectangle dest)
         {
             return src.X >= dest.X && src.X <= dest.X + dest.Width && src.Y >= dest.Y && src.Y <= dest.Y + dest.Height;

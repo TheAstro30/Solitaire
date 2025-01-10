@@ -15,6 +15,8 @@ namespace Solitaire.Classes.Data
         /* Penis */
         private readonly List<Card> _cards = new List<Card>();
 
+        public bool IsDeckReshuffled { get; set; }
+
         public Deck()
         {
             /* Default empty constructor */

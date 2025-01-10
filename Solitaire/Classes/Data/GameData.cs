@@ -16,11 +16,14 @@ namespace Solitaire.Classes.Data
         public Image CardBack { get; private set; }
         public Image EmptyDeck { get; private set; }
 
-        public Deck GameDeck { get; private set; }
-        public List<Card> DealtCards { get; private set; }
+        public Deck GameDeck { get; set; }
+        public List<Card> DealtCards { get; set; } /* Stock */
 
-        public List<StackData> HomeStacks { get; private set; }       
-        public List<StackData> PlayingStacks { get; private set; }
+        public List<StackData> HomeStacks { get; set; } /* Foundation */
+        public List<StackData> PlayingStacks { get; set; } /* Tableau */
+
+        public int GameTime { get; set; }
+        public int GameScore { get; set; }
 
         private readonly Deck _masterDeck = new Deck();
 
@@ -51,6 +54,8 @@ namespace Solitaire.Classes.Data
             }
             PlayingStacks = new List<StackData>();
             BuildStacks();
+            GameScore = 0;
+            GameTime = 0;
         }
 
         public void Deal()
@@ -74,6 +79,7 @@ namespace Solitaire.Classes.Data
                 }
                 /* Copy cards from disposed back to normal deck */
                 GameDeck.AddRange(DealtCards);
+                GameDeck.IsDeckReshuffled = true;
                 DealtCards = new List<Card>();
                 AudioManager.Play(SoundType.Shuffle);
             }

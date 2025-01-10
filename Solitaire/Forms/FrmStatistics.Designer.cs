@@ -1,6 +1,6 @@
 ﻿namespace Solitaire.Forms
 {
-    partial class FrmAbout
+    partial class FrmStatistics
     {
         /// <summary>
         /// Required designer variable.
@@ -31,15 +31,13 @@
             this.btnOk = new System.Windows.Forms.Button();
             this.pnlIcon = new System.Windows.Forms.Panel();
             this.lblTitle = new System.Windows.Forms.Label();
-            this.lblAuthor = new System.Windows.Forms.Label();
-            this.lblVersion = new System.Windows.Forms.Label();
-            this.lblCopyright = new System.Windows.Forms.Label();
+            this.lblStats = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnOk
             // 
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOk.Location = new System.Drawing.Point(228, 135);
+            this.btnOk.Location = new System.Drawing.Point(219, 242);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 0;
@@ -59,53 +57,29 @@
             this.lblTitle.AutoSize = true;
             this.lblTitle.BackColor = System.Drawing.Color.Transparent;
             this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTitle.Location = new System.Drawing.Point(82, 9);
+            this.lblTitle.Location = new System.Drawing.Point(82, 12);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(159, 25);
+            this.lblTitle.Size = new System.Drawing.Size(178, 25);
             this.lblTitle.TabIndex = 2;
-            this.lblTitle.Text = "Kanga\'s Solitaire";
+            this.lblTitle.Text = "Life-time Statistics:";
             // 
-            // lblAuthor
+            // lblStats
             // 
-            this.lblAuthor.AutoSize = true;
-            this.lblAuthor.BackColor = System.Drawing.Color.Transparent;
-            this.lblAuthor.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAuthor.Location = new System.Drawing.Point(84, 64);
-            this.lblAuthor.Name = "lblAuthor";
-            this.lblAuthor.Size = new System.Drawing.Size(185, 15);
-            this.lblAuthor.TabIndex = 3;
-            this.lblAuthor.Text = "Written by: Jason James Newland";
+            this.lblStats.BackColor = System.Drawing.Color.Transparent;
+            this.lblStats.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStats.Location = new System.Drawing.Point(84, 51);
+            this.lblStats.Name = "lblStats";
+            this.lblStats.Size = new System.Drawing.Size(210, 173);
+            this.lblStats.TabIndex = 3;
+            this.lblStats.Text = "label1";
             // 
-            // lblVersion
-            // 
-            this.lblVersion.AutoSize = true;
-            this.lblVersion.BackColor = System.Drawing.Color.Transparent;
-            this.lblVersion.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblVersion.Location = new System.Drawing.Point(84, 43);
-            this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(49, 15);
-            this.lblVersion.TabIndex = 4;
-            this.lblVersion.Text = "Version:";
-            // 
-            // lblCopyright
-            // 
-            this.lblCopyright.BackColor = System.Drawing.Color.Transparent;
-            this.lblCopyright.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCopyright.Location = new System.Drawing.Point(84, 86);
-            this.lblCopyright.Name = "lblCopyright";
-            this.lblCopyright.Size = new System.Drawing.Size(219, 33);
-            this.lblCopyright.TabIndex = 5;
-            this.lblCopyright.Text = "Copyright ©2025 KangaSoft Software. All Rights Reserved.";
-            // 
-            // FrmAbout
+            // FrmStatistics
             // 
             this.AcceptButton = this.btnOk;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(309, 170);
-            this.Controls.Add(this.lblCopyright);
-            this.Controls.Add(this.lblVersion);
-            this.Controls.Add(this.lblAuthor);
+            this.ClientSize = new System.Drawing.Size(306, 277);
+            this.Controls.Add(this.lblStats);
             this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.pnlIcon);
             this.Controls.Add(this.btnOk);
@@ -113,11 +87,11 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "FrmAbout";
+            this.Name = "FrmStatistics";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "About Kanga\'s Solitaire";
+            this.Text = "Game Statistics";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -128,8 +102,6 @@
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.Panel pnlIcon;
         private System.Windows.Forms.Label lblTitle;
-        private System.Windows.Forms.Label lblAuthor;
-        private System.Windows.Forms.Label lblVersion;
-        private System.Windows.Forms.Label lblCopyright;
+        private System.Windows.Forms.Label lblStats;
     }
 }

@@ -6,9 +6,7 @@ using System;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
-using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers;
-using Solitaire.Classes.Serialization;
 using Solitaire.Classes.UI;
 
 namespace Solitaire.Forms
@@ -24,9 +22,7 @@ namespace Solitaire.Forms
 
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             Text = string.Format("Kanga's Solitaire - {0}.{1}.{2} (Build: {3})", version.Major, version.Minor, version.Build, version.MinorRevision);
-
-            /* Settings */
-            SettingsManager.Load();
+            
             /* Build menubar */
             var m = (ToolStripMenuItem)menuBar.Items.Add("Game");
             m.DropDownItems.AddRange(
@@ -38,6 +34,7 @@ namespace Solitaire.Forms
                     MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, true, OnMenuClick),
                     new ToolStripSeparator(), 
                     MenuHelper.AddMenuItem("Auto complete...", "AUTO", Keys.Control | Keys.A ,true, OnMenuClick),
+                    MenuHelper.AddMenuItem("Statistics", "STATS", Keys.None ,true, OnMenuClick),
                     new ToolStripSeparator(), 
                     MenuHelper.AddMenuItem("Exit", "EXIT", Keys.Alt | Keys.F4 ,true, OnMenuClick)
                 });
@@ -46,10 +43,15 @@ namespace Solitaire.Forms
             m.DropDownItems.Add(MenuHelper.AddMenuItem("About", "ABOUT", OnMenuClick));
 
             /* Status bar */
-            var s = new ToolStripLabel("Elapsed time: 00:00");
-            statusBar.Items.Add(s);
+            statusBar.Items.AddRange(new ToolStripItem[]
+            {
+                new ToolStripLabel("Elapsed time: 00:00") {AutoSize = false, Width = 120, TextAlign = ContentAlignment.MiddleLeft},
+                new ToolStripSeparator(), 
+                new ToolStripLabel("Score: 0")
+            });
 
             OnGameTimerChanged += TimeChanged;
+            OnScoreChanged += ScoreChanged;
         }
 
         //to remove
@@ -66,7 +68,7 @@ namespace Solitaire.Forms
             if (loc == Point.Empty)
             {
                 /* Scale form to half the screen width/height */
-                var screen = Monitor.GetCurrentMonitor(this);
+                var screen = MonitorUtil.GetCurrentMonitor(this);
                 var x = screen.Bounds.Width / 2;
                 var y = screen.Bounds.Height / 2;
                 Size = new Size(x, y);
@@ -89,7 +91,7 @@ namespace Solitaire.Forms
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             /* Ask the user if they really want to quit - yes, I know, kind of annoying */
-            if (MessageBox.Show(this, @"Are you sure you want to really quit?", @"Quit Solitaire", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (CustomMessageBox.Show(this, "Are you sure you want to really quit?", "Quit Solitaire") == DialogResult.No)
             {
                 e.Cancel = true;
                 return;
@@ -99,9 +101,7 @@ namespace Solitaire.Forms
                 SettingsManager.Settings.Location = Location;
                 SettingsManager.Settings.Size = Size;
             }
-            SettingsManager.Settings.Maximized = WindowState == FormWindowState.Maximized;
-            /* Dump settings */
-            SettingsManager.Save();
+            SettingsManager.Settings.Maximized = WindowState == FormWindowState.Maximized;            
             /* Through the cockpit window, we can now piss off :) */
             AudioManager.Dispose();
             base.OnFormClosing(e);
@@ -127,6 +127,11 @@ namespace Solitaire.Forms
             statusBar.Items[0].Text = string.Format("Elapsed time: {0:00}:{1:00}", ts.Minutes, ts.Seconds);
         }
 
+        private void ScoreChanged(int score)
+        {            
+            statusBar.Items[2].Text = string.Format("Score: {0}", score);
+        }
+
         /* Menu click callback */
         private void OnMenuClick(object sender, EventArgs e)
         {
@@ -138,28 +143,26 @@ namespace Solitaire.Forms
                     break;
 
                 case "LOAD":
-                    if (
-                        MessageBox.Show(this, @"Are you sure you want to quit the current game?", @"Quit Current Game",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    if (!GameCompleted && CustomMessageBox.Show(this, "Are you sure you want to quit the current game?", "Quit Current Game") == DialogResult.No)
                     {
                         return;
                     }
-                    var d = new GameData(false);
-                    if (BinarySerialize<GameData>.Load(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), ref d))
-                    {
-                        /* Load a saved game */
-                        CurrentGame = d;
-                        Invalidate();
-                    }
+                    LoadSavedGame();
                     break;
 
                 case "SAVE":
-                    /* Save current game */
-                    BinarySerialize<GameData>.Save(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), CurrentGame);
+                    SaveCurrentGame();
                     break;
 
                 case "AUTO":
                     AutoComplete();
+                    break;
+
+                case "STATS":
+                    using (var s = new FrmStatistics())
+                    {
+                        s.ShowDialog(this);
+                    }
                     break;
 
                 case "EXIT":

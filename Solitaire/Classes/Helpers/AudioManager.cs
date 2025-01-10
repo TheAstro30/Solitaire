@@ -9,13 +9,15 @@ using System.Media;
 
 namespace Solitaire.Classes.Helpers
 {
+    /* Use the Force... */
     public enum SoundType
     {
         Shuffle = 0,
         Deal = 1,
         Drop = 2,
-        Empty = 3,
-        Win = 4
+        Complete = 3,
+        Empty = 5,
+        Win = 5
     }
 
     internal class AudioData
@@ -38,6 +40,7 @@ namespace Solitaire.Classes.Helpers
                     LoadSound(AppPath.MainDir(@"\data\sound\card-shuffle.wav"), SoundType.Shuffle),
                     LoadSound(AppPath.MainDir(@"\data\sound\card-deal.wav"), SoundType.Deal),
                     LoadSound(AppPath.MainDir(@"\data\sound\card-drop.wav"), SoundType.Drop),
+                    LoadSound(AppPath.MainDir(@"\data\sound\card-complete.wav"), SoundType.Complete),
                     LoadSound(AppPath.MainDir(@"\data\sound\card-none.wav"), SoundType.Empty),
                     LoadSound(AppPath.MainDir(@"\data\sound\game-win.wav"), SoundType.Win)
                 });

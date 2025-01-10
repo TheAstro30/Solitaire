@@ -16,10 +16,11 @@ namespace Solitaire
         [STAThread]
         static void Main()
         {
+            /* Yoshi Satoshi - if anyone is wondering about some of my comments on this source?
+             * I'm just being silly. */
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FrmGame());
-            //Application.Run(new FrmSplash());
         }
     }
 }
