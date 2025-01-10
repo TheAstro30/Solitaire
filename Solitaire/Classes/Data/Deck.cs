@@ -11,8 +11,7 @@ namespace Solitaire.Classes.Data
 {
     [Serializable]
     public sealed class Deck : IList<Card>
-    {
-        /* Penis */
+    {        
         private readonly List<Card> _cards = new List<Card>();
 
         public bool IsDeckReshuffled { get; set; }

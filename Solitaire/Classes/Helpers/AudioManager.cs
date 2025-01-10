@@ -17,7 +17,7 @@ namespace Solitaire.Classes.Helpers
         Drop = 2,
         Complete = 3,
         Empty = 5,
-        Win = 5
+        Win = 6
     }
 
     internal class AudioData
@@ -25,6 +25,8 @@ namespace Solitaire.Classes.Helpers
         public SoundType Type { get; set; }
 
         public SoundPlayer Player { get; set; }
+
+    public string Name { get; set; }
     }
 
     public static class AudioManager
@@ -40,7 +42,7 @@ namespace Solitaire.Classes.Helpers
                     LoadSound(AppPath.MainDir(@"\data\sound\card-shuffle.wav"), SoundType.Shuffle),
                     LoadSound(AppPath.MainDir(@"\data\sound\card-deal.wav"), SoundType.Deal),
                     LoadSound(AppPath.MainDir(@"\data\sound\card-drop.wav"), SoundType.Drop),
-                    LoadSound(AppPath.MainDir(@"\data\sound\card-complete.wav"), SoundType.Complete),
+                    LoadSound(AppPath.MainDir(@"\data\sound\card-complete.wav"), SoundType.Complete), 
                     LoadSound(AppPath.MainDir(@"\data\sound\card-none.wav"), SoundType.Empty),
                     LoadSound(AppPath.MainDir(@"\data\sound\game-win.wav"), SoundType.Win)
                 });
@@ -56,16 +58,20 @@ namespace Solitaire.Classes.Helpers
 
         public static void Play(SoundType type)
         {
-            foreach (var s in Sounds.Where(s => s.Type == type && s.Player != null))
+            foreach (var s in Sounds.Where(s => s.Type == type))
             {
-                s.Player.Play();
+                if (s.Player != null)
+                {
+                    s.Player.Play();                        
+                }
+                return;
             }
         }
 
         /* Private load method */
         private static AudioData LoadSound(string file, SoundType type)
         {
-            var data = new AudioData {Type = type};
+            var data = new AudioData {Type = type, Name = file};
             if (File.Exists(file))
             {
                 data.Player = new SoundPlayer(file);

@@ -3,6 +3,8 @@
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
@@ -11,20 +13,52 @@ using Solitaire.Classes.UI;
 
 namespace Solitaire.Forms
 {
-    public partial class FrmGame : Game
+    /* Avoid opening this in the designer */
+    public sealed class FrmGame : Game
     {
         /* Move all the passengers away from the deadly plane... */
+        private readonly MenuStrip _menuBar;
+        private readonly StatusStrip _statusBar;
+
         public FrmGame()
         {
-            InitializeComponent();
-
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            ClientSize = new Size(720, 470);
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+                       
+            MinimumSize = new Size(720, 470);
+            StartPosition = FormStartPosition.Manual;
+
+            _menuBar = new MenuStrip
+            {
+                Location = new Point(0, 0),
+                Padding = new Padding(7, 2, 0, 2),
+                Size = new Size(704, 24),
+                TabIndex = 0
+            };
+
+            _statusBar = new StatusStrip
+            {
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                Location = new Point(0, 409),
+                Padding = new Padding(1, 0, 16, 0),
+                Size = new Size(704, 22),
+                TabIndex = 1
+            };
+
+            Controls.AddRange(new Control[]
+            {
+                _menuBar,
+                _statusBar
+            });
+
+            MainMenuStrip = _menuBar;            
 
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             Text = string.Format("Kanga's Solitaire - {0}.{1}.{2} (Build: {3})", version.Major, version.Minor, version.Build, version.MinorRevision);
             
             /* Build menubar */
-            var m = (ToolStripMenuItem)menuBar.Items.Add("Game");
+            var m = (ToolStripMenuItem)_menuBar.Items.Add("Game");
             m.DropDownItems.AddRange(
                 new ToolStripItem[]
                 {
@@ -33,32 +67,28 @@ namespace Solitaire.Forms
                     MenuHelper.AddMenuItem("Load saved game", "LOAD", Keys.Control | Keys.O, true, OnMenuClick),
                     MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, true, OnMenuClick),
                     new ToolStripSeparator(), 
+                    MenuHelper.AddMenuItem("Undo last move", "UNDO", Keys.Control | Keys.Z ,true, OnMenuClick),
+                    MenuHelper.AddMenuItem("Restart game", "RESTART", Keys.None,true, OnMenuClick),
+                    new ToolStripSeparator(), 
                     MenuHelper.AddMenuItem("Auto complete...", "AUTO", Keys.Control | Keys.A ,true, OnMenuClick),
                     MenuHelper.AddMenuItem("Statistics", "STATS", Keys.None ,true, OnMenuClick),
                     new ToolStripSeparator(), 
                     MenuHelper.AddMenuItem("Exit", "EXIT", Keys.Alt | Keys.F4 ,true, OnMenuClick)
                 });
 
-            m = (ToolStripMenuItem) menuBar.Items.Add("Help");
+            m = (ToolStripMenuItem) _menuBar.Items.Add("Help");
             m.DropDownItems.Add(MenuHelper.AddMenuItem("About", "ABOUT", OnMenuClick));
 
             /* Status bar */
-            statusBar.Items.AddRange(new ToolStripItem[]
+            _statusBar.Items.AddRange(new ToolStripItem[]
             {
                 new ToolStripLabel("Elapsed time: 00:00") {AutoSize = false, Width = 120, TextAlign = ContentAlignment.MiddleLeft},
                 new ToolStripSeparator(), 
                 new ToolStripLabel("Score: 0")
             });
 
-            OnGameTimerChanged += TimeChanged;
+            OnGameTimeChanged += TimeChanged;
             OnScoreChanged += ScoreChanged;
-        }
-
-        //to remove
-        public override sealed string Text
-        {
-            get { return base.Text; }
-            set { base.Text = value; }
         }
 
         protected override void OnLoad(EventArgs e)
@@ -123,13 +153,23 @@ namespace Solitaire.Forms
 
         private void TimeChanged(int seconds)
         {
+            if (!Visible)
+            {
+                Debug.Print("fucking off");
+                return;
+            }
             var ts = new TimeSpan(0, 0, 0, seconds);
-            statusBar.Items[0].Text = string.Format("Elapsed time: {0:00}:{1:00}", ts.Minutes, ts.Seconds);
+            _statusBar.Items[0].Text = string.Format("Elapsed time: {0:00}:{1:00}", ts.Minutes, ts.Seconds);
         }
 
         private void ScoreChanged(int score)
-        {            
-            statusBar.Items[2].Text = string.Format("Score: {0}", score);
+        {
+            if (!Visible)
+            {
+                Debug.Print("fucking off");
+                return;
+            }
+            _statusBar.Items[2].Text = string.Format("Score: {0}", score);
         }
 
         /* Menu click callback */
@@ -154,6 +194,23 @@ namespace Solitaire.Forms
                     SaveCurrentGame();
                     break;
 
+                case "UNDO":
+                    UndoMove();
+                    break;
+                    
+                case "RESTART":
+                    if (!CurrentGame.CanRestart)
+                    {
+                        CustomMessageBox.Show(this, "Unable to restart a loaded game", "Error", CustomMessageBoxButtons.Ok);
+                        return;
+                    }
+                    if (GameCompleted || CustomMessageBox.Show(this, "Are you sure you want to restart the current game?", "Restart Current Game") == DialogResult.No)
+                    {
+                        return;
+                    }
+                    RestartGame();
+                    break;
+
                 case "AUTO":
                     AutoComplete();
                     break;
@@ -176,6 +233,18 @@ namespace Solitaire.Forms
                     }
                     break;
             }
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // FrmGame
+            // 
+            this.ClientSize = new System.Drawing.Size(579, 413);
+            this.Name = "FrmGame";
+            this.ResumeLayout(false);
+
         }
     }
 }

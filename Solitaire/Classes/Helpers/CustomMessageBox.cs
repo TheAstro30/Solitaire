@@ -7,11 +7,23 @@ using Solitaire.Forms;
 
 namespace Solitaire.Classes.Helpers
 {
+    /* Simple custom messagebox class */
+    public enum CustomMessageBoxButtons
+    {
+        Ok = 0,
+        YesNo = 1
+    }
+    
     public static class CustomMessageBox
     {
         public static DialogResult Show(IWin32Window parent, string text, string caption)
         {
-            using (var f = new FrmCustomMessage())
+            return Show(parent, text, caption, CustomMessageBoxButtons.YesNo);
+        }
+
+        public static DialogResult Show(IWin32Window parent, string text, string caption, CustomMessageBoxButtons buttons)
+        {
+            using (var f = new FrmCustomMessage(buttons))
             {
                 f.MessageText = text;
                 f.CaptionText = caption;

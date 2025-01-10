@@ -13,7 +13,6 @@ namespace Solitaire.Classes.Data
     {
         /* This is the 7 rows of playable cards - and ace slots */
         public Suit Suit { get; set; }
-        public Image StackImage { get; set; }
 
         public Rectangle Region { get; set; }
         public List<Card> Cards { get; set; }
@@ -22,6 +21,19 @@ namespace Solitaire.Classes.Data
         {
             Region = new Rectangle();
             Cards = new List<Card>();
+        }
+
+        public StackData(StackData data)
+        {
+            Region = new Rectangle();
+            Cards = new List<Card>();
+
+            Suit = data.Suit;
+
+            foreach (var c in data.Cards)
+            {
+                Cards.Add(new Card(c));
+            }
         }
     }
 }
