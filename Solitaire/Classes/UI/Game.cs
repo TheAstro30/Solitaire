@@ -4,16 +4,13 @@
  * ©2025 Kangasoft Software */
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers;
 using Solitaire.Classes.Serialization;
-using Solitaire.Forms;
 using Timer = System.Windows.Forms.Timer;
 
 namespace Solitaire.Classes.UI
@@ -71,6 +68,10 @@ namespace Solitaire.Classes.UI
 
         public Game()
         {
+            if (DesignMode)
+            {
+                return;
+            }
             /* Settings - this class is called first, before FrmGame, so load settings here */
             SettingsManager.Load();
             /* Double buffering */
@@ -101,16 +102,12 @@ namespace Solitaire.Classes.UI
             if (!BinarySerialize<Deck>.Load(AppPath.MainDir(@"\data\gfx\cards.dat"), ref d))
             {
                 /* Complete error */
-                MessageBox.Show(this, @"Graphics data missing. Please re-install Kanga's Solitiare.", @"Error",
-                    MessageBoxButtons.OK);
                 return;
             }
             var g = new GraphicsObjectData();
             if (!BinarySerialize<GraphicsObjectData>.Load(AppPath.MainDir(@"\data\gfx\obj.dat"), ref g))
             {
                 /* Complete error */
-                MessageBox.Show(this, @"Graphics data missing. Please re-install Kanga's Solitiare.", @"Error",
-                    MessageBoxButtons.OK);
                 return;
             }
             CurrentGame.ObjectData = g;
@@ -119,7 +116,7 @@ namespace Solitaire.Classes.UI
 
         protected override void OnLoad(EventArgs e)
         {
-            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+            if (DesignMode)
             {
                 return;
             }
@@ -386,6 +383,10 @@ namespace Solitaire.Classes.UI
         #region Resize override
         protected override void OnResize(EventArgs e)
         {
+            if (DesignMode)
+            {
+                return;
+            }
             /* Calculate what the size of the images should be based on clientsize */
             var img = CurrentGame.ObjectData.CardBack;
             var ratioX = (double)ClientSize.Width / img.Width;
@@ -406,6 +407,11 @@ namespace Solitaire.Classes.UI
         #region Paint override
         protected override void OnPaint(PaintEventArgs e)
         {
+            if (DesignMode)
+            {
+                /* Steve Jobs was here */
+                return;
+            }
             if (!_timerFireWorks.Enabled)
             {
                 if (_dragBitmap == null)

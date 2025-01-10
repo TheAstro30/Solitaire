@@ -25,8 +25,6 @@ namespace Solitaire.Classes.Helpers
         public SoundType Type { get; set; }
 
         public SoundPlayer Player { get; set; }
-
-    public string Name { get; set; }
     }
 
     public static class AudioManager
@@ -71,7 +69,7 @@ namespace Solitaire.Classes.Helpers
         /* Private load method */
         private static AudioData LoadSound(string file, SoundType type)
         {
-            var data = new AudioData {Type = type, Name = file};
+            var data = new AudioData {Type = type};
             if (File.Exists(file))
             {
                 data.Player = new SoundPlayer(file);

@@ -3,8 +3,6 @@
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
@@ -13,7 +11,6 @@ using Solitaire.Classes.UI;
 
 namespace Solitaire.Forms
 {
-    /* Avoid opening this in the designer */
     public sealed class FrmGame : Game
     {
         /* Move all the passengers away from the deadly plane... */
@@ -153,22 +150,12 @@ namespace Solitaire.Forms
 
         private void TimeChanged(int seconds)
         {
-            if (!Visible)
-            {
-                Debug.Print("fucking off");
-                return;
-            }
             var ts = new TimeSpan(0, 0, 0, seconds);
             _statusBar.Items[0].Text = string.Format("Elapsed time: {0:00}:{1:00}", ts.Minutes, ts.Seconds);
         }
 
         private void ScoreChanged(int score)
         {
-            if (!Visible)
-            {
-                Debug.Print("fucking off");
-                return;
-            }
             _statusBar.Items[2].Text = string.Format("Score: {0}", score);
         }
 
@@ -233,18 +220,6 @@ namespace Solitaire.Forms
                     }
                     break;
             }
-        }
-
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            // 
-            // FrmGame
-            // 
-            this.ClientSize = new System.Drawing.Size(579, 413);
-            this.Name = "FrmGame";
-            this.ResumeLayout(false);
-
         }
     }
 }
