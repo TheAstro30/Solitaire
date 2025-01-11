@@ -14,23 +14,23 @@ namespace Solitaire.Classes.Helpers
      * code below and remember to remove it! */
     public static class DeckBuilder
     {
+        private static readonly Size CardSize = new Size(120, 184); /* Hard programmed for now */
+
         private static readonly Deck Deck = new Deck();
 
         private static readonly GraphicsObjectData ObjData = new GraphicsObjectData();
 
         public static void BuildDeck()
         {
-            var cardSize = new Size(120, 184); /* Hard programmed for now */
-
             ObjData.Background = Resources.bg;
 
             for (var y = 0; y <= 3; y++)
             {
-                var startY = cardSize.Height * y;
+                var startY = CardSize.Height * y;
                 for (var x = 0; x <= 13; x++)
                 {
-                    var cardImage = new Bitmap(cardSize.Width, cardSize.Height);
-                    var src = new Rectangle(x * cardSize.Width, startY, cardSize.Width, cardSize.Height);
+                    var cardImage = new Bitmap(CardSize.Width, CardSize.Height);
+                    var src = new Rectangle(x * CardSize.Width, startY, CardSize.Width, CardSize.Height);
                     GetImage(cardImage, src);
                     cardImage.MakeTransparent(Color.FromArgb(1, 1, 1));
                     /* Card 14 - which doesn't exist (there's only 13 per suit), set card back and home stack images */

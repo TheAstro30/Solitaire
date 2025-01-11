@@ -63,9 +63,9 @@
   <ItemGroup>
     <Compile Include="Classes\Data\GraphicsObjectData.cs" />
     <Compile Include="Classes\Data\StackData.cs" />
-    <Compile Include="Classes\Data\UndoData.cs" />
     <Compile Include="Classes\Helpers\CustomMessageBox.cs" />
     <Compile Include="Classes\Helpers\GraphicsBitmapConverter.cs" />
+    <Compile Include="Classes\Settings\SettingsData\GameOptionData.cs" />
     <Compile Include="Classes\Settings\SettingsData\HighScoreData.cs" />
     <Compile Include="Classes\Settings\SettingsData\StatisticsData.cs" />
     <Compile Include="Classes\UI\Firework.cs" />

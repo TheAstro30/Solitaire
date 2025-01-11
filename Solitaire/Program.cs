@@ -30,6 +30,7 @@ namespace Solitaire
                     @"Load Error", MessageBoxButtons.OK);
                 return;
             }
+            /* Vee-one; rotate */
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FrmGame());

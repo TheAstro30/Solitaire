@@ -35,6 +35,10 @@ namespace Solitaire.Classes.UI
 
     public class Game : Form
     {
+        /* Main graphics objects */
+        public Deck MasterDeck = new Deck();
+        public GraphicsObjectData ObjectData = new GraphicsObjectData();
+
         private Size _cardSize;        
         private int _gameCenter;
         private Rectangle _deckRegion;
@@ -58,6 +62,7 @@ namespace Solitaire.Classes.UI
         private static readonly Random FireWorkPosition = new Random();
 
         /* Current game being played */
+        public bool IsLoadedGame { get; private set; }
         public GameData CurrentGame { get; set; }
 
         public bool GameCompleted { get; set; }
@@ -110,8 +115,8 @@ namespace Solitaire.Classes.UI
                 /* Complete error */
                 return;
             }
-            CurrentGame.ObjectData = g;
-            CurrentGame.MasterDeck = new Deck(d);
+            ObjectData = g;
+            MasterDeck = new Deck(d);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -274,6 +279,7 @@ namespace Solitaire.Classes.UI
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
+            /* TODO: I need to figure out how to check if a card is sitting on "top" of a valid drop, not just relying on x and y mouse location... */
             if (_isDragging)
             {
                 /* Hit test, validate move, drop */
@@ -388,7 +394,7 @@ namespace Solitaire.Classes.UI
                 return;
             }
             /* Calculate what the size of the images should be based on clientsize */
-            var img = CurrentGame.ObjectData.CardBack;
+            var img = ObjectData.CardBack;
             var ratioX = (double)ClientSize.Width / img.Width;
             var ratioY = (double)ClientSize.Height / img.Height;
             /* Use whichever multiplier is smaller */
@@ -417,7 +423,7 @@ namespace Solitaire.Classes.UI
                 if (_dragBitmap == null)
                 {
                     /* Now, the fun part - drawing all the data... draw background tiled */
-                    using (var brush = new TextureBrush(CurrentGame.ObjectData.Background, WrapMode.Tile))
+                    using (var brush = new TextureBrush(ObjectData.Background, WrapMode.Tile))
                     {
                         /* Yes, we can set the forms background image property... */
                         e.Graphics.FillRectangle(brush, 0, 0, ClientSize.Width, ClientSize.Height);
@@ -470,14 +476,14 @@ namespace Solitaire.Classes.UI
         #endregion
 
         #region Public methods
-        public void NewGame(bool ask = true)
+        public bool NewGame(bool ask = true)
         {
             if (ask && !GameCompleted)
             {
                 /* Ask user if they want to start a new game */
                 if (CustomMessageBox.Show(this, "Are you sure you want to quit the current game?", "Quit Current Game") == DialogResult.No)
                 {
-                    return;
+                    return false;
                 }
                 SettingsManager.Settings.Statistics.GamesLost++;
             }
@@ -486,6 +492,9 @@ namespace Solitaire.Classes.UI
             GameCompleted = false;
             _timerFireWorks.Enabled = false;
             _timerGame.Enabled = true;
+            /* Copy master deck to playing deck (this is important as cards are all over the place in the class) */
+            IsLoadedGame = false;
+            CurrentGame.GameDeck = new Deck(MasterDeck);
             CurrentGame.StartNewGame();
             _deckRegion = new Rectangle();
             AudioManager.Play(SoundType.Shuffle);
@@ -498,19 +507,25 @@ namespace Solitaire.Classes.UI
                 OnScoreChanged(CurrentGame.GameScore);
             }
             Invalidate();
+            return true;
         }
 
-        public void LoadSavedGame()
+        public bool LoadSavedGame()
         {
             /* Load a saved game */            
             var d = new GameData();
             if (!BinarySerialize<GameData>.Load(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), ref d))
             {
-                return;
+                return false;
             }
             Undo.Clear(); /* Clear undo history */
             CurrentGame = d;
-            CurrentGame.CanRestart = false;
+            IsLoadedGame = true;
+            SettingsManager.Settings.Statistics.TotalGamesPlayed++;
+            if (!GameCompleted)
+            {
+                SettingsManager.Settings.Statistics.GamesLost++;
+            }
             AudioManager.Play(SoundType.Shuffle);
             if (OnGameTimeChanged != null)
             {
@@ -523,16 +538,17 @@ namespace Solitaire.Classes.UI
             _timerFireWorks.Enabled = false;
             _timerGame.Enabled = true;
             Invalidate();
+            return true;
         }
 
-        public void SaveCurrentGame()
+        public bool SaveCurrentGame()
         {
             /* Save current game */
             if (GameCompleted)
             {
-                return; /* No point saving a completed game */
+                return false; /* No point saving a completed game */
             }
-            BinarySerialize<GameData>.Save(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), CurrentGame);
+            return BinarySerialize<GameData>.Save(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), CurrentGame);
         }
 
         public void UndoMove()
@@ -542,7 +558,9 @@ namespace Solitaire.Classes.UI
             {
                 return;
             }
-            RebuildData(d);
+            var t = CurrentGame.GameTime;
+            var s = CurrentGame.GameScore;
+            CurrentGame = new GameData(d) {GameTime = t, GameScore = s};
             AudioManager.Play(SoundType.Drop);
             /* Penalize by 2 points on the score for using undo */
             CurrentGame.GameScore -= 2;
@@ -558,11 +576,9 @@ namespace Solitaire.Classes.UI
             var d = Undo.GetRestartPoint();
             if (d != null)
             {
-                RebuildData(d);
+                CurrentGame = new GameData(d);
             }
             /* Reset time and score */
-            CurrentGame.GameTime = 0;
-            CurrentGame.GameScore = 0;
             if (OnGameTimeChanged != null)
             {
                 OnGameTimeChanged(CurrentGame.GameTime);
@@ -653,13 +669,13 @@ namespace Solitaire.Classes.UI
             if (CurrentGame.GameDeck.Count == 0)
             {
                 /* Deck is empty, draw empty deck image and piss off */
-                e.DrawImage(CurrentGame.ObjectData.EmptyDeck, stackOffset + xOffset, 40 + yOffset, _cardSize.Width, _cardSize.Height);
+                e.DrawImage(ObjectData.EmptyDeck, stackOffset + xOffset, 40 + yOffset, _cardSize.Width, _cardSize.Height);
                 return;
             }
             /* Draw deck as if it's a pile of cards */
             for (var i = 0; i <= stackSize; i++)
             {
-                e.DrawImage(CurrentGame.ObjectData.CardBack, stackOffset + xOffset, 40 + yOffset, _cardSize.Width, _cardSize.Height);
+                e.DrawImage(ObjectData.CardBack, stackOffset + xOffset, 40 + yOffset, _cardSize.Width, _cardSize.Height);
                 xOffset += 2;
                 yOffset += 2;
             }
@@ -684,7 +700,7 @@ namespace Solitaire.Classes.UI
             var stackOffset = _gameCenter;
             foreach (var stack in CurrentGame.HomeStacks)
             {
-                e.DrawImage(CurrentGame.ObjectData.HomeStack, stackOffset, 40, _cardSize.Width, _cardSize.Height);                
+                e.DrawImage(ObjectData.HomeStack, stackOffset, 40, _cardSize.Width, _cardSize.Height);                
                 /* Draw last card */
                 if (stack.Cards.Count > 0)
                 {
@@ -708,7 +724,7 @@ namespace Solitaire.Classes.UI
                 var offset = 0;
                 foreach (var card in stack.Cards)
                 {
-                    var img = card.IsHidden ? CurrentGame.ObjectData.CardBack : card.CardImage;
+                    var img = card.IsHidden ? ObjectData.CardBack : card.CardImage;
                     e.DrawImage(img, stackOffset, yOffset + offset, _cardSize.Width, _cardSize.Height);
                     card.Region = new Rectangle(stackOffset, yOffset + offset, _cardSize.Width, _cardSize.Height);
                     offset += card.IsHidden ? invisibleOffset : visibleOffset;
@@ -949,34 +965,6 @@ namespace Solitaire.Classes.UI
                 return true;
             }
             return false;
-        }
-
-        /* Rebuild game data - undo method */
-        private void RebuildData(UndoData d)
-        {
-            /* This is the work-around to copying lists with reference types - if you just straight copied the list
-             * using a copy constructor, without using "new" keyword; any modification on the list being copied is
-             * reflected in the copy... could use IClonable/MemberwiseClone... but... */
-            CurrentGame.GameDeck = new Deck();
-            foreach (var c in d.GameDeck)
-            {
-                CurrentGame.GameDeck.Add(new Card(c));
-            }
-            CurrentGame.DealtCards = new List<Card>();
-            foreach (var c in d.DealtCards)
-            {
-                CurrentGame.DealtCards.Add(new Card(c));
-            }
-            CurrentGame.HomeStacks = new List<StackData>();
-            foreach (var s in d.HomeStacks)
-            {
-                CurrentGame.HomeStacks.Add(new StackData(s));
-            }
-            CurrentGame.PlayingStacks = new List<StackData>();
-            foreach (var s in d.PlayingStacks)
-            {
-                CurrentGame.PlayingStacks.Add(new StackData(s));
-            }
         }
 
         /* Check if game is won */

@@ -10,7 +10,6 @@ using Solitaire.Classes.Settings.SettingsData;
 
 namespace Solitaire.Classes.Settings
 {
-    /* TODO: Add statistics - longest game, shortest game (after games have been completed?), total number of games played, highest score */
     [Serializable, XmlRoot("settings")]
     public sealed class Settings
     {
@@ -36,6 +35,10 @@ namespace Solitaire.Classes.Settings
 
         [XmlIgnore]
         public Size Size { get; set; }
+
+        /* Game options */
+        [XmlElement("options")]
+        public GameOptionData Options = new GameOptionData();
 
         /* Stats and high scores */
         [XmlElement("stats")]
