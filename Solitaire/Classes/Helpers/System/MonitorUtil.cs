@@ -5,7 +5,7 @@
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Solitaire.Classes.Helpers
+namespace Solitaire.Classes.Helpers.System
 {
     public static class MonitorUtil
     {

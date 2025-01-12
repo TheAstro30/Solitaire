@@ -5,7 +5,7 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using Solitaire.Classes.Helpers;
+using Solitaire.Classes.Helpers.System;
 using Solitaire.Forms;
 
 namespace Solitaire

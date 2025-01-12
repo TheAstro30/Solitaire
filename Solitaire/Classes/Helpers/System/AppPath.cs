@@ -5,7 +5,7 @@
 using System;
 using System.IO;
 
-namespace Solitaire.Classes.Helpers
+namespace Solitaire.Classes.Helpers.System
 {
     public static class AppPath
     {

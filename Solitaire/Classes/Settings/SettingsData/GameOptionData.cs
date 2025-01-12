@@ -12,5 +12,8 @@ namespace Solitaire.Classes.Settings.SettingsData
     {
         [XmlAttribute("drawThree")]
         public bool DrawThree { get; set; }
+
+        [XmlAttribute("sound")]
+        public bool PlaySounds { get; set; }
     }
 }

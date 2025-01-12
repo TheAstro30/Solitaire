@@ -5,36 +5,22 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers;
+using Solitaire.Classes.Helpers.Logic;
+using Solitaire.Classes.Helpers.Management;
+using Solitaire.Classes.Helpers.System;
+using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.Serialization;
-using Timer = System.Windows.Forms.Timer;
+using Solitaire.Classes.UI.Internal;
 
 namespace Solitaire.Classes.UI
 {
-    internal enum HitTestType
-    {
-        None = 0,
-        Deck = 1,
-        Dealt = 2,
-        HomeStack = 3,
-        PlayStack = 4
-    }
-
-    internal struct HitTestData
-    {
-        public List<Card> Cards { get; set; } 
-
-        public int StackIndex { get; set; }
-
-        public int CardIndex { get; set; }
-    }
-
     public class Game : Form
     {
+        #region Member variables/Events
         /* Main graphics objects */
         public Deck MasterDeck = new Deck();
         public GraphicsObjectData ObjectData = new GraphicsObjectData();
@@ -56,6 +42,10 @@ namespace Solitaire.Classes.UI
         private Point _dragLocation;
         private Bitmap _dragBitmap;
 
+        /* Loaded game score and time */
+        private int _time;
+        private int _score;
+
         /* Fireworks variables */
         private const int MaxFireWorks = 10;
         private readonly FireWork[] _fireWorks = new FireWork[MaxFireWorks];
@@ -64,13 +54,16 @@ namespace Solitaire.Classes.UI
         /* Current game being played */
         public bool IsLoadedGame { get; private set; }
         public GameData CurrentGame { get; set; }
-
+        
+        /* Game is won */
         public bool GameCompleted { get; set; }
 
         /* Events raised back to form */
         public event Action<int> OnGameTimeChanged;
         public event Action<int> OnScoreChanged;
+        #endregion
 
+        #region Constructor
         public Game()
         {
             if (DesignMode)
@@ -118,7 +111,193 @@ namespace Solitaire.Classes.UI
             ObjectData = g;
             MasterDeck = new Deck(d);
         }
+        #endregion
 
+        #region Public methods
+        #region New game
+        public bool NewGame(bool ask = true)
+        {
+            if (ask && !GameCompleted)
+            {
+                /* Ask user if they want to start a new game */
+                if (CustomMessageBox.Show(this, "Are you sure you want to quit the current game?", "Quit Current Game") == DialogResult.No)
+                {
+                    return false;
+                }
+                SettingsManager.Settings.Statistics.GamesLost++;
+            }
+            SettingsManager.Settings.Statistics.TotalGamesPlayed++;
+            Undo.Clear(); /* Clear undo history */
+            GameCompleted = false;
+            CurrentGame = new GameData();
+            _timerFireWorks.Enabled = false;
+            _timerGame.Enabled = true;
+            /* Copy master deck to playing deck (this is important as cards are all over the place in the class) */
+            IsLoadedGame = false;
+            CurrentGame.GameDeck = new Deck(MasterDeck);
+            /* Shuffle the deck */
+            CurrentGame.GameDeck.Shuffle();
+            GameLogic.BuildStacks(this);
+
+            _deckRegion = new Rectangle();
+            AudioManager.Play(SoundType.Shuffle);
+            if (OnGameTimeChanged != null)
+            {
+                OnGameTimeChanged(CurrentGame.GameTime);
+            }
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore);
+            }
+            Invalidate();
+            return true;
+        }
+        #endregion
+
+        #region Load/save game
+        public bool LoadSavedGame()
+        {
+            /* Load a saved game */
+            var d = new GameData();
+            if (!BinarySerialize<GameData>.Load(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), ref d))
+            {
+                return false;
+            }
+            Undo.Clear(); /* Clear undo history */
+            CurrentGame = d;
+            IsLoadedGame = true;
+
+            /* Set time and score (used for restart) */
+            _time = CurrentGame.GameTime;
+            _score = CurrentGame.GameScore;
+
+            SettingsManager.Settings.Statistics.TotalGamesPlayed++;
+            if (!GameCompleted)
+            {
+                SettingsManager.Settings.Statistics.GamesLost++;
+            }
+            AudioManager.Play(SoundType.Shuffle);
+            if (OnGameTimeChanged != null)
+            {
+                OnGameTimeChanged(CurrentGame.GameTime);
+            }
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore);
+            }
+            _timerFireWorks.Enabled = false;
+            _timerGame.Enabled = true;
+            Invalidate();
+            return true;
+        }
+
+        public bool SaveCurrentGame()
+        {
+            /* Save current game - if it's a completed game, don't save it */
+            return !GameCompleted && BinarySerialize<GameData>.Save(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), CurrentGame);
+        }
+        #endregion
+
+        #region Undo
+        public void UndoMove()
+        {
+            var d = Undo.UndoLastMove();
+            if (d == null)
+            {
+                return;
+            }
+            var t = CurrentGame.GameTime;
+            var s = CurrentGame.GameScore;
+            CurrentGame = new GameData(d) { GameTime = t, GameScore = s };
+            AudioManager.Play(SoundType.Drop);
+            /* Penalize by 2 points on the score for using undo */
+            CurrentGame.GameScore -= 2;
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore);
+            }
+            Invalidate();
+        }
+        #endregion
+
+        #region Restart
+        public void RestartGame(bool keepTimeAndScore)
+        {
+            var d = Undo.GetRestartPoint();
+            if (d != null)
+            {
+                /* If it's a loaded game, we don't want to reset time or score */
+                CurrentGame = keepTimeAndScore ? new GameData(d) {GameTime = _time, GameScore = _score} : new GameData(d);
+            }
+            /* Reset time and score */
+            if (OnGameTimeChanged != null)
+            {
+                OnGameTimeChanged(CurrentGame.GameTime);
+            }
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore);
+            }
+            AudioManager.Play(SoundType.Shuffle);
+            Invalidate();
+        }
+        #endregion
+
+        #region Auto complete
+        public void AutoComplete()
+        {
+            /* Iterate through any drawn cards and play stacks moving them to each ace home stack */
+            var complete = true;
+            var success = false;
+            while (complete)
+            {
+                /* Deck card */
+                var movedCards = 0;
+                Card card;
+                if (CurrentGame.DealtCards.Count > 0)
+                {
+                    card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
+                    /* Is it an ace ? - Find free home slot; if not see if it can be completed */
+                    if (card.Value == 1 && GameLogic.AddAceToFreeSlot(this, card) || GameLogic.IsCompleted(this, card))
+                    {
+                        success = true;
+                        CurrentGame.DealtCards.Remove(card);
+                        movedCards++;
+                        CurrentGame.GameScore += 10;
+                    }
+                }
+                /* Each stack */
+                foreach (var stack in CurrentGame.PlayingStacks.Where(stack => stack.Cards.Count > 0))
+                {
+                    card = stack.Cards[stack.Cards.Count - 1];
+                    /* Is it an ace ? - Find free home slot; if not see if it can be completed */
+                    if ((card.IsHidden || !GameLogic.IsCompleted(this, card)) && (card.Value != 1 || !GameLogic.AddAceToFreeSlot(this, card)))
+                    {
+                        continue;
+                    }
+                    success = true;
+                    stack.Cards.Remove(card);
+                    movedCards++;
+                    CurrentGame.GameScore += 10;
+                }
+                complete = movedCards != 0;
+            }
+            if (!success)
+            {
+                return;
+            }
+            Invalidate();
+            AudioManager.Play(SoundType.Complete);
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore);
+            }
+        }
+        #endregion
+        #endregion
+
+        #region Overrides
+        #region Form
         protected override void OnLoad(EventArgs e)
         {
             if (DesignMode)
@@ -140,8 +319,8 @@ namespace Solitaire.Classes.UI
             SettingsManager.Save();
             base.OnFormClosing(e);
         }
+        #endregion
 
-        #region Overrides
         #region Mouse
         protected override void OnMouseDown(MouseEventArgs e)
         {
@@ -151,11 +330,11 @@ namespace Solitaire.Classes.UI
                     _dragLocation = e.Location;
                     HitTestData data;
                     Card card;
-                    switch (HitTest(e.Location, out data))
+                    switch (HitTest.Compare(this, e.Location, _deckRegion, out data))
                     {
                         case HitTestType.Deck:
                             Undo.AddMove(CurrentGame);
-                            CurrentGame.Deal();
+                            GameLogic.Deal(this);
                             if (CurrentGame.GameDeck.IsDeckReshuffled)
                             {
                                 CurrentGame.GameDeck.IsDeckReshuffled = false;
@@ -170,6 +349,7 @@ namespace Solitaire.Classes.UI
 
                         case HitTestType.Dealt:
                             /* Pick up first card on pile, begin drag */
+                            Undo.AddMove(CurrentGame);
                             _dragStackIndex = -1;
                             card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
                             card.IsHidden = false;
@@ -228,7 +408,7 @@ namespace Solitaire.Classes.UI
                                     for (var i = data.CardIndex; i <= data.Cards.Count - 1; i++)
                                     {
                                         card = data.Cards[i];
-                                        if (i < data.Cards.Count - 1 && !IsValidMove(data.Cards[i + 1], card))
+                                        if (i < data.Cards.Count - 1 && !GameLogic.IsValidMove(data.Cards[i + 1], card))
                                         {
                                             return;
                                         }
@@ -289,13 +469,13 @@ namespace Solitaire.Classes.UI
                 }
                 HitTestData data;
                 /* I need to think of a way of modifying the hittest to include the area of the dragging card... */
-                switch (HitTest(e.Location, out data))
+                switch (HitTest.Compare(this, e.Location, _deckRegion, out data))
                 {
                     case HitTestType.HomeStack:
                         /* Dropping a card on a home stack? Cards must go from ace to king and be the same suit */
                         if (_draggingCards.Count > 1)
                         {
-                            ReturnCardsToSource(_isHomeDrag);
+                            GameLogic.ReturnCardsToSource(this, _isHomeDrag, _dragStackIndex, _draggingCards);
                         }
                         else
                         {                            
@@ -310,7 +490,7 @@ namespace Solitaire.Classes.UI
                                 if (OnScoreChanged != null)
                                 {
                                     OnScoreChanged(CurrentGame.GameScore);
-                                }                                
+                                }
                             }                                
                             else if (stack.Cards.Count > 0 && card.Suit == stack.Suit && card.Value == stack.Cards[stack.Cards.Count - 1].Value + 1)
                             {
@@ -325,7 +505,7 @@ namespace Solitaire.Classes.UI
                             else
                             {
                                 /* Invalid */
-                                ReturnCardsToSource(_isHomeDrag);
+                                GameLogic.ReturnCardsToSource(this, _isHomeDrag, _dragStackIndex, _draggingCards);
                             }
                         }
                         break;
@@ -344,7 +524,7 @@ namespace Solitaire.Classes.UI
                         else if (data.Cards != null)
                         {
                             /* Validate dragging cards can be placed on top of this card */
-                            if (IsValidMove(_draggingCards[0], data.Cards[data.CardIndex]))
+                            if (GameLogic.IsValidMove(_draggingCards[0], data.Cards[data.CardIndex]))
                             {
                                 data.Cards.AddRange(_draggingCards);
                                 CurrentGame.GameScore += _isHomeDrag ? -15 : 5;
@@ -356,19 +536,19 @@ namespace Solitaire.Classes.UI
                             else
                             {
                                 /* Put it back where it came from */
-                                ReturnCardsToSource(_isHomeDrag);
+                                GameLogic.ReturnCardsToSource(this, _isHomeDrag, _dragStackIndex, _draggingCards);
                             }
                         }
                         else
                         {
                             /* Put it back where it came from */
-                            ReturnCardsToSource(_isHomeDrag);
+                            GameLogic.ReturnCardsToSource(this, _isHomeDrag, _dragStackIndex, _draggingCards);
                         }
                         break;
 
                     default:
                         /* Put it back where it came from */
-                        ReturnCardsToSource(_isHomeDrag);
+                        GameLogic.ReturnCardsToSource(this, _isHomeDrag, _dragStackIndex, _draggingCards);
                         break;
                 }
                 _isDragging = false;
@@ -422,20 +602,11 @@ namespace Solitaire.Classes.UI
             {
                 if (_dragBitmap == null)
                 {
-                    /* Now, the fun part - drawing all the data... draw background tiled */
-                    using (var brush = new TextureBrush(ObjectData.Background, WrapMode.Tile))
+                    var rect = GraphicsRenderer.Draw(this, e.Graphics, _cardSize, _isDragging, _dragStackIndex, _gameCenter);
+                    if (rect != Rectangle.Empty)
                     {
-                        /* Yes, we can set the forms background image property... */
-                        e.Graphics.FillRectangle(brush, 0, 0, ClientSize.Width, ClientSize.Height);
+                        _deckRegion = rect;
                     }
-                    /* Draw deck */
-                    DrawDeck(e.Graphics);
-                    /* Draw dealt hand */
-                    DrawDealt(e.Graphics);
-                    /* Draw "foundation" slots */
-                    DrawHomeStacks(e.Graphics);
-                    /* Draw playing stacks */
-                    DrawPlayStacks(e.Graphics);
                 }
                 /* Draw dragging cards */
                 if (_isDragging)
@@ -454,7 +625,7 @@ namespace Solitaire.Classes.UI
                         }
                     }
                     e.Graphics.DrawImage(_dragBitmap, 0, 0, ClientSize.Width, ClientSize.Height);
-                    DrawDrag(e.Graphics);
+                    GraphicsRenderer.DrawDrag(this, e.Graphics, _cardSize, _draggingCards, _dragLocation);
                 }
                 else
                 {
@@ -473,282 +644,6 @@ namespace Solitaire.Classes.UI
             base.OnPaint(e);
         }
         #endregion
-        #endregion
-
-        #region Public methods
-        public bool NewGame(bool ask = true)
-        {
-            if (ask && !GameCompleted)
-            {
-                /* Ask user if they want to start a new game */
-                if (CustomMessageBox.Show(this, "Are you sure you want to quit the current game?", "Quit Current Game") == DialogResult.No)
-                {
-                    return false;
-                }
-                SettingsManager.Settings.Statistics.GamesLost++;
-            }
-            SettingsManager.Settings.Statistics.TotalGamesPlayed++;
-            Undo.Clear(); /* Clear undo history */
-            GameCompleted = false;
-            _timerFireWorks.Enabled = false;
-            _timerGame.Enabled = true;
-            /* Copy master deck to playing deck (this is important as cards are all over the place in the class) */
-            IsLoadedGame = false;
-            CurrentGame.GameDeck = new Deck(MasterDeck);
-            CurrentGame.StartNewGame();
-            _deckRegion = new Rectangle();
-            AudioManager.Play(SoundType.Shuffle);
-            if (OnGameTimeChanged != null)
-            {
-                OnGameTimeChanged(CurrentGame.GameTime);
-            }
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore);
-            }
-            Invalidate();
-            return true;
-        }
-
-        public bool LoadSavedGame()
-        {
-            /* Load a saved game */            
-            var d = new GameData();
-            if (!BinarySerialize<GameData>.Load(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), ref d))
-            {
-                return false;
-            }
-            Undo.Clear(); /* Clear undo history */
-            CurrentGame = d;
-            IsLoadedGame = true;
-            SettingsManager.Settings.Statistics.TotalGamesPlayed++;
-            if (!GameCompleted)
-            {
-                SettingsManager.Settings.Statistics.GamesLost++;
-            }
-            AudioManager.Play(SoundType.Shuffle);
-            if (OnGameTimeChanged != null)
-            {
-                OnGameTimeChanged(CurrentGame.GameTime);
-            }
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore);
-            }
-            _timerFireWorks.Enabled = false;
-            _timerGame.Enabled = true;
-            Invalidate();
-            return true;
-        }
-
-        public bool SaveCurrentGame()
-        {
-            /* Save current game */
-            if (GameCompleted)
-            {
-                return false; /* No point saving a completed game */
-            }
-            return BinarySerialize<GameData>.Save(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), CurrentGame);
-        }
-
-        public void UndoMove()
-        {
-            var d = Undo.UndoLastMove();
-            if (d == null)
-            {
-                return;
-            }
-            var t = CurrentGame.GameTime;
-            var s = CurrentGame.GameScore;
-            CurrentGame = new GameData(d) {GameTime = t, GameScore = s};
-            AudioManager.Play(SoundType.Drop);
-            /* Penalize by 2 points on the score for using undo */
-            CurrentGame.GameScore -= 2;
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore);
-            }
-            Invalidate();
-        }
-
-        public void RestartGame()
-        {
-            var d = Undo.GetRestartPoint();
-            if (d != null)
-            {
-                CurrentGame = new GameData(d);
-            }
-            /* Reset time and score */
-            if (OnGameTimeChanged != null)
-            {
-                OnGameTimeChanged(CurrentGame.GameTime);
-            }
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore);
-            }
-            AudioManager.Play(SoundType.Shuffle);
-            Invalidate();
-        }
-
-        public void AutoComplete()
-        {
-            /* Iterate through any drawn cards and play stacks moving them to each ace home stack */
-            var complete = true;
-            var success = false;            
-            while (complete)
-            {
-                /* Deck card */
-                var movedCards = 0;
-                Card card;
-                if (CurrentGame.DealtCards.Count > 0)
-                {
-                    card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
-                    /* Is it an ace ? - Find free home slot; if not see if it can be completed */
-                    if (card.Value == 1 && AddAceToFreeSlot(card) || IsCompleted(card))
-                    {
-                        success = true;                        
-                        CurrentGame.DealtCards.Remove(card);
-                        movedCards++;
-                        CurrentGame.GameScore += 10;
-                    }
-                }
-                /* Each stack */
-                foreach (var stack in CurrentGame.PlayingStacks.Where(stack => stack.Cards.Count > 0))
-                {
-                    card = stack.Cards[stack.Cards.Count - 1];
-                    /* Is it an ace ? - Find free home slot; if not see if it can be completed */
-                    if ((card.IsHidden || !IsCompleted(card)) && (card.Value != 1 || !AddAceToFreeSlot(card)))
-                    {
-                        continue;
-                    }
-                    success = true;
-                    stack.Cards.Remove(card);
-                    movedCards++;
-                    CurrentGame.GameScore += 10;
-                }
-                complete = movedCards != 0;
-            }
-            if (!success)
-            {
-                return;
-            }
-            Invalidate();
-            AudioManager.Play(SoundType.Complete);
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore);
-            }
-        }
-        #endregion
-
-        #region Drawing methods
-        /* Private drawing methods */
-        private void DrawDeck(Graphics e)
-        {
-            var stackSize = 4;
-            if (CurrentGame.GameDeck.Count < 8)
-            {
-                stackSize = 3;
-            }
-            if (CurrentGame.GameDeck.Count <= 4)
-            {
-                stackSize = 2;
-            }
-            if (CurrentGame.GameDeck.Count <= 1)
-            {
-                stackSize = 0;
-            }
-
-            var stackOffset = _gameCenter - ((_cardSize.Width + 40) * 3);
-            var xOffset = 0;
-            var yOffset = 0;
-
-            _deckRegion = new Rectangle(stackOffset, 40, _cardSize.Width, _cardSize.Height);
-
-            if (CurrentGame.GameDeck.Count == 0)
-            {
-                /* Deck is empty, draw empty deck image and piss off */
-                e.DrawImage(ObjectData.EmptyDeck, stackOffset + xOffset, 40 + yOffset, _cardSize.Width, _cardSize.Height);
-                return;
-            }
-            /* Draw deck as if it's a pile of cards */
-            for (var i = 0; i <= stackSize; i++)
-            {
-                e.DrawImage(ObjectData.CardBack, stackOffset + xOffset, 40 + yOffset, _cardSize.Width, _cardSize.Height);
-                xOffset += 2;
-                yOffset += 2;
-            }
-        }
-
-        private void DrawDealt(Graphics e)
-        {
-            /* For now, I'm just going to draw the last drawn */
-            if (CurrentGame.DealtCards.Count == 0)
-            {
-                /* Do nothing */
-                return;
-            }
-            var card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
-            var stackOffset = _gameCenter - ((_cardSize.Width + 40) * 2);
-            e.DrawImage(card.CardImage, stackOffset , 40 , _cardSize.Width, _cardSize.Height);
-            card.Region = new Rectangle(stackOffset, 40, _cardSize.Width, _cardSize.Height);
-        }
-
-        private void DrawHomeStacks(Graphics e)
-        {
-            var stackOffset = _gameCenter;
-            foreach (var stack in CurrentGame.HomeStacks)
-            {
-                e.DrawImage(ObjectData.HomeStack, stackOffset, 40, _cardSize.Width, _cardSize.Height);                
-                /* Draw last card */
-                if (stack.Cards.Count > 0)
-                {
-                    var card = stack.Cards[stack.Cards.Count - 1];
-                    e.DrawImage(card.CardImage, stackOffset, 40, _cardSize.Width, _cardSize.Height);
-                    card.Region = new Rectangle(stackOffset, 40, _cardSize.Width, _cardSize.Height);
-                }
-                stack.Region = new Rectangle(stackOffset, 40, _cardSize.Width, _cardSize.Height);
-                stackOffset += _cardSize.Width + 40;
-            }
-        }
-
-        private void DrawPlayStacks(Graphics e)
-        {
-            var yOffset = _cardSize.Height + 70;
-            var invisibleOffset = _cardSize.Height / 15;
-            var visibleOffset = _cardSize.Height/8;
-            var stackOffset = _gameCenter - ((_cardSize.Width + 40) * 3);
-            foreach (var stack in CurrentGame.PlayingStacks)
-            {
-                var offset = 0;
-                foreach (var card in stack.Cards)
-                {
-                    var img = card.IsHidden ? ObjectData.CardBack : card.CardImage;
-                    e.DrawImage(img, stackOffset, yOffset + offset, _cardSize.Width, _cardSize.Height);
-                    card.Region = new Rectangle(stackOffset, yOffset + offset, _cardSize.Width, _cardSize.Height);
-                    offset += card.IsHidden ? invisibleOffset : visibleOffset;
-                }
-                stack.Region = new Rectangle(stackOffset, yOffset, _cardSize.Width, _cardSize.Height);
-                stackOffset += _cardSize.Width + 40;
-            }
-        }
-
-        private void DrawDrag(Graphics e)
-        {
-            if (_draggingCards.Count == 0)
-            {
-                return;
-            }
-            var visibleOffset = _cardSize.Height / 8;
-            var offsetY = 0;
-            var x = _cardSize.Width/2;
-            foreach (var card in _draggingCards)
-            {
-                e.DrawImage(card.CardImage, _dragLocation.X - x, (_dragLocation.Y - 5) + offsetY, _cardSize.Width, _cardSize.Height);
-                offsetY += visibleOffset;
-            }
-        }
         #endregion
 
         #region Timers
@@ -773,7 +668,7 @@ namespace Solitaire.Classes.UI
         private void OnCheckWin(object sender, EventArgs e)
         {
             _checkWin.Enabled = false;            
-            if (!CheckWin())
+            if (!GameLogic.CheckWin(this))
             {
                 return;
             }
@@ -831,148 +726,6 @@ namespace Solitaire.Classes.UI
             }
             Invalidate();
         }
-        #endregion
-
-        #region Private methods
-        #region Hit-test
-        private HitTestType HitTest(Point location, out HitTestData data)
-        {
-            data = new HitTestData();
-            /* We need to work out what the mouse is over */
-            if (IsRegion(location, _deckRegion))
-            {
-                return HitTestType.Deck;
-            }
-            /* Dealt pile */
-            if (CurrentGame.DealtCards.Count > 0 && CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1].IsHitTest(location))
-            {
-                return HitTestType.Dealt;
-            }            
-            var stackIndex = 0;
-            /* Home stacks */
-            foreach (var s in CurrentGame.HomeStacks)
-            {
-                data.StackIndex = stackIndex;
-                if (s.Cards.Count > 0 && IsRegion(location, s.Cards[s.Cards.Count - 1].Region))
-                {
-                    /* Get top card */
-                    data.CardIndex = s.Cards.Count - 1;
-                    return HitTestType.HomeStack;
-                }
-                if (IsRegion(location, s.Region))
-                {
-                    return HitTestType.HomeStack;
-                }
-                stackIndex++;
-            }
-            /* Playing stacks */
-            stackIndex = 0;
-            foreach (var stack in CurrentGame.PlayingStacks)
-            {
-                for (var i = stack.Cards.Count - 1; i >= 0; i--)
-                {
-                    if (!stack.Cards[i].IsHitTest(location))
-                    {
-                        continue;
-                    }
-                    data.Cards = stack.Cards; /* Which list? */
-                    data.StackIndex = stackIndex; /* Index of the stack (1 - 7) */
-                    data.CardIndex = i; /* Index of card in list that was hit */
-                    return HitTestType.PlayStack;
-                }
-                if (IsRegion(location, stack.Region))
-                {
-                    data.StackIndex = stackIndex;
-                    return HitTestType.PlayStack;
-                }                
-                stackIndex++;
-            }
-            return HitTestType.None;
-        }
-        #endregion
-
-        #region IsValidMove
-        private static bool IsValidMove(Card source, Card destination)
-        {
-            /* Source is card of lower value -> card of higher value - suits have to be opposite colors and values 1
-             * less on the source than the destination: Valid opposite suit and number order of source is lower than destination */
-            return IsOppositeSuit(source.Suit, destination.Suit) && source.Value == destination.Value - 1;
-        }
-
-        private static bool IsOppositeSuit(Suit srcSuit, Suit destSuit)
-        {
-            /* Check src and dest suits are OPPOSITE (clubs : hearts | diamonds : spades, etc.) */
-            switch (srcSuit)
-            {
-                case Suit.Clubs:
-                case Suit.Spades:
-                    return destSuit == Suit.Diamonds || destSuit == Suit.Hearts;
-
-                case Suit.Diamonds:
-                case Suit.Hearts:
-                    return destSuit == Suit.Clubs || destSuit == Suit.Spades;
-            }
-            return false;
-        }
-        #endregion
-
-        #region Misc
-        private static bool IsRegion(Point src, Rectangle dest)
-        {
-            return src.X >= dest.X && src.X <= dest.X + dest.Width && src.Y >= dest.Y && src.Y <= dest.Y + dest.Height;
-        }
-
-        private void ReturnCardsToSource(bool homeStack)
-        {
-            Undo.RemoveLastEntry(); /* No point storing last entry if the card isn't being moved from its original spot */
-            if (_dragStackIndex == -1)
-            {
-                /* Return to disposed pile */
-                CurrentGame.DealtCards.Add(_draggingCards[0]);
-            }
-            else
-            {
-                if (homeStack)
-                {
-                    var stack = CurrentGame.HomeStacks[_dragStackIndex];
-                    var card = _draggingCards[0];
-                    stack.Cards.Add(card);
-                    stack.Suit = card.Suit;
-                    return;
-                }
-                CurrentGame.PlayingStacks[_dragStackIndex].Cards.AddRange(_draggingCards);
-            }     
-        }
-
-        /* Auto complete private methods */
-        private bool IsCompleted(Card card)
-        {
-            foreach (var stack in from stack in CurrentGame.HomeStacks where stack.Cards.Count > 0 let cd = stack.Cards[stack.Cards.Count - 1] where cd.Suit == card.Suit && cd.Value == card.Value - 1 select stack)
-            {
-                Undo.AddMove(CurrentGame);
-                stack.Cards.Add(card);
-                return true;
-            }
-            return false;
-        }
-
-        private bool AddAceToFreeSlot(Card card)
-        {            
-            foreach (var stack in CurrentGame.HomeStacks.Where(stack => stack.Cards.Count == 0).Where(stack => !card.IsHidden))
-            {
-                Undo.AddMove(CurrentGame);
-                stack.Cards.Add(card);
-                return true;
-            }
-            return false;
-        }
-
-        /* Check if game is won */
-        private bool CheckWin()
-        {
-            return CurrentGame.HomeStacks.Sum(stack => stack.Cards.Count) == 52;
-        }
-        #endregion
         #endregion
     }
 }

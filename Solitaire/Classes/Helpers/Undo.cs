@@ -24,6 +24,10 @@ namespace Solitaire.Classes.Helpers
 
         public static void RemoveLastEntry()
         {
+            if (Data.Count == 0)
+            {
+                return;
+            }
             Data.Pop();
         }
 

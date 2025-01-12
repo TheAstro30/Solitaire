@@ -26,6 +26,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,6 +37,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -45,6 +47,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>mainIcon.ico</ApplicationIcon>
@@ -64,19 +67,21 @@
     <Compile Include="Classes\Data\GraphicsObjectData.cs" />
     <Compile Include="Classes\Data\StackData.cs" />
     <Compile Include="Classes\Helpers\CustomMessageBox.cs" />
-    <Compile Include="Classes\Helpers\GraphicsBitmapConverter.cs" />
+    <Compile Include="Classes\Helpers\Logic\GameLogic.cs" />
+    <Compile Include="Classes\Helpers\UI\GraphicsBitmapConverter.cs" />
+    <Compile Include="Classes\Helpers\UI\GraphicsRenderer.cs" />
+    <Compile Include="Classes\Helpers\UI\HitTest.cs" />
     <Compile Include="Classes\Settings\SettingsData\GameOptionData.cs" />
-    <Compile Include="Classes\Settings\SettingsData\HighScoreData.cs" />
     <Compile Include="Classes\Settings\SettingsData\StatisticsData.cs" />
-    <Compile Include="Classes\UI\Firework.cs" />
-    <Compile Include="Classes\Helpers\AudioManager.cs" />
-    <Compile Include="Classes\Helpers\MonitorUtil.cs" />
+    <Compile Include="Classes\UI\Internal\Firework.cs" />
+    <Compile Include="Classes\Helpers\Management\AudioManager.cs" />
+    <Compile Include="Classes\Helpers\System\MonitorUtil.cs" />
     <Compile Include="Classes\Helpers\XmlFormatting.cs" />
     <Compile Include="Classes\Serialization\BinarySerialize.cs" />
     <Compile Include="Classes\Data\Card.cs" />
     <Compile Include="Classes\Data\Deck.cs" />
     <Compile Include="Classes\Settings\Settings.cs" />
-    <Compile Include="Classes\Helpers\SettingsManager.cs" />
+    <Compile Include="Classes\Helpers\Management\SettingsManager.cs" />
     <Compile Include="Classes\UI\FormEx.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -84,7 +89,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Classes\Data\GameData.cs" />
-    <Compile Include="Classes\Helpers\AppPath.cs" />
+    <Compile Include="Classes\Helpers\System\AppPath.cs" />
     <Compile Include="Classes\Helpers\MenuHelper.cs" />
     <Compile Include="Classes\Helpers\MyExtensions.cs" />
     <Compile Include="Classes\Serialization\XmlSerialize.cs" />
@@ -92,45 +97,17 @@
     <Compile Include="Forms\FrmAbout.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmAbout.Designer.cs">
-      <DependentUpon>FrmAbout.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\FrmCustomMessage.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FrmCustomMessage.Designer.cs">
-      <DependentUpon>FrmCustomMessage.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FrmGame.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmScores.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FrmScores.Designer.cs">
-      <DependentUpon>FrmScores.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\FrmStatistics.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmStatistics.Designer.cs">
-      <DependentUpon>FrmStatistics.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Forms\FrmAbout.resx">
-      <DependentUpon>FrmAbout.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FrmCustomMessage.resx">
-      <DependentUpon>FrmCustomMessage.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FrmScores.resx">
-      <DependentUpon>FrmScores.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FrmStatistics.resx">
-      <DependentUpon>FrmStatistics.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -141,6 +118,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

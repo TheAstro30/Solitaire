@@ -44,14 +44,12 @@ namespace Solitaire.Classes.Settings
         [XmlElement("stats")]
         public StatisticsData Statistics = new StatisticsData();
 
-        [XmlElement("highScores")]
-        public HighScoreData HighScores = new HighScoreData();
-
         /* Constructor */
         public Settings()
         {
             /* Set default settings */
             Size = new Size(720, 470);
+            Options.PlaySounds = true;
         }
     }
 }

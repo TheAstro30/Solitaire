@@ -7,6 +7,8 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers;
+using Solitaire.Classes.Helpers.Management;
+using Solitaire.Classes.Helpers.System;
 using Solitaire.Classes.UI;
 
 namespace Solitaire.Forms
@@ -14,9 +16,11 @@ namespace Solitaire.Forms
     public sealed class FrmGame : Game
     {
         /* Move all the passengers away from the deadly plane... */
+        private readonly ToolStripMenuItem _menuGame;
         private readonly StatusStrip _statusBar;
 
-        private readonly ToolStripMenuItem _menuGame;
+        private readonly NotifyIcon _sysTray;
+        private FormWindowState _originalWindowState;
 
         public FrmGame()
         {
@@ -43,6 +47,9 @@ namespace Solitaire.Forms
                 Size = new Size(704, 22),
                 TabIndex = 1
             };
+
+            _sysTray = new NotifyIcon {Icon = Icon, Text = @"Kanga's Solitaire - Double-click to restore"};
+            _sysTray.MouseDoubleClick += OnSysTrayDoubleClick;
 
             Controls.AddRange(new Control[]
             {
@@ -142,15 +149,33 @@ namespace Solitaire.Forms
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            /* This gets around the issue of undo being disabled in the menu, and not re-enabled until menu is opened again -
-             * What I don't want to do is clear the menu list and re-add every single call of Ctrl+Z... */
             switch (e.KeyData)
             {
+                case Keys.Escape:
+                    /* "Boss" key */
+                    _originalWindowState = WindowState;
+                    WindowState = FormWindowState.Minimized;
+                    Hide();
+                    _sysTray.Visible = true;
+                    break;
+
                 case Keys.Control | Keys.Z:
+                    /* This gets around the issue of undo being disabled in the menu, and not re-enabled until menu is opened again -
+                     * What I don't want to do is clear the menu list and re-add every single call of Ctrl+Z... */
                     UndoMove();
                     break;
             }
             base.OnKeyDown(e);
+        }
+
+        private void OnSysTrayDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                Show();
+                WindowState = _originalWindowState;
+                _sysTray.Visible = false;
+            }
         }
 
         private void TimeChanged(int seconds)
@@ -198,23 +223,38 @@ namespace Solitaire.Forms
                     }
                     break;
 
+                case "DRAW3":
+                    /* Deciding to either allow current game to be continued to play, or ask to restart using draw 3 */
+                    SettingsManager.Settings.Options.DrawThree = !SettingsManager.Settings.Options.DrawThree;
+                    Invalidate();
+                    break;
+
+                case "SOUND":
+                    SettingsManager.Settings.Options.PlaySounds = !SettingsManager.Settings.Options.PlaySounds;
+                    break;
+
                 case "UNDO":
                     /* This gets around the issue of undo being disabled in the menu, and not re-enabled until menu is opened again -
                      * What I don't want to do is clear the menu list and re-add every single call of Ctrl+Z... */
                     OnKeyDown(new KeyEventArgs(Keys.Control | Keys.Z));
                     break;
                     
-                case "RESTART":
+                case "RESTART":                    
                     if (IsLoadedGame)
                     {
-                        CustomMessageBox.Show(this, "Unable to restart a loaded game", "Error", CustomMessageBoxButtons.Ok);
-                        return;
+                        if (
+                            CustomMessageBox.Show(this,
+                                "Restarting a loaded game will cause it to restart from the saved point.\r\n\r\nDo you want to restart this game?",
+                                "Restart Current Game") == DialogResult.No)
+                        {
+                            return;
+                        }
                     }
-                    if (CustomMessageBox.Show(this, "Are you sure you want to restart the current game?", "Restart Current Game") == DialogResult.No)
+                    else if (CustomMessageBox.Show(this, "Are you sure you want to restart the current game?", "Restart Current Game") == DialogResult.No)
                     {
                         return;
                     }
-                    RestartGame();
+                    RestartGame(IsLoadedGame);
                     break;
 
                 case "AUTO":
@@ -242,6 +282,7 @@ namespace Solitaire.Forms
         }
 
         /* Private menu building method */
+
         private void BuildMenu(ToolStripMenuItem m)
         {
             m.DropDownItems.Clear();
@@ -251,12 +292,27 @@ namespace Solitaire.Forms
                     MenuHelper.AddMenuItem("New game", "NEW", Keys.Control | Keys.N, true, OnMenuClick),
                     new ToolStripSeparator(),
                     MenuHelper.AddMenuItem("Load saved game", "LOAD", Keys.Control | Keys.O, true, OnMenuClick),
-                    MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, !GameCompleted, OnMenuClick),
+                    MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, !GameCompleted,
+                        OnMenuClick),
                     new ToolStripSeparator(),
-                    MenuHelper.AddMenuItem("Undo last move", "UNDO", Keys.Control | Keys.Z, Undo.Count > 0 && !GameCompleted, OnMenuClick),
+                });
+            var o = MenuHelper.AddMenuItem("Options");
+            o.DropDownItems.AddRange(new ToolStripItem[]
+            {
+                MenuHelper.AddMenuItem("Draw three", "DRAW3", Keys.None, true, SettingsManager.Settings.Options.DrawThree, null, OnMenuClick),
+                MenuHelper.AddMenuItem("Play sound effects", "SOUND", Keys.None, true, SettingsManager.Settings.Options.PlaySounds, null, OnMenuClick)
+            });
+            m.DropDownItems.AddRange(
+                new ToolStripItem[]
+                {
+                    o,
+                    new ToolStripSeparator(),
+                    MenuHelper.AddMenuItem("Undo last move", "UNDO", Keys.Control | Keys.Z,
+                        Undo.Count > 0 && !GameCompleted, OnMenuClick),
                     MenuHelper.AddMenuItem("Restart game", "RESTART", Keys.None, !GameCompleted, OnMenuClick),
                     new ToolStripSeparator(),
-                    MenuHelper.AddMenuItem("Auto complete...", "AUTO", Keys.Control | Keys.A, !GameCompleted, OnMenuClick),
+                    MenuHelper.AddMenuItem("Auto complete...", "AUTO", Keys.Control | Keys.A, !GameCompleted,
+                        OnMenuClick),
                     MenuHelper.AddMenuItem("Statistics", "STATS", Keys.None, true, OnMenuClick),
                     new ToolStripSeparator(),
                     MenuHelper.AddMenuItem("Exit", "EXIT", Keys.Alt | Keys.F4, true, OnMenuClick)

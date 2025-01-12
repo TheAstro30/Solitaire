@@ -4,7 +4,7 @@
 using System;
 using System.Drawing;
 
-namespace Solitaire.Classes.UI
+namespace Solitaire.Classes.UI.Internal
 {
     public class FireWork
     {

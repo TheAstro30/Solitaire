@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Media;
+using Solitaire.Classes.Helpers.System;
 
-namespace Solitaire.Classes.Helpers
+namespace Solitaire.Classes.Helpers.Management
 {
     /* Use the Force... */
     public enum SoundType
@@ -56,6 +57,10 @@ namespace Solitaire.Classes.Helpers
 
         public static void Play(SoundType type)
         {
+            if (!SettingsManager.Settings.Options.PlaySounds)
+            {
+                return;
+            }
             foreach (var s in Sounds.Where(s => s.Type == type))
             {
                 if (s.Player != null)

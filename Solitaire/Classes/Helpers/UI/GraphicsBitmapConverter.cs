@@ -6,7 +6,7 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace Solitaire.Classes.Helpers
+namespace Solitaire.Classes.Helpers.UI
 {
     public static class GraphicsBitmapConverter
     {

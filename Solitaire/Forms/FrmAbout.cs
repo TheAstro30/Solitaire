@@ -2,6 +2,7 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
+using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using Solitaire.Classes.UI;
@@ -10,18 +11,90 @@ using Solitaire.Properties;
 namespace Solitaire.Forms
 {
     /* Show info about the game - Captain James T. Kirk, of the Starship Enterprise... */
-    public partial class FrmAbout : FormEx
+    public sealed class FrmAbout : FormEx
     {
+        private readonly Button _btnOk;
+
         public FrmAbout()
         {
             /* I'm afraid, Captain, that's just illogical */
-            InitializeComponent();
+            AcceptButton = _btnOk;
+            ClientSize = new Size(309, 173);
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            StartPosition = FormStartPosition.CenterParent;
+            Text = @"About Kanga's Solitaire";
 
-            pnlIcon.BackgroundImageLayout = ImageLayout.None;
-            pnlIcon.BackgroundImage = Resources.aboutIcon.ToBitmap();
+            var pnlIcon = new Panel
+            {
+                BackColor = Color.Transparent,
+                Location = new Point(12, 12),
+                Size = new Size(64, 64),
+                BackgroundImageLayout = ImageLayout.None,
+                BackgroundImage = Resources.aboutIcon.ToBitmap()
+            };
+
+            var lblTitle = new Label
+            {
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                Location = new Point(82, 9),
+                Size = new Size(159, 25),
+                Text = @"Kanga's Solitaire"
+            };
+
+            var lblAuthor = new Label
+            {
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                Location = new Point(84, 64),
+                Size = new Size(185, 15),
+                Text = @"Written by: Jason James Newland"
+            };
 
             var version = Assembly.GetExecutingAssembly().GetName().Version;
-            lblVersion.Text = string.Format("Version: {0}.{1}.{2} (Build: {3})", version.Major, version.Minor, version.Build, version.MinorRevision);
+            var lblVersion = new Label
+            {
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                Location = new Point(84, 43),
+                Size = new Size(49, 15),
+                Text =
+                    string.Format("Version: {0}.{1}.{2} (Build: {3})", version.Major, version.Minor, version.Build,
+                        version.MinorRevision)
+            };
+
+            var lblCopyright = new Label
+            {
+                BackColor = Color.Transparent,
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                Location = new Point(84, 86),
+                Name = "lblCopyright",
+                Size = new Size(219, 33),
+                Text = @"Copyright ©2025 KangaSoft Software. All Rights Reserved."
+            };
+
+            _btnOk = new Button
+            {
+                DialogResult = DialogResult.OK,
+                Location = new Point(222, 138),
+                Size = new Size(75, 23),
+                TabIndex = 0,
+                Text = @"Ok",
+                UseVisualStyleBackColor = true
+            };
+
+            Controls.AddRange(new Control[]
+            {
+                pnlIcon, lblTitle, lblVersion, lblAuthor, lblCopyright, _btnOk
+            });
         }
     }
 }
