@@ -4,7 +4,7 @@
  * ©2025 Kangasoft Software */
 using System.Drawing;
 
-namespace Solitaire.Classes.Helpers
+namespace Solitaire.Classes.Serialization
 {
     public static class XmlFormatting
     {

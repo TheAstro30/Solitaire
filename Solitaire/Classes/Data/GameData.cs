@@ -11,21 +11,22 @@ namespace Solitaire.Classes.Data
     public sealed class GameData
     {
         /* Game-play objects */
-        public Deck GameDeck { get; set; }
-        public List<Card> DealtCards { get; set; } /* Stock */
+        public Deck StockCards { get; set; } /* Stock cards (deck) */
+        public List<Card> WasteCards { get; set; } /* Waste cards (dealt) */
 
-        public List<StackData> HomeStacks { get; set; } /* Foundation */
-        public List<StackData> PlayingStacks { get; set; } /* Tableau */
+        public List<StackData> Foundation { get; set; } /* Foundation (aces to kings) */
+        public List<StackData> Tableau { get; set; } /* Tableau (each playing stack out of 7) */
 
         public int GameTime { get; set; }
         public int GameScore { get; set; }
+        public int Moves { get; set; }
 
         public GameData()
         {
-            GameDeck = new Deck();
-            DealtCards = new List<Card>();
-            HomeStacks = new List<StackData>();
-            PlayingStacks = new List<StackData>();
+            StockCards = new Deck();
+            WasteCards = new List<Card>();
+            Foundation = new List<StackData>();
+            Tableau = new List<StackData>();
         }
 
         /* Copy constructor - reference deep copy */
@@ -34,26 +35,27 @@ namespace Solitaire.Classes.Data
             /* This is the work-around to copying lists with reference types - if you just straight copied the list
              * using a copy constructor, without using "new" keyword; any modification on the list being copied is
              * reflected in the copy... could use IClonable/MemberwiseClone... but... */
-            GameDeck = new Deck();
-            foreach (var c in data.GameDeck)
+            StockCards = new Deck();
+            foreach (var c in data.StockCards)
             {
-                GameDeck.Add(new Card(c));
+                StockCards.Add(new Card(c));
             }
-            DealtCards = new List<Card>();
-            foreach (var c in data.DealtCards)
+            WasteCards = new List<Card>();
+            foreach (var c in data.WasteCards)
             {
-                DealtCards.Add(new Card(c));
+                WasteCards.Add(new Card(c));
             }
-            HomeStacks = new List<StackData>();
-            foreach (var s in data.HomeStacks)
+            Foundation = new List<StackData>();
+            foreach (var s in data.Foundation)
             {
-                HomeStacks.Add(new StackData(s));
+                Foundation.Add(new StackData(s));
             }
-            PlayingStacks = new List<StackData>();
-            foreach (var s in data.PlayingStacks)
+            Tableau = new List<StackData>();
+            foreach (var s in data.Tableau)
             {
-                PlayingStacks.Add(new StackData(s));
+                Tableau.Add(new StackData(s));
             }
+            Moves = data.Moves;
         }      
     }
 }

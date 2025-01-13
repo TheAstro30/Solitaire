@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace Solitaire.Classes.UI.Internal
 {
-    public class FireWork
+    internal class FireWork
     {
         /* Draw some simple pretty fireworks on the background :) */
         private const double Step = 0.5;

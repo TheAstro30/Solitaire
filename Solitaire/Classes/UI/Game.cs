@@ -11,7 +11,7 @@ using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers;
 using Solitaire.Classes.Helpers.Logic;
 using Solitaire.Classes.Helpers.Management;
-using Solitaire.Classes.Helpers.System;
+using Solitaire.Classes.Helpers.SystemUtils;
 using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.Serialization;
 using Solitaire.Classes.UI.Internal;
@@ -25,23 +25,26 @@ namespace Solitaire.Classes.UI
         public Deck MasterDeck = new Deck();
         public GraphicsObjectData ObjectData = new GraphicsObjectData();
 
-        private Size _cardSize;        
-        private int _gameCenter;
-        private Rectangle _deckRegion;
+        private Rectangle _stockRegion;
+        public Size CardSize { get; private set; }      
+        public int GameCenter { get; private set; }
 
         /* Timers */
         private readonly Timer _timerGame;
         private readonly Timer _checkWin;
         private readonly Timer _timerFireWorks;
 
-        /* Dragging variables */
-        private bool _isDragging;
-        private bool _isHomeDrag;
-        private List<Card> _draggingCards = new List<Card>();
-        private int _dragStackIndex;
-        private Point _dragLocation;
-        private Bitmap _dragBitmap;
+        private readonly GraphicsRenderer _gfx;
 
+        /* Dragging variables */
+        private Bitmap _dragBitmap;
+        private bool _isHomeDrag;
+
+        public bool IsDragging { get; private set; }
+        public List<Card> DraggingCards { get; private set; }
+        public int DragStackIndex { get; private set; }
+        public Point DragLocation { get; private set; }
+       
         /* Loaded game score and time */
         private int _time;
         private int _score;
@@ -60,7 +63,7 @@ namespace Solitaire.Classes.UI
 
         /* Events raised back to form */
         public event Action<int> OnGameTimeChanged;
-        public event Action<int> OnScoreChanged;
+        public event Action<int, int> OnScoreChanged;
         #endregion
 
         #region Constructor
@@ -110,6 +113,8 @@ namespace Solitaire.Classes.UI
             }
             ObjectData = g;
             MasterDeck = new Deck(d);
+            _gfx = new GraphicsRenderer(this);
+            DraggingCards = new List<Card>();
         }
         #endregion
 
@@ -130,16 +135,15 @@ namespace Solitaire.Classes.UI
             Undo.Clear(); /* Clear undo history */
             GameCompleted = false;
             CurrentGame = new GameData();
+            _stockRegion = new Rectangle();
             _timerFireWorks.Enabled = false;
             _timerGame.Enabled = true;
             /* Copy master deck to playing deck (this is important as cards are all over the place in the class) */
             IsLoadedGame = false;
-            CurrentGame.GameDeck = new Deck(MasterDeck);
+            CurrentGame.StockCards = new Deck(MasterDeck);
             /* Shuffle the deck */
-            CurrentGame.GameDeck.Shuffle();
+            CurrentGame.StockCards.Shuffle();
             GameLogic.BuildStacks(this);
-
-            _deckRegion = new Rectangle();
             AudioManager.Play(SoundType.Shuffle);
             if (OnGameTimeChanged != null)
             {
@@ -147,7 +151,7 @@ namespace Solitaire.Classes.UI
             }
             if (OnScoreChanged != null)
             {
-                OnScoreChanged(CurrentGame.GameScore);
+                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
             }
             Invalidate();
             return true;
@@ -183,7 +187,7 @@ namespace Solitaire.Classes.UI
             }
             if (OnScoreChanged != null)
             {
-                OnScoreChanged(CurrentGame.GameScore);
+                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
             }
             _timerFireWorks.Enabled = false;
             _timerGame.Enabled = true;
@@ -214,7 +218,7 @@ namespace Solitaire.Classes.UI
             CurrentGame.GameScore -= 2;
             if (OnScoreChanged != null)
             {
-                OnScoreChanged(CurrentGame.GameScore);
+                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
             }
             Invalidate();
         }
@@ -236,7 +240,7 @@ namespace Solitaire.Classes.UI
             }
             if (OnScoreChanged != null)
             {
-                OnScoreChanged(CurrentGame.GameScore);
+                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
             }
             AudioManager.Play(SoundType.Shuffle);
             Invalidate();
@@ -251,23 +255,24 @@ namespace Solitaire.Classes.UI
             var success = false;
             while (complete)
             {
-                /* Deck card */
+                /* Stock card */
                 var movedCards = 0;
                 Card card;
-                if (CurrentGame.DealtCards.Count > 0)
+                if (CurrentGame.WasteCards.Count > 0)
                 {
-                    card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
+                    card = CurrentGame.WasteCards[CurrentGame.WasteCards.Count - 1];
                     /* Is it an ace ? - Find free home slot; if not see if it can be completed */
                     if (card.Value == 1 && GameLogic.AddAceToFreeSlot(this, card) || GameLogic.IsCompleted(this, card))
                     {
                         success = true;
-                        CurrentGame.DealtCards.Remove(card);
+                        CurrentGame.WasteCards.Remove(card);
+                        CurrentGame.Moves++;
                         movedCards++;
                         CurrentGame.GameScore += 10;
                     }
                 }
                 /* Each stack */
-                foreach (var stack in CurrentGame.PlayingStacks.Where(stack => stack.Cards.Count > 0))
+                foreach (var stack in CurrentGame.Tableau.Where(stack => stack.Cards.Count > 0))
                 {
                     card = stack.Cards[stack.Cards.Count - 1];
                     /* Is it an ace ? - Find free home slot; if not see if it can be completed */
@@ -278,6 +283,7 @@ namespace Solitaire.Classes.UI
                     success = true;
                     stack.Cards.Remove(card);
                     movedCards++;
+                    CurrentGame.Moves++;
                     CurrentGame.GameScore += 10;
                 }
                 complete = movedCards != 0;
@@ -290,7 +296,7 @@ namespace Solitaire.Classes.UI
             AudioManager.Play(SoundType.Complete);
             if (OnScoreChanged != null)
             {
-                OnScoreChanged(CurrentGame.GameScore);
+                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
             }
         }
         #endregion
@@ -327,59 +333,59 @@ namespace Solitaire.Classes.UI
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    _dragLocation = e.Location;
+                    DragLocation = e.Location;
                     HitTestData data;
                     Card card;
-                    switch (HitTest.Compare(this, e.Location, _deckRegion, out data))
+                    switch (HitTest.CompareClick(this, e.Location, _stockRegion, out data))
                     {
-                        case HitTestType.Deck:
+                        case HitTestType.Stock:
                             Undo.AddMove(CurrentGame);
                             GameLogic.Deal(this);
-                            if (CurrentGame.GameDeck.IsDeckReshuffled)
+                            if (CurrentGame.StockCards.IsDeckReshuffled)
                             {
-                                CurrentGame.GameDeck.IsDeckReshuffled = false;
+                                CurrentGame.StockCards.IsDeckReshuffled = false;
                                 CurrentGame.GameScore -= 15;
                                 if (OnScoreChanged != null)
                                 {
-                                    OnScoreChanged(CurrentGame.GameScore);
+                                    OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
                                 }
                             }
                             Invalidate();
                             break;
 
-                        case HitTestType.Dealt:
+                        case HitTestType.Waste:
                             /* Pick up first card on pile, begin drag */
                             Undo.AddMove(CurrentGame);
-                            _dragStackIndex = -1;
-                            card = CurrentGame.DealtCards[CurrentGame.DealtCards.Count - 1];
+                            DragStackIndex = -1;
+                            card = CurrentGame.WasteCards[CurrentGame.WasteCards.Count - 1];
                             card.IsHidden = false;
-                            _draggingCards.Add(card);
-                            CurrentGame.DealtCards.Remove(card);
-                            _isDragging = true;
+                            DraggingCards.Add(card);
+                            CurrentGame.WasteCards.Remove(card);
+                            IsDragging = true;
                             Invalidate();
                             break;
 
-                        case HitTestType.HomeStack:
+                        case HitTestType.Foundation:
                             /* Pick up first card on stack, begin drag */
-                            var stack = CurrentGame.HomeStacks[data.StackIndex];
+                            var stack = CurrentGame.Foundation[data.StackIndex];
                             if (stack.Cards.Count == 0)
                             {
                                 return;
                             }
                             card = stack.Cards[stack.Cards.Count - 1];
-                            _dragStackIndex = data.StackIndex;
-                            _draggingCards.Add(card);
+                            DragStackIndex = data.StackIndex;
+                            DraggingCards.Add(card);
                             stack.Cards.Remove(card);
                             if (stack.Cards.Count == 0)
                             {
                                 stack.Suit = Suit.None;
                             }
                             _isHomeDrag = true;
-                            _isDragging = true;
+                            IsDragging = true;
                             Invalidate();
                             break;
 
-                        case HitTestType.PlayStack:
+                        case HitTestType.Tableau:
                             /* Begin stack drag - validate clicked area can be dragged */
                             if (data.Cards != null)
                             {
@@ -398,7 +404,7 @@ namespace Solitaire.Classes.UI
                                     CurrentGame.GameScore += 5;
                                     if (OnScoreChanged != null)
                                     {
-                                        OnScoreChanged(CurrentGame.GameScore);
+                                        OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
                                     }
                                     return;
                                 }
@@ -413,26 +419,26 @@ namespace Solitaire.Classes.UI
                                             return;
                                         }
                                         /* Add card to list */
-                                        _draggingCards.Add(card);
+                                        DraggingCards.Add(card);
                                     }
                                     Undo.AddMove(CurrentGame);
-                                    _dragStackIndex = data.StackIndex;
+                                    DragStackIndex = data.StackIndex;
                                     /* Remove dragging cards from stack - I can't do it in above loop as it modifies the list it's comparing */
-                                    foreach (var c in _draggingCards)
+                                    foreach (var c in DraggingCards)
                                     {
-                                        CurrentGame.PlayingStacks[_dragStackIndex].Cards.Remove(c);
+                                        CurrentGame.Tableau[DragStackIndex].Cards.Remove(c);
                                     }
                                 }
                                 else
                                 {
                                     /* Single card */
                                     Undo.AddMove(CurrentGame);
-                                    _dragStackIndex = data.StackIndex;
+                                    DragStackIndex = data.StackIndex;
                                     card = data.Cards[data.CardIndex];
-                                    _draggingCards.Add(card);
-                                    CurrentGame.PlayingStacks[data.StackIndex].Cards.Remove(card);
+                                    DraggingCards.Add(card);
+                                    CurrentGame.Tableau[data.StackIndex].Cards.Remove(card);
                                 }
-                                _isDragging = true;
+                                IsDragging = true;
                                 Invalidate();
                             }
                             break;
@@ -448,112 +454,78 @@ namespace Solitaire.Classes.UI
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            if (!_isDragging)
+            if (!IsDragging)
             {
                 return;
             }
-            _dragLocation = e.Location;
+            DragLocation = e.Location;
             Invalidate();
             base.OnMouseMove(e);
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            /* TODO: I need to figure out how to check if a card is sitting on "top" of a valid drop, not just relying on x and y mouse location... */
-            if (_isDragging)
+            if (IsDragging)
             {
                 /* Hit test, validate move, drop */
-                if (_draggingCards.Count == 0)
+                if (DraggingCards.Count == 0)
                 {
                     return;
                 }
                 HitTestData data;
-                /* I need to think of a way of modifying the hittest to include the area of the dragging card... */
-                switch (HitTest.Compare(this, e.Location, _deckRegion, out data))
+                /* This rectangle intersect code does work better than using the HitTest.CompareClick method */
+                var src = new Rectangle(e.Location.X - (CardSize.Width/2), e.Location.Y + 5, CardSize.Width, CardSize.Height);
+                switch (HitTest.CompareDrop(this, src, out data))
                 {
-                    case HitTestType.HomeStack:
+                    case HitTestType.Foundation:
                         /* Dropping a card on a home stack? Cards must go from ace to king and be the same suit */
-                        if (_draggingCards.Count > 1)
+                        var stack = CurrentGame.Foundation[data.StackIndex];
+                        var c = DraggingCards[0];
+                        if (stack.Cards.Count == 0 && c.Value == 1)
                         {
-                            GameLogic.ReturnCardsToSource(this, _isHomeDrag, _dragStackIndex, _draggingCards);
+                            /* It's an ace, drop it here */
+                            stack.Suit = c.Suit;
                         }
-                        else
-                        {                            
-                            var stack = CurrentGame.HomeStacks[data.StackIndex];
-                            var card = _draggingCards[0];
-                            if (stack.Cards.Count == 0 && card.Value == 1)
-                            {
-                                /* It's an ace, drop it here */
-                                stack.Suit = card.Suit;
-                                stack.Cards.Add(card);
-                                CurrentGame.GameScore += 10;
-                                if (OnScoreChanged != null)
-                                {
-                                    OnScoreChanged(CurrentGame.GameScore);
-                                }
-                            }                                
-                            else if (stack.Cards.Count > 0 && card.Suit == stack.Suit && card.Value == stack.Cards[stack.Cards.Count - 1].Value + 1)
-                            {
-                                /* Valid drop */
-                                stack.Cards.Add(card);
-                                CurrentGame.GameScore += 10;
-                                if (OnScoreChanged != null)
-                                {
-                                    OnScoreChanged(CurrentGame.GameScore);
-                                }
-                            }
-                            else
-                            {
-                                /* Invalid */
-                                GameLogic.ReturnCardsToSource(this, _isHomeDrag, _dragStackIndex, _draggingCards);
-                            }
-                        }
+                        stack.Cards.Add(c);
+                        CurrentGame.GameScore += 10;
+                        CurrentGame.Moves++;
                         break;
 
-                    case HitTestType.PlayStack:
-                        /* Is this slot empty and the card being dragged is a King? */
-                        if (data.Cards == null && _draggingCards[0].Value == 13)
+                    case HitTestType.Tableau:
+                        if (data.CardIndex == -1 && DraggingCards[0].Value == 13)
                         {
-                            CurrentGame.PlayingStacks[data.StackIndex].Cards.AddRange(_draggingCards);
+                            /* Slot is vacant and first card being dragged is a king */
+                            CurrentGame.Tableau[data.StackIndex].Cards.AddRange(DraggingCards);
                             /* Make sure no cards are hidden */
-                            foreach (var card in CurrentGame.PlayingStacks[data.StackIndex].Cards)
+                            foreach (var card in CurrentGame.Tableau[data.StackIndex].Cards)
                             {
                                 card.IsHidden = false;
                             }
+                            CurrentGame.GameScore += 5;
+                            CurrentGame.Moves++;
                         }
-                        else if (data.Cards != null)
+                        else if (data.CardIndex >= 0)
                         {
-                            /* Validate dragging cards can be placed on top of this card */
-                            if (GameLogic.IsValidMove(_draggingCards[0], data.Cards[data.CardIndex]))
-                            {
-                                data.Cards.AddRange(_draggingCards);
-                                CurrentGame.GameScore += _isHomeDrag ? -15 : 5;
-                                if (OnScoreChanged != null)
-                                {
-                                    OnScoreChanged(CurrentGame.GameScore);
-                                }
-                            }
-                            else
-                            {
-                                /* Put it back where it came from */
-                                GameLogic.ReturnCardsToSource(this, _isHomeDrag, _dragStackIndex, _draggingCards);
-                            }
+                            /* Cards already present in this stack and is valid drop */
+                            CurrentGame.Tableau[data.StackIndex].Cards.AddRange(DraggingCards);
+                            CurrentGame.GameScore += _isHomeDrag ? -15 : 5;
+                            CurrentGame.Moves++;
                         }
                         else
                         {
                             /* Put it back where it came from */
-                            GameLogic.ReturnCardsToSource(this, _isHomeDrag, _dragStackIndex, _draggingCards);
+                            GameLogic.ReturnCardsToSource(this, _isHomeDrag, DragStackIndex, DraggingCards);
                         }
                         break;
 
                     default:
                         /* Put it back where it came from */
-                        GameLogic.ReturnCardsToSource(this, _isHomeDrag, _dragStackIndex, _draggingCards);
+                        GameLogic.ReturnCardsToSource(this, _isHomeDrag, DragStackIndex, DraggingCards);
                         break;
                 }
-                _isDragging = false;
+                IsDragging = false;
                 _isHomeDrag = false;
-                _draggingCards = new List<Card>();
+                DraggingCards = new List<Card>();
                 if (_dragBitmap != null)
                 {
                     _dragBitmap.Dispose();
@@ -561,6 +533,10 @@ namespace Solitaire.Classes.UI
                 }
                 Invalidate();
                 AudioManager.Play(SoundType.Drop);
+                if (OnScoreChanged != null)
+                {
+                    OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
+                }
             }
             base.OnMouseUp(e);
         }
@@ -574,7 +550,7 @@ namespace Solitaire.Classes.UI
                 return;
             }
             /* Calculate what the size of the images should be based on clientsize */
-            var img = ObjectData.CardBack;
+            var img = ObjectData.CardBacks[0];
             var ratioX = (double)ClientSize.Width / img.Width;
             var ratioY = (double)ClientSize.Height / img.Height;
             /* Use whichever multiplier is smaller */
@@ -582,9 +558,9 @@ namespace Solitaire.Classes.UI
             /* Now we can get the new height and width - only to the actual card size */
             var newWidth = Convert.ToInt32(img.Width * ratio) / 5;
             var newHeight = Convert.ToInt32(img.Height * ratio) / 5;
-            _cardSize = new Size(newWidth > img.Width ? img.Width : newWidth, newHeight > img.Height ? img.Height : newHeight);
+            CardSize = new Size(newWidth > img.Width ? img.Width : newWidth, newHeight > img.Height ? img.Height : newHeight);
             /* This is used for centering drawing of images on X axis and for mouse hit test */
-            _gameCenter = (ClientSize.Width/2) - (_cardSize.Width/2);
+            GameCenter = (ClientSize.Width/2) - (CardSize.Width/2);
             Invalidate();
             base.OnResize(e);
         }
@@ -602,18 +578,18 @@ namespace Solitaire.Classes.UI
             {
                 if (_dragBitmap == null)
                 {
-                    var rect = GraphicsRenderer.Draw(this, e.Graphics, _cardSize, _isDragging, _dragStackIndex, _gameCenter);
+                    var rect = _gfx.Draw(e.Graphics);
                     if (rect != Rectangle.Empty)
                     {
-                        _deckRegion = rect;
+                        _stockRegion = rect;
                     }
                 }
                 /* Draw dragging cards */
-                if (_isDragging)
+                if (IsDragging)
                 {
                     if (_dragBitmap == null)
                     {
-                        /* Clone the screen - this just speeds up drawing dragging cards as we don't have to do the above loops in the drawing methods */
+                        /* Clone the screen - this just speeds up drawing dragging cards as we don't have to do the above loops in the GraphicsRenderer drawing methods */
                         _dragBitmap = new Bitmap(ClientSize.Width, ClientSize.Height);
                         using (var g = Graphics.FromImage(_dragBitmap))
                         {
@@ -625,7 +601,7 @@ namespace Solitaire.Classes.UI
                         }
                     }
                     e.Graphics.DrawImage(_dragBitmap, 0, 0, ClientSize.Width, ClientSize.Height);
-                    GraphicsRenderer.DrawDrag(this, e.Graphics, _cardSize, _draggingCards, _dragLocation);
+                    _gfx.DrawDrag(e.Graphics);
                 }
                 else
                 {
@@ -661,7 +637,7 @@ namespace Solitaire.Classes.UI
             CurrentGame.GameScore -= 5;
             if (OnScoreChanged != null)
             {
-                OnScoreChanged(CurrentGame.GameScore);
+                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
             }
         }
 
@@ -692,7 +668,7 @@ namespace Solitaire.Classes.UI
             }
             if (OnScoreChanged != null)
             {
-                OnScoreChanged(CurrentGame.GameScore);
+                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
             }
             SettingsManager.UpdateStats(CurrentGame.GameTime, CurrentGame.GameScore);
             AudioManager.Play(SoundType.Win);

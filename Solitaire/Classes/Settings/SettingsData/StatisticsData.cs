@@ -3,7 +3,6 @@
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
 using System;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace Solitaire.Classes.Settings.SettingsData
@@ -31,7 +30,7 @@ namespace Solitaire.Classes.Settings.SettingsData
 
         public override string ToString()
         {
-            var winPercent = Math.Round(((float) GamesWon/GamesLost)*100, 1);
+            var winPercent = Math.Round(((float) GamesWon/TotalGamesPlayed)*100, 1);
             return
                 string.Format(
                     "Total games played: {0}\r\n\r\nGames won: {1} ({2}% win rate)\r\n\r\nGames lost: {3} ({4}% loss rate)\r\n\r\nShortest game time: {5}\r\n\r\nLongest game time: {6}\r\n\r\nHighest score: {7}",

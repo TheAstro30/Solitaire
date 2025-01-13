@@ -4,7 +4,6 @@
  * ©2025 Kangasoft Software */
 using System.Drawing;
 using System.Windows.Forms;
-using Solitaire.Classes.Helpers;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.UI;
 using Solitaire.Properties;

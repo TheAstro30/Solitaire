@@ -5,7 +5,7 @@
 using System.Windows.Forms;
 using Solitaire.Forms;
 
-namespace Solitaire.Classes.Helpers
+namespace Solitaire.Classes.Helpers.UI
 {
     /* Simple custom messagebox class */
     public enum CustomMessageBoxButtons

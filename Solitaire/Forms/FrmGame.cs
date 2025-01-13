@@ -8,7 +8,8 @@ using System.Reflection;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers;
 using Solitaire.Classes.Helpers.Management;
-using Solitaire.Classes.Helpers.System;
+using Solitaire.Classes.Helpers.SystemUtils;
+using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.UI;
 
 namespace Solitaire.Forms
@@ -79,6 +80,8 @@ namespace Solitaire.Forms
                 new ToolStripSeparator(),
                 new ToolStripLabel("Elapsed time: 00:00") {AutoSize = false, Width = 150, TextAlign = ContentAlignment.MiddleLeft},
                 new ToolStripSeparator(),
+                new ToolStripLabel("Total moves: 0") {AutoSize = false, Width = 120, TextAlign = ContentAlignment.MiddleLeft},
+                new ToolStripSeparator(),
                 new ToolStripLabel("Score: 0") {AutoSize = false, Width = 120, TextAlign = ContentAlignment.MiddleLeft}
             });
 
@@ -93,7 +96,7 @@ namespace Solitaire.Forms
             if (loc == Point.Empty)
             {
                 /* Scale form to half the screen width/height */
-                var screen = MonitorUtil.GetCurrentMonitor(this);
+                var screen = Monitor.GetCurrentMonitor(this);
                 var x = screen.Bounds.Width / 2;
                 var y = screen.Bounds.Height / 2;
                 Size = new Size(x, y);
@@ -180,14 +183,23 @@ namespace Solitaire.Forms
 
         private void TimeChanged(int seconds)
         {
+            if (!Visible)
+            {
+                return;
+            }
             _statusBar.Items[0].Text = string.Format("Game number: {0}", SettingsManager.Settings.Statistics.TotalGamesPlayed);
             var ts = new TimeSpan(0, 0, 0, seconds);
             _statusBar.Items[2].Text = string.Format("Elapsed time: {0:00}:{1:00}", ts.Minutes, ts.Seconds);
-        }
+        }        
 
-        private void ScoreChanged(int score)
+        private void ScoreChanged(int score, int moves)
         {
-            _statusBar.Items[4].Text = string.Format("Score: {0}", score);
+            if (!Visible)
+            {
+                return;
+            }
+            _statusBar.Items[4].Text = string.Format("Total moves: {0}", moves);
+            _statusBar.Items[6].Text = string.Format("Score: {0}", score);
         }
 
         /* Menu click callback */
@@ -221,6 +233,17 @@ namespace Solitaire.Forms
                     {
                         CustomMessageBox.Show(this, "Current game was saved.", "Game Saved", CustomMessageBoxButtons.Ok);
                     }
+                    break;
+
+                case "DECK":
+                    using (var f = new FrmDeckBack(this, SettingsManager.Settings.Options.DeckBack))
+                    {
+                        if (f.ShowDialog(this) == DialogResult.OK && f.SelectedImage != -1)
+                        {
+                            SettingsManager.Settings.Options.DeckBack = f.SelectedImage;
+                            Invalidate();
+                        }
+                    }                    
                     break;
 
                 case "DRAW3":
@@ -294,11 +317,13 @@ namespace Solitaire.Forms
                     MenuHelper.AddMenuItem("Load saved game", "LOAD", Keys.Control | Keys.O, true, OnMenuClick),
                     MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, !GameCompleted,
                         OnMenuClick),
-                    new ToolStripSeparator(),
+                    new ToolStripSeparator()
                 });
             var o = MenuHelper.AddMenuItem("Options");
             o.DropDownItems.AddRange(new ToolStripItem[]
             {
+                MenuHelper.AddMenuItem("Choose deck back image","DECK", OnMenuClick),
+                new ToolStripSeparator(), 
                 MenuHelper.AddMenuItem("Draw three", "DRAW3", Keys.None, true, SettingsManager.Settings.Options.DrawThree, null, OnMenuClick),
                 MenuHelper.AddMenuItem("Play sound effects", "SOUND", Keys.None, true, SettingsManager.Settings.Options.PlaySounds, null, OnMenuClick)
             });

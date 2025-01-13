@@ -10,6 +10,9 @@ namespace Solitaire.Classes.Settings.SettingsData
     [Serializable]
     public sealed class GameOptionData
     {
+        [XmlAttribute("deckBack")]
+        public int DeckBack { get; set; }
+
         [XmlAttribute("drawThree")]
         public bool DrawThree { get; set; }
 

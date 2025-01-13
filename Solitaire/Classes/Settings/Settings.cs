@@ -5,7 +5,7 @@
 using System;
 using System.Drawing;
 using System.Xml.Serialization;
-using Solitaire.Classes.Helpers;
+using Solitaire.Classes.Serialization;
 using Solitaire.Classes.Settings.SettingsData;
 
 namespace Solitaire.Classes.Settings

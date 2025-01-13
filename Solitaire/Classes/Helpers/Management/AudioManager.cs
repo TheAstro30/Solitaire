@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Media;
-using Solitaire.Classes.Helpers.System;
+using Solitaire.Classes.Helpers.SystemUtils;
 
 namespace Solitaire.Classes.Helpers.Management
 {

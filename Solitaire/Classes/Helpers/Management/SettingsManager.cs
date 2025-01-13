@@ -3,7 +3,7 @@
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
 using System.IO;
-using Solitaire.Classes.Helpers.System;
+using Solitaire.Classes.Helpers.SystemUtils;
 using Solitaire.Classes.Serialization;
 
 namespace Solitaire.Classes.Helpers.Management

@@ -4,13 +4,14 @@
  * ©2025 Kangasoft Software */
 using System.Drawing;
 using Solitaire.Classes.Data;
+using Solitaire.Classes.Helpers.SystemUtils;
 using Solitaire.Classes.Serialization;
 using Solitaire.Properties;
 
 namespace Solitaire.Classes.Helpers
 {
     /* To be excluded from solution including deck-set.png & bg.png from resources
-     * DON'T forget to re-include deck-set.png & bg.png in Resources before attempting to execute
+     * DON'T forget to re-include deck-set.png, bg.png & card-backs.png in Resources before attempting to execute
      * code below and remember to remove it! */
     public static class DeckBuilder
     {
@@ -23,64 +24,78 @@ namespace Solitaire.Classes.Helpers
         public static void BuildDeck()
         {
             ObjData.Background = Resources.bg;
-
+            Bitmap cardImage;
+            Rectangle src;
             for (var y = 0; y <= 3; y++)
             {
                 var startY = CardSize.Height * y;
-                for (var x = 0; x <= 13; x++)
+                for (var x = 0; x <= 12; x++)
                 {
-                    var cardImage = new Bitmap(CardSize.Width, CardSize.Height);
-                    var src = new Rectangle(x * CardSize.Width, startY, CardSize.Width, CardSize.Height);
-                    GetImage(cardImage, src);
+                    /* Set each card image */
+                    System.Diagnostics.Debug.Print("> Set card Suit: {0} Value: {1}", y, x + 1);
+                    cardImage = new Bitmap(CardSize.Width, CardSize.Height);
+                    src = new Rectangle(x*CardSize.Width, startY, CardSize.Width, CardSize.Height);
+                    GetImage(cardImage, src, Resources.card_set);
                     cardImage.MakeTransparent(Color.FromArgb(1, 1, 1));
-                    /* Card 14 - which doesn't exist (there's only 13 per suit), set card back and home stack images */
-                    if (x == 13)
-                    {
-                        switch (y)
-                        {
-                            case 0:
-                                /* Set card back */
-                                System.Diagnostics.Debug.Print("set back");
-                                ObjData.CardBack = cardImage;
-                                break;
-
-                            case 1:
-                                /* Set home stack image */
-                                System.Diagnostics.Debug.Print("set homestack");
-                                ObjData.HomeStack = cardImage;
-                                break;
-
-                            case 2:
-                                /* Set empty deck image */
-                                ObjData.EmptyDeck = cardImage;
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        /* Normal card */
-                        var card = new Card(false, (Suit)y, x + 1, cardImage);
-                        /* Push new image to the deck */
-                        Deck.Add(card);
-                    }
+                    var card = new Card(false, (Suit) y, x + 1, cardImage);
+                    /* Push new image to the deck */
+                    Deck.Add(card);
                 }
+            }
+            /* Build assets */
+            for (var asset = 0; asset <= 2; asset++)
+            {
+                cardImage = new Bitmap(CardSize.Width, CardSize.Height);
+                src = new Rectangle(asset * CardSize.Width, 0, CardSize.Width, CardSize.Height);
+                GetImage(cardImage, src, Resources.assets);
+                cardImage.MakeTransparent(Color.FromArgb(1, 1, 1));
+                switch (asset)
+                {
+                    case 0:
+                        /* Set empty stock image */
+                        System.Diagnostics.Debug.Print(">> Set empty stock");
+                        ObjData.EmptyStock = cardImage;
+                        break;
+
+                    case 1:
+                        /* Set empty foundation image */
+                        System.Diagnostics.Debug.Print(">> Set empty foundation");
+                        ObjData.EmptyFoundation = cardImage;
+                        break;
+
+                    case 2:
+                        /* Set empty tableau image */
+                        System.Diagnostics.Debug.Print(">> Set empty taleau");
+                        ObjData.EmptyTableau = cardImage;
+                        break;
+                }
+            }
+            /* Build the deck backs list */
+            for (var i = 0; i <= 5; i++)
+            {
+                cardImage = new Bitmap(CardSize.Width, CardSize.Height);
+                src = new Rectangle(i * CardSize.Width, 0, CardSize.Width, CardSize.Height);
+                GetImage(cardImage, src, Resources.deck_backs);
+                cardImage.MakeTransparent(Color.FromArgb(1, 1, 1));
+                System.Diagnostics.Debug.Print(">>> Adding deck back image " + (i + 1));
+                ObjData.CardBacks.Add(cardImage);
             }
             /* Serialize the output */
             if (BinarySerialize<Deck>.Save(AppPath.MainDir(@"\data\gfx\cards.dat"), Deck))
             {
-                System.Diagnostics.Debug.Print("Sucessfully wrote cards.dat!");
+                System.Diagnostics.Debug.Print(">>>> Sucessfully wrote cards.dat!");
             }
             if (BinarySerialize<GraphicsObjectData>.Save(AppPath.MainDir(@"\data\gfx\obj.dat"), ObjData))
             {
-                System.Diagnostics.Debug.Print("Sucessfully wrote obj.dat!");
+                System.Diagnostics.Debug.Print(">>>> Sucessfully wrote obj.dat!");
             }
         }
 
-        private static void GetImage(Image cardBmp, Rectangle srcRegion)
+        private static void GetImage(Image cardBmp, Rectangle srcRegion, Bitmap srcBitmap)
         {
             using (var gfx = Graphics.FromImage(cardBmp))
             {
-                gfx.DrawImage(Resources.card_set, new Rectangle(0, 0, cardBmp.Width, cardBmp.Height), srcRegion, GraphicsUnit.Pixel);
+                gfx.DrawImage(srcBitmap, new Rectangle(0, 0, cardBmp.Width, cardBmp.Height), srcRegion, GraphicsUnit.Pixel);
             }
         }
     }

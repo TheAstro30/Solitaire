@@ -17,69 +17,69 @@ namespace Solitaire.Classes.Helpers.Logic
             /* Set home stacks */
             for (var i = 0; i <= 3; i++)
             {
-                ctl.CurrentGame.HomeStacks.Add(new StackData());
+                ctl.CurrentGame.Foundation.Add(new StackData());
             }
             /* Set up playable stacks */
-            var stackSize = 8;
+            var stackSize = 1;
             for (var i = 0; i <= 6; i++)
             {
                 var stack = new StackData();
                 for (var y = 1; y <= stackSize; y++)
                 {
-                    var card = ctl.CurrentGame.GameDeck[0];
+                    var card = ctl.CurrentGame.StockCards[0];
                     card.IsHidden = y != stackSize;
                     stack.Cards.Add(card);
-                    ctl.CurrentGame.GameDeck.Remove(card);
+                    ctl.CurrentGame.StockCards.Remove(card);
                 }
-                ctl.CurrentGame.PlayingStacks.Add(stack);
-                stackSize--;
+                ctl.CurrentGame.Tableau.Add(stack);
+                stackSize++;
             }
         }
 
         public static void Deal(Game ctl)
         {
             /* Deal cards from deck - may need to consult the NTSB */
-            if (ctl.CurrentGame.GameDeck.Count > 0)
+            if (ctl.CurrentGame.StockCards.Count > 0)
             {
                 Card card;
                 if (SettingsManager.Settings.Options.DrawThree)
                 {
                     /* Need to draw 3 cards out of deck */
                     var count = 0;
-                    for (var i = 0; i <= ctl.CurrentGame.GameDeck.Count - 1; i++)
+                    for (var i = 0; i <= ctl.CurrentGame.StockCards.Count - 1; i++)
                     {
                         if (count == 3)
                         {
                             break;
                         }
                         count++;
-                        card = ctl.CurrentGame.GameDeck[0];
+                        card = ctl.CurrentGame.StockCards[0];
                         card.IsHidden = false;
-                        ctl.CurrentGame.DealtCards.Add(card);
-                        ctl.CurrentGame.GameDeck.Remove(card);
+                        ctl.CurrentGame.WasteCards.Add(card);
+                        ctl.CurrentGame.StockCards.Remove(card);
                     }
                 }
                 else
                 {
-                    card = ctl.CurrentGame.GameDeck[0];
+                    card = ctl.CurrentGame.StockCards[0];
                     card.IsHidden = false;
-                    ctl.CurrentGame.DealtCards.Add(card);
-                    ctl.CurrentGame.GameDeck.Remove(card);
+                    ctl.CurrentGame.WasteCards.Add(card);
+                    ctl.CurrentGame.StockCards.Remove(card);
                 }
                 AudioManager.Play(SoundType.Deal);
             }
             else
             {
-                if (ctl.CurrentGame.DealtCards.Count == 0)
+                if (ctl.CurrentGame.WasteCards.Count == 0)
                 {
                     /* Nothing to do */
                     AudioManager.Play(SoundType.Empty);
                     return;
                 }
                 /* Copy cards from disposed back to normal deck */
-                ctl.CurrentGame.GameDeck.AddRange(ctl.CurrentGame.DealtCards);
-                ctl.CurrentGame.GameDeck.IsDeckReshuffled = true;
-                ctl.CurrentGame.DealtCards = new List<Card>();
+                ctl.CurrentGame.StockCards.AddRange(ctl.CurrentGame.WasteCards);
+                ctl.CurrentGame.StockCards.IsDeckReshuffled = true;
+                ctl.CurrentGame.WasteCards = new List<Card>();
                 AudioManager.Play(SoundType.Shuffle);
             }
         }
@@ -93,7 +93,7 @@ namespace Solitaire.Classes.Helpers.Logic
 
         public static bool CheckWin(Game ctl)
         {
-            return ctl.CurrentGame.HomeStacks.Sum(stack => stack.Cards.Count) == 52;
+            return ctl.CurrentGame.Foundation.Sum(stack => stack.Cards.Count) == 52;
         }
 
         public static void ReturnCardsToSource(Game ctl, bool homeStack, int dragStackIndex, List<Card> dragCards)
@@ -102,25 +102,25 @@ namespace Solitaire.Classes.Helpers.Logic
             if (dragStackIndex == -1)
             {
                 /* Return to disposed pile */
-                ctl.CurrentGame.DealtCards.Add(dragCards[0]);
+                ctl.CurrentGame.WasteCards.Add(dragCards[0]);
             }
             else
             {
                 if (homeStack)
                 {
-                    var stack = ctl.CurrentGame.HomeStacks[dragStackIndex];
+                    var stack = ctl.CurrentGame.Foundation[dragStackIndex];
                     var card = dragCards[0];
                     stack.Cards.Add(card);
                     stack.Suit = card.Suit;
                     return;
                 }
-                ctl.CurrentGame.PlayingStacks[dragStackIndex].Cards.AddRange(dragCards);
+                ctl.CurrentGame.Tableau[dragStackIndex].Cards.AddRange(dragCards);
             }
         }
 
         public static bool IsCompleted(Game ctl, Card card)
         {
-            foreach (var stack in from stack in ctl.CurrentGame.HomeStacks where stack.Cards.Count > 0 let cd = stack.Cards[stack.Cards.Count - 1] where cd.Suit == card.Suit && cd.Value == card.Value - 1 select stack)
+            foreach (var stack in from stack in ctl.CurrentGame.Foundation where stack.Cards.Count > 0 let cd = stack.Cards[stack.Cards.Count - 1] where cd.Suit == card.Suit && cd.Value == card.Value - 1 select stack)
             {
                 Undo.AddMove(ctl.CurrentGame);
                 stack.Cards.Add(card);
@@ -131,9 +131,10 @@ namespace Solitaire.Classes.Helpers.Logic
 
         public static bool AddAceToFreeSlot(Game ctl, Card card)
         {
-            foreach (var stack in ctl.CurrentGame.HomeStacks.Where(stack => stack.Cards.Count == 0).Where(stack => !card.IsHidden))
+            foreach (var stack in ctl.CurrentGame.Foundation.Where(stack => stack.Cards.Count == 0).Where(stack => !card.IsHidden))
             {
                 Undo.AddMove(ctl.CurrentGame);
+                stack.Suit = card.Suit;
                 stack.Cards.Add(card);
                 return true;
             }

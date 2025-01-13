@@ -5,9 +5,9 @@
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Solitaire.Classes.Helpers.System
+namespace Solitaire.Classes.Helpers.SystemUtils
 {
-    public static class MonitorUtil
+    public static class Monitor
     {
         /* Quick util for getting the current monitor the application is running on */
         public static Screen GetCurrentMonitor(Form wnd)

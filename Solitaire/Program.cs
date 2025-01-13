@@ -5,7 +5,7 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using Solitaire.Classes.Helpers.System;
+using Solitaire.Classes.Helpers.SystemUtils;
 using Solitaire.Forms;
 
 namespace Solitaire
@@ -21,6 +21,7 @@ namespace Solitaire
         [STAThread]
         static void Main()
         {
+            //DeckBuilder.BuildDeck();
             /* Check that the graphics data files exist - include DeckBuilder.cs call here before this check if you're experiencing problems.
              * Refer to README.MD */
             if (!File.Exists(AppPath.MainDir(@"\data\gfx\cards.dat")) ||

@@ -2,139 +2,154 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
-using System.Diagnostics;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.UI;
 
 namespace Solitaire.Classes.Helpers.UI
 {
-    public static class GraphicsRenderer
+    public class GraphicsRenderer
     {
-        public static Rectangle Draw(Game ctl, Graphics e, Size cardSize, bool dragging, int dragStackIndex, int screenCenter)
+        /* This class splits code from Game.cs up into a more managable chunk (it was originally on Game.cs itself) */
+        private readonly Game _gameCtl;
+
+        public GraphicsRenderer(Game gameCtl)
+        {
+            _gameCtl = gameCtl;
+        }
+
+        public Rectangle Draw(Graphics e)
         {
             /* Now, the fun part - drawing all the data... draw background tiled */
-            using (var brush = new TextureBrush(ctl.ObjectData.Background, WrapMode.Tile))
+            using (var brush = new TextureBrush(_gameCtl.ObjectData.Background, WrapMode.Tile))
             {
                 /* Yes, we can set the forms background image property... */
-                e.FillRectangle(brush, 0, 0, ctl.ClientSize.Width, ctl.ClientSize.Height);
+                e.FillRectangle(brush, 0, 0, _gameCtl.ClientSize.Width, _gameCtl.ClientSize.Height);
             }
             /* Draw deck */
-            var rect = DrawDeck(ctl, e, cardSize, screenCenter);
+            var rect = DrawStock(e);
             /* Draw dealt hand */
-            DrawDealt(ctl, e, cardSize, dragging, dragStackIndex, screenCenter);
+            DrawWaste(e);
             /* Draw "foundation" slots */
-            DrawHomeStacks(ctl, e, cardSize, screenCenter);
+            DrawFoundations(e);
             /* Draw playing stacks */
-            DrawPlayStacks(ctl, e, cardSize, screenCenter);
+            DrawTableaus(e);
             return rect;
         }
 
-        public static void DrawDrag(Game ctl, Graphics e, Size cardSize, List<Card> dragCards, Point location)
+        public void DrawDrag(Graphics e)
         {
-            if (dragCards.Count == 0)
+            if (_gameCtl.DraggingCards.Count == 0)
             {
+                /* Nothing to do */
                 return;
             }
-            var visibleOffset = cardSize.Height / 8;
+            var visibleOffset = _gameCtl.CardSize.Height / 8;
             var offsetY = 0;
-            var x = cardSize.Width / 2;
-            foreach (var card in dragCards)
+            var x = _gameCtl.CardSize.Width / 2;
+            foreach (var card in _gameCtl.DraggingCards)
             {
-                e.DrawImage(card.CardImage, location.X - x, (location.Y - 5) + offsetY, cardSize.Width, cardSize.Height);
+                e.DrawImage(card.CardImage, _gameCtl.DragLocation.X - x, (_gameCtl.DragLocation.Y - 5) + offsetY, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
                 offsetY += visibleOffset;
             }
         }
 
-        private static Rectangle DrawDeck(Game ctl, Graphics e, Size cardSize, int screenCenter)
+        private Rectangle DrawStock(Graphics e)
         {
             var stackSize = 4;
-            if (ctl.CurrentGame.GameDeck.Count < 8)
+            if (_gameCtl.CurrentGame.StockCards.Count < 8)
             {
                 stackSize = 3;
             }
-            if (ctl.CurrentGame.GameDeck.Count <= 4)
+            if (_gameCtl.CurrentGame.StockCards.Count <= 4)
             {
                 stackSize = 2;
             }
-            if (ctl.CurrentGame.GameDeck.Count <= 1)
+            if (_gameCtl.CurrentGame.StockCards.Count <= 1)
             {
                 stackSize = 0;
             }
 
-            var stackOffset = screenCenter - ((cardSize.Width + 40) * 3);
+            var back = SettingsManager.Settings.Options.DeckBack;
+            var stackOffset = _gameCtl.GameCenter - ((_gameCtl.CardSize.Width + 40) * 3);
             var xOffset = 0;
             var yOffset = 0;
-
-            if (ctl.CurrentGame.GameDeck.Count == 0)
+            
+            if (_gameCtl.CurrentGame.StockCards.Count == 0)
             {
-                /* Deck is empty, draw empty deck image and piss off */
-                e.DrawImage(ctl.ObjectData.EmptyDeck, stackOffset + xOffset, 40 + yOffset, cardSize.Width, cardSize.Height);
+                /* Stock is empty, draw empty deck image and piss off */
+                e.DrawImage(_gameCtl.ObjectData.EmptyStock, stackOffset + xOffset, 40 + yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
                 return Rectangle.Empty;
             }
             /* Draw deck as if it's a pile of cards */
             for (var i = 0; i <= stackSize; i++)
             {
-                e.DrawImage(ctl.ObjectData.CardBack, stackOffset + xOffset, 40 + yOffset, cardSize.Width, cardSize.Height);
+                e.DrawImage(_gameCtl.ObjectData.CardBacks[back], stackOffset + xOffset, 40 + yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
                 xOffset += 2;
                 yOffset += 2;
             }
-
-            return new Rectangle(stackOffset + xOffset, 40 + yOffset, cardSize.Width, cardSize.Height);
+            /* Return the region where the last/top card is drawn- used for mouse hit test */
+            return new Rectangle(stackOffset + xOffset, 40 + yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
         }
 
-        private static void DrawDealt(Game ctl, Graphics e, Size cardSize, bool dragging, int dragStackIndex, int screenCenter)
+        private void DrawWaste(Graphics e)
         {
-            if (ctl.CurrentGame.DealtCards.Count == 0)
+            if (_gameCtl.CurrentGame.WasteCards.Count == 0)
             {
                 /* Do nothing */
                 return;
             }
-            var stackOffset = screenCenter - ((cardSize.Width + 40) * 2);
+            /* Where to start drawing */
+            var stackOffset = _gameCtl.GameCenter - ((_gameCtl.CardSize.Width + 40) * 2);
+            /* X/Y offset for appearance of a "stack" of cards */
             var xOffset = 0;
             var yOffset = 0;
             var index = 0;
             var draw3 = SettingsManager.Settings.Options.DrawThree;
-            var draw3Offset = cardSize.Width/5;
-            var draw3Start = ctl.CurrentGame.DealtCards.Count - 3;
+            var draw3Offset = _gameCtl.CardSize.Width / 5;
+            /* Point in the deck thats 3 cards less than the top card index */
+            var draw3Start = _gameCtl.CurrentGame.WasteCards.Count - 3;
             if (draw3Start < 0)
             {
                 draw3Start = 0;
             }
-            foreach (var c in ctl.CurrentGame.DealtCards)
+            foreach (var c in _gameCtl.CurrentGame.WasteCards)
             {
-                if (draw3 && index == draw3Start && ctl.CurrentGame.DealtCards.Count > 3 && dragging && dragStackIndex == -1)
+                if (draw3 && index == draw3Start && _gameCtl.CurrentGame.WasteCards.Count > 3 && _gameCtl.IsDragging && _gameCtl.DragStackIndex == -1)
                 {
+                    /* If we're in draw three mode, we only want to draw the last two cards before the picked up card */
                     index++;
                     continue;
                 }
-                var rect = new Rectangle(stackOffset + xOffset, 40 + yOffset, cardSize.Width, cardSize.Height);
+                /* Set card region where it is drawn on screen */
+                var rect = new Rectangle(stackOffset + xOffset, 40 + yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
                 e.DrawImage(c.CardImage, rect);
-                c.Region = rect;
-                /* Draw as a pile of cards */
+                c.Region = rect;     
+                /* Increase our draw three mode index */
                 index++;
                 if (draw3 && index > draw3Start)
                 {
+                    /* In draw three mode, we want to see 3 cards drawn with an X offset greater than the one before */
                     xOffset += draw3Offset;
                 }
                 if (index != 1 && index != 5 && index != 9 && index != 13)
                 {
                     continue;
                 }
+                /* Draw as a pile of cards by increasing offsets (or at least give the appearance it's a pile; looks a bit strange in draw three mode, but I actually like it) */
                 xOffset += 2;
                 yOffset += 2;
             }
         }
 
-        private static void DrawHomeStacks(Game ctl, Graphics e, Size cardSize, int screenCenter)
+        private void DrawFoundations(Graphics e)
         {
-            foreach (var stack in ctl.CurrentGame.HomeStacks)
-            {
-                var rect = new Rectangle(screenCenter, 40, cardSize.Width, cardSize.Height);
-                e.DrawImage(ctl.ObjectData.HomeStack, rect);
+            var center = _gameCtl.GameCenter;
+            foreach (var stack in _gameCtl.CurrentGame.Foundation)
+            {               
+                var rect = new Rectangle(center, 40, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
+                e.DrawImage(_gameCtl.ObjectData.EmptyFoundation, rect);
                 /* Draw last card */
                 if (stack.Cards.Count > 0)
                 {
@@ -142,30 +157,36 @@ namespace Solitaire.Classes.Helpers.UI
                     e.DrawImage(card.CardImage, rect);
                     card.Region = rect;
                 }
+                /* Set hit test region */
                 stack.Region = rect;
-                screenCenter += cardSize.Width + 40;
+                center += _gameCtl.CardSize.Width + 40;
             }
         }
 
-        private static void DrawPlayStacks(Game ctl, Graphics e, Size cardSize, int screenCenter)
+        private void DrawTableaus(Graphics e)
         {
-            var yOffset = cardSize.Height + 70;
-            var invisibleOffset = cardSize.Height / 15;
-            var visibleOffset = cardSize.Height / 8;
-            var stackOffset = screenCenter - ((cardSize.Width + 40) * 3);
-            foreach (var stack in ctl.CurrentGame.PlayingStacks)
+            var back = SettingsManager.Settings.Options.DeckBack;
+            var yOffset = _gameCtl.CardSize.Height + 70;
+            var invisibleOffset = _gameCtl.CardSize.Height / 15;
+            var visibleOffset = _gameCtl.CardSize.Height / 8;
+            var stackOffset = _gameCtl.GameCenter - ((_gameCtl.CardSize.Width + 40) * 3);
+            foreach (var stack in _gameCtl.CurrentGame.Tableau)
             {
                 var offset = 0;
+                /* Draw empty tableau */
+                e.DrawImage(_gameCtl.ObjectData.EmptyTableau, stackOffset, yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
+                /* Draw each card in the tableau */
                 foreach (var card in stack.Cards)
                 {
-                    var img = card.IsHidden ? ctl.ObjectData.CardBack : card.CardImage;
-                    var rect = new Rectangle(stackOffset, yOffset + offset, cardSize.Width, cardSize.Height);
+                    var img = card.IsHidden ? _gameCtl.ObjectData.CardBacks[back] : card.CardImage;
+                    var rect = new Rectangle(stackOffset, yOffset + offset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
                     e.DrawImage(img, rect);
                     card.Region = rect;
                     offset += card.IsHidden ? invisibleOffset : visibleOffset;
                 }
-                stack.Region = new Rectangle(stackOffset, yOffset, cardSize.Width, cardSize.Height);
-                stackOffset += cardSize.Width + 40;
+                /* Set hit test region */
+                stack.Region = new Rectangle(stackOffset, yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
+                stackOffset += _gameCtl.CardSize.Width + 40;
             }
         }
     }
