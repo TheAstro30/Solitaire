@@ -2,8 +2,11 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
+
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.UI;
 
@@ -45,17 +48,34 @@ namespace Solitaire.Classes.Helpers.UI
                 /* Nothing to do */
                 return;
             }
-            var visibleOffset = _gameCtl.CardSize.Height / 8;
+            var visibleOffset = _gameCtl.CardSize.Height/8;
             var offsetY = 0;
-            var x = _gameCtl.CardSize.Width / 2;
+            var x = _gameCtl.CardSize.Width/2;
             foreach (var card in _gameCtl.DraggingCards)
             {
-                e.DrawImage(card.CardImage, _gameCtl.DragLocation.X - x, (_gameCtl.DragLocation.Y - 5) + offsetY, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
+                e.DrawImage(card.CardImage, _gameCtl.DragLocation.X - x, (_gameCtl.DragLocation.Y - 5) + offsetY,
+                    _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
                 offsetY += visibleOffset;
             }
         }
 
-        private Rectangle DrawStock(Graphics e)
+        public void DrawFocusRing(Rectangle region, int cardCount)
+        {
+            /* Finally figured out how to draw the stupid thing when there's more than one card after 2 hours! I decided to go with drawing a
+             * rounded rectangle directly, rather than fucking around with a graphic */
+            var offset = _gameCtl.CardSize.Height/8;
+            var rect = new Rectangle(region.X, region.Y, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height + (offset*cardCount));
+            using (var g = _gameCtl.CreateGraphics())
+            {
+                using (var p = new Pen(Color.DarkGreen, 3))
+                {
+                    g.DrawRoundedRectangle(p, rect, 5);
+                }
+            }
+        }
+
+        /* Internal drawing methods */
+        internal Rectangle DrawStock(Graphics e)
         {
             var stackSize = 4;
             if (_gameCtl.CurrentGame.StockCards.Count < 8)
@@ -70,6 +90,8 @@ namespace Solitaire.Classes.Helpers.UI
             {
                 stackSize = 0;
             }
+            
+            var rect = Rectangle.Empty;
 
             var back = SettingsManager.Settings.Options.DeckBack;
             var stackOffset = _gameCtl.GameCenter - ((_gameCtl.CardSize.Width + 40) * 3);
@@ -79,21 +101,23 @@ namespace Solitaire.Classes.Helpers.UI
             if (_gameCtl.CurrentGame.StockCards.Count == 0)
             {
                 /* Stock is empty, draw empty deck image and piss off */
-                e.DrawImage(_gameCtl.ObjectData.EmptyStock, stackOffset + xOffset, 40 + yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
-                return Rectangle.Empty;
+                rect = new Rectangle(stackOffset, 40, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
+                e.DrawImage(_gameCtl.ObjectData.EmptyStock, rect);
+                return rect;
             }
             /* Draw deck as if it's a pile of cards */
             for (var i = 0; i <= stackSize; i++)
             {
-                e.DrawImage(_gameCtl.ObjectData.CardBacks[back], stackOffset + xOffset, 40 + yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
+                rect = new Rectangle(stackOffset + xOffset, 40 + yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
+                e.DrawImage(_gameCtl.ObjectData.CardBacks[back], rect);
                 xOffset += 2;
                 yOffset += 2;
             }
-            /* Return the region where the last/top card is drawn- used for mouse hit test */
-            return new Rectangle(stackOffset + xOffset, 40 + yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
+            /* Return the region where the last/top card is drawn - used for mouse hit test */
+            return rect;
         }
 
-        private void DrawWaste(Graphics e)
+        internal void DrawWaste(Graphics e)
         {
             if (_gameCtl.CurrentGame.WasteCards.Count == 0)
             {
@@ -143,7 +167,7 @@ namespace Solitaire.Classes.Helpers.UI
             }
         }
 
-        private void DrawFoundations(Graphics e)
+        internal void DrawFoundations(Graphics e)
         {
             var center = _gameCtl.GameCenter;
             foreach (var stack in _gameCtl.CurrentGame.Foundation)
@@ -163,7 +187,7 @@ namespace Solitaire.Classes.Helpers.UI
             }
         }
 
-        private void DrawTableaus(Graphics e)
+        internal void DrawTableaus(Graphics e)
         {
             var back = SettingsManager.Settings.Options.DeckBack;
             var yOffset = _gameCtl.CardSize.Height + 70;

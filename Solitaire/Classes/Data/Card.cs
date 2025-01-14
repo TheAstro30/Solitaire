@@ -12,8 +12,8 @@ namespace Solitaire.Classes.Data
     {
         Hearts = 0,
         Diamonds = 1,
-        Clubs = 2,
-        Spades = 3,
+        Spades = 2,
+        Clubs = 3,
         None = 4
     }
 

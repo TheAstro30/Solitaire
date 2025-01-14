@@ -280,6 +280,10 @@ namespace Solitaire.Forms
                     RestartGame(IsLoadedGame);
                     break;
 
+                case "HINT":
+                    Hint();
+                    break;
+
                 case "AUTO":
                     AutoComplete();
                     break;
@@ -322,7 +326,7 @@ namespace Solitaire.Forms
             var o = MenuHelper.AddMenuItem("Options");
             o.DropDownItems.AddRange(new ToolStripItem[]
             {
-                MenuHelper.AddMenuItem("Choose deck back image","DECK", OnMenuClick),
+                MenuHelper.AddMenuItem("Choose deck image","DECK", OnMenuClick),
                 new ToolStripSeparator(), 
                 MenuHelper.AddMenuItem("Draw three", "DRAW3", Keys.None, true, SettingsManager.Settings.Options.DrawThree, null, OnMenuClick),
                 MenuHelper.AddMenuItem("Play sound effects", "SOUND", Keys.None, true, SettingsManager.Settings.Options.PlaySounds, null, OnMenuClick)
@@ -336,8 +340,10 @@ namespace Solitaire.Forms
                         Undo.Count > 0 && !GameCompleted, OnMenuClick),
                     MenuHelper.AddMenuItem("Restart game", "RESTART", Keys.None, !GameCompleted, OnMenuClick),
                     new ToolStripSeparator(),
+                    MenuHelper.AddMenuItem("Hint...", "HINT", Keys.Control | Keys.H, true, OnMenuClick),
                     MenuHelper.AddMenuItem("Auto complete...", "AUTO", Keys.Control | Keys.A, !GameCompleted,
                         OnMenuClick),
+                    new ToolStripSeparator(),
                     MenuHelper.AddMenuItem("Statistics", "STATS", Keys.None, true, OnMenuClick),
                     new ToolStripSeparator(),
                     MenuHelper.AddMenuItem("Exit", "EXIT", Keys.Alt | Keys.F4, true, OnMenuClick)

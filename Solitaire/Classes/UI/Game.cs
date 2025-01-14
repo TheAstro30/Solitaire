@@ -25,8 +25,10 @@ namespace Solitaire.Classes.UI
         public Deck MasterDeck = new Deck();
         public GraphicsObjectData ObjectData = new GraphicsObjectData();
 
+        public bool IsDeckReDealt { get; set; }
+
         private Rectangle _stockRegion;
-        public Size CardSize { get; private set; }      
+        public Size CardSize { get; private set; }
         public int GameCenter { get; private set; }
 
         /* Timers */
@@ -38,7 +40,7 @@ namespace Solitaire.Classes.UI
 
         /* Dragging variables */
         private Bitmap _dragBitmap;
-        private bool _isHomeDrag;
+        private bool _isFoundationDrag;
 
         public bool IsDragging { get; private set; }
         public List<Card> DraggingCards { get; private set; }
@@ -60,6 +62,12 @@ namespace Solitaire.Classes.UI
         
         /* Game is won */
         public bool GameCompleted { get; set; }
+
+        /* Hints */
+        private int _hintIndex;
+        private readonly Timer _hintTimer;
+        private bool _hintDestShown;
+
 
         /* Events raised back to form */
         public event Action<int> OnGameTimeChanged;
@@ -97,6 +105,12 @@ namespace Solitaire.Classes.UI
             };
             _timerFireWorks.Tick += OnFireWorks;
 
+            _hintTimer = new Timer
+            {
+                Interval = 500
+            };
+            _hintTimer.Tick += OnHintTimer;
+
             /* Setup game data */
             CurrentGame = new GameData();
             var d = new Deck();
@@ -133,6 +147,7 @@ namespace Solitaire.Classes.UI
             }
             SettingsManager.Settings.Statistics.TotalGamesPlayed++;
             Undo.Clear(); /* Clear undo history */
+            GameLogic.ClearHints();
             GameCompleted = false;
             CurrentGame = new GameData();
             _stockRegion = new Rectangle();
@@ -140,9 +155,10 @@ namespace Solitaire.Classes.UI
             _timerGame.Enabled = true;
             /* Copy master deck to playing deck (this is important as cards are all over the place in the class) */
             IsLoadedGame = false;
+            IsDeckReDealt = false;
+            /* Shuffle the master deck - makes it more random */
+            MasterDeck.Shuffle();
             CurrentGame.StockCards = new Deck(MasterDeck);
-            /* Shuffle the deck */
-            CurrentGame.StockCards.Shuffle();
             GameLogic.BuildStacks(this);
             AudioManager.Play(SoundType.Shuffle);
             if (OnGameTimeChanged != null)
@@ -168,6 +184,7 @@ namespace Solitaire.Classes.UI
                 return false;
             }
             Undo.Clear(); /* Clear undo history */
+            GameLogic.ClearHints();
             CurrentGame = d;
             IsLoadedGame = true;
 
@@ -215,7 +232,7 @@ namespace Solitaire.Classes.UI
             CurrentGame = new GameData(d) { GameTime = t, GameScore = s };
             AudioManager.Play(SoundType.Drop);
             /* Penalize by 2 points on the score for using undo */
-            CurrentGame.GameScore -= 2;
+            CurrentGame.GameScore -= 5;
             if (OnScoreChanged != null)
             {
                 OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
@@ -300,6 +317,36 @@ namespace Solitaire.Classes.UI
             }
         }
         #endregion
+
+        #region Show hint
+        public void Hint()
+        {
+            var h = GameLogic.GetHint(this);
+            if (h.Count > 0)
+            {
+                if (_hintIndex > h.Count - 1)
+                {
+                    _hintIndex = 0;
+                }
+                _gfx.DrawFocusRing(h[_hintIndex].SourceRegion, h[_hintIndex].SourceCardCount);
+                _hintTimer.Tag = h[_hintIndex].DestinationRegion;
+                _hintTimer.Enabled = true;
+                _hintIndex++;
+            }
+            else
+            {
+                /* Tell user to draw */
+                _hintIndex = 0;                
+                if (CurrentGame.StockCards.Count == 0)
+                {
+                    return;
+                }
+                _hintTimer.Tag = null;
+                _hintTimer.Enabled = true;
+                _gfx.DrawFocusRing(_stockRegion, 0);
+            }
+        }
+        #endregion
         #endregion
 
         #region Overrides
@@ -341,10 +388,10 @@ namespace Solitaire.Classes.UI
                         case HitTestType.Stock:
                             Undo.AddMove(CurrentGame);
                             GameLogic.Deal(this);
-                            if (CurrentGame.StockCards.IsDeckReshuffled)
+                            if (IsDeckReDealt)
                             {
-                                CurrentGame.StockCards.IsDeckReshuffled = false;
-                                CurrentGame.GameScore -= 15;
+                                IsDeckReDealt = false;
+                                CurrentGame.GameScore -= 5;
                                 if (OnScoreChanged != null)
                                 {
                                     OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
@@ -380,7 +427,7 @@ namespace Solitaire.Classes.UI
                             {
                                 stack.Suit = Suit.None;
                             }
-                            _isHomeDrag = true;
+                            _isFoundationDrag = true;
                             IsDragging = true;
                             Invalidate();
                             break;
@@ -508,23 +555,23 @@ namespace Solitaire.Classes.UI
                         {
                             /* Cards already present in this stack and is valid drop */
                             CurrentGame.Tableau[data.StackIndex].Cards.AddRange(DraggingCards);
-                            CurrentGame.GameScore += _isHomeDrag ? -15 : 5;
+                            CurrentGame.GameScore += _isFoundationDrag ? -15 : 5;
                             CurrentGame.Moves++;
                         }
                         else
                         {
                             /* Put it back where it came from */
-                            GameLogic.ReturnCardsToSource(this, _isHomeDrag, DragStackIndex, DraggingCards);
+                            GameLogic.ReturnCardsToSource(this, _isFoundationDrag);
                         }
                         break;
 
                     default:
                         /* Put it back where it came from */
-                        GameLogic.ReturnCardsToSource(this, _isHomeDrag, DragStackIndex, DraggingCards);
+                        GameLogic.ReturnCardsToSource(this, _isFoundationDrag);
                         break;
                 }
                 IsDragging = false;
-                _isHomeDrag = false;
+                _isFoundationDrag = false;
                 DraggingCards = new List<Card>();
                 if (_dragBitmap != null)
                 {
@@ -538,6 +585,7 @@ namespace Solitaire.Classes.UI
                     OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
                 }
             }
+            GameLogic.ClearHints();
             base.OnMouseUp(e);
         }
         #endregion
@@ -561,6 +609,7 @@ namespace Solitaire.Classes.UI
             CardSize = new Size(newWidth > img.Width ? img.Width : newWidth, newHeight > img.Height ? img.Height : newHeight);
             /* This is used for centering drawing of images on X axis and for mouse hit test */
             GameCenter = (ClientSize.Width/2) - (CardSize.Width/2);
+            GameLogic.ClearHints();
             Invalidate();
             base.OnResize(e);
         }
@@ -579,8 +628,9 @@ namespace Solitaire.Classes.UI
                 if (_dragBitmap == null)
                 {
                     var rect = _gfx.Draw(e.Graphics);
+                    /* It shouldn't be empty... */
                     if (rect != Rectangle.Empty)
-                    {
+                    {                        
                         _stockRegion = rect;
                     }
                 }
@@ -593,11 +643,7 @@ namespace Solitaire.Classes.UI
                         _dragBitmap = new Bitmap(ClientSize.Width, ClientSize.Height);
                         using (var g = Graphics.FromImage(_dragBitmap))
                         {
-                            g.DrawImage(
-                                GraphicsBitmapConverter.GraphicsToBitmap(e.Graphics,
-                                    new Rectangle(0, 0, ClientSize.Width, ClientSize.Height)), 0, 0, ClientSize.Width,
-                                ClientSize.Height);
-
+                            _gfx.Draw(g);
                         }
                     }
                     e.Graphics.DrawImage(_dragBitmap, 0, 0, ClientSize.Width, ClientSize.Height);
@@ -701,6 +747,30 @@ namespace Solitaire.Classes.UI
                 }
             }
             Invalidate();
+        }
+
+        private void OnHintTimer(object sender, EventArgs e)
+        {        
+            if (_hintDestShown)
+            {
+                Invalidate();
+                _hintDestShown = false;                
+                _hintTimer.Enabled = false;
+                return;
+            }
+            _hintDestShown = true;
+            var o = (Timer)sender;           
+            if (o.Tag != null)
+            {
+                var tag = (Rectangle)o.Tag;
+                if (tag == Rectangle.Empty)
+                {
+                    /* Do nothing */
+                    return;
+                }
+                /* Draw hint destination highlight */
+                _gfx.DrawFocusRing(tag, 0);
+            }
         }
         #endregion
     }

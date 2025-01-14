@@ -19,8 +19,6 @@ namespace Solitaire.Classes.Data
 
         public Image EmptyTableau { get; set; }
 
-        public Image CardHighlight { get; set; }
-
         public List<Image> CardBacks { get; set; }
 
         public GraphicsObjectData()

@@ -69,7 +69,6 @@
     <Compile Include="Classes\Helpers\SystemUtils\Monitor.cs" />
     <Compile Include="Classes\Helpers\UI\CustomMessageBox.cs" />
     <Compile Include="Classes\Helpers\Logic\GameLogic.cs" />
-    <Compile Include="Classes\Helpers\UI\GraphicsBitmapConverter.cs" />
     <Compile Include="Classes\Helpers\UI\GraphicsRenderer.cs" />
     <Compile Include="Classes\Helpers\UI\HitTest.cs" />
     <Compile Include="Classes\Settings\SettingsData\GameOptionData.cs" />
@@ -103,9 +102,6 @@
     <Compile Include="Forms\FrmDeckBack.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmDeckBack.Designer.cs">
-      <DependentUpon>FrmDeckBack.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\FrmGame.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -114,9 +110,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Forms\FrmDeckBack.resx">
-      <DependentUpon>FrmDeckBack.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -128,7 +121,11 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
-    <None Include="ClassDiagram1.cd" />
+    <None Include="Images\assets.png" />
+    <None Include="Images\bg.png" />
+    <None Include="Images\card-highlight.png" />
+    <None Include="Images\card-set.png" />
+    <None Include="Images\deck-backs.png" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -141,10 +138,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Icons\aboutIcon.ico" />
-    <None Include="Images\bg.png" />
-    <None Include="Images\card-set.png" />
-    <None Include="Images\deck-backs.png" />
-    <None Include="Images\assets.png" />
     <Content Include="mainIcon.ico" />
   </ItemGroup>
   <ItemGroup>
