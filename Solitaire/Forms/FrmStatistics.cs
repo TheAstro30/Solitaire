@@ -14,7 +14,7 @@ namespace Solitaire.Forms
     {
         private readonly Button _btnOk;
 
-        public FrmStatistics()
+        public FrmStatistics(Game game)
         {
             AcceptButton = _btnOk;
             ClientSize = new Size(305, 263);
@@ -59,12 +59,15 @@ namespace Solitaire.Forms
 
             _btnOk = new Button
             {
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 DialogResult = DialogResult.OK,
-                Location = new Point(218, 228),
-                Size = new Size(75, 23),
+                Location = new Point(183, 228),
+                Size = new Size(110, 28),
                 TabIndex = 0,
                 Text = @"Ok",
-                UseVisualStyleBackColor = true
+                BackgroundImage = game.ObjectData.ButtonOk,
+                BackgroundImageLayout = ImageLayout.Tile,
+                ForeColor = Color.White
             };
 
             Controls.AddRange(new Control[]

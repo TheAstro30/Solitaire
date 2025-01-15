@@ -4,6 +4,7 @@
  * ©2025 Kangasoft Software */
 using System;
 using System.Xml.Serialization;
+using Solitaire.Classes.Helpers;
 
 namespace Solitaire.Classes.Settings.SettingsData
 {
@@ -36,15 +37,9 @@ namespace Solitaire.Classes.Settings.SettingsData
                     "Total games played: {0}\r\n\r\nGames won: {1} ({2}% win rate)\r\n\r\nGames lost: {3} ({4}% loss rate)\r\n\r\nShortest game time: {5}\r\n\r\nLongest game time: {6}\r\n\r\nHighest score: {7}",
                     TotalGamesPlayed, GamesWon, winPercent, GamesLost,
                     Math.Round(100 - winPercent, 1),
-                    FormatTime(ShortestGameTime),
-                    FormatTime(LongestGameTime),
+                    Utils.FormatTime(ShortestGameTime),
+                    Utils.FormatTime(LongestGameTime),
                     HighestScore);
-        }
-
-        private static string FormatTime(int secs)
-        {
-            var ts = new TimeSpan(0, 0, 0, secs);
-            return string.Format("{0:00}:{1:00}", ts.Minutes, ts.Seconds);
         }
     }
 }

@@ -4,7 +4,6 @@
  * ©2025 Kangasoft Software */
 using System.Drawing;
 using Solitaire.Classes.Data;
-using Solitaire.Classes.Helpers.SystemUtils;
 using Solitaire.Classes.Serialization;
 using Solitaire.Properties;
 
@@ -36,7 +35,6 @@ namespace Solitaire.Classes.Helpers
                     cardImage = new Bitmap(CardSize.Width, CardSize.Height);
                     src = new Rectangle(x*CardSize.Width, startY, CardSize.Width, CardSize.Height);
                     GetImage(cardImage, src, Resources.card_set);
-                    cardImage.MakeTransparent(Color.FromArgb(1, 1, 1));
                     var card = new Card(false, (Suit) y, x + 1, cardImage);
                     /* Push new image to the deck */
                     Deck.Add(card);
@@ -48,7 +46,7 @@ namespace Solitaire.Classes.Helpers
                 cardImage = new Bitmap(CardSize.Width, CardSize.Height);
                 src = new Rectangle(asset * CardSize.Width, 0, CardSize.Width, CardSize.Height);
                 GetImage(cardImage, src, Resources.assets);
-                cardImage.MakeTransparent(Color.FromArgb(1, 1, 1));
+                //cardImage.MakeTransparent(Color.FromArgb(1, 1, 1));
                 switch (asset)
                 {
                     case 0:
@@ -76,16 +74,20 @@ namespace Solitaire.Classes.Helpers
                 cardImage = new Bitmap(CardSize.Width, CardSize.Height);
                 src = new Rectangle(i * CardSize.Width, 0, CardSize.Width, CardSize.Height);
                 GetImage(cardImage, src, Resources.deck_backs);
-                cardImage.MakeTransparent(Color.FromArgb(1, 1, 1));
                 System.Diagnostics.Debug.Print(">>> Adding deck back image " + (i + 1));
                 ObjData.CardBacks.Add(cardImage);
             }
+            /* Other images */
+            ObjData.ButtonOk = Resources.button_ok;
+            ObjData.ButtonCancel = Resources.button_cancel;
+            ObjData.NewGameBackground = Resources.new_game_bg;
+            ObjData.Logo = Resources.logo;
             /* Serialize the output */
-            if (BinarySerialize<Deck>.Save(AppPath.MainDir(@"\data\gfx\cards.dat"), Deck))
+            if (BinarySerialize<Deck>.Save(Utils.MainDir(@"\data\gfx\cards.dat"), Deck))
             {
                 System.Diagnostics.Debug.Print(">>>> Sucessfully wrote cards.dat!");
             }
-            if (BinarySerialize<GraphicsObjectData>.Save(AppPath.MainDir(@"\data\gfx\obj.dat"), ObjData))
+            if (BinarySerialize<GraphicsObjectData>.Save(Utils.MainDir(@"\data\gfx\obj.dat"), ObjData))
             {
                 System.Diagnostics.Debug.Print(">>>> Sucessfully wrote obj.dat!");
             }

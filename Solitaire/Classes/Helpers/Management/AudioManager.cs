@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Media;
-using Solitaire.Classes.Helpers.SystemUtils;
 
 namespace Solitaire.Classes.Helpers.Management
 {
@@ -38,12 +37,12 @@ namespace Solitaire.Classes.Helpers.Management
             Sounds.AddRange(
                 new[]
                 {
-                    LoadSound(AppPath.MainDir(@"\data\sound\card-shuffle.wav"), SoundType.Shuffle),
-                    LoadSound(AppPath.MainDir(@"\data\sound\card-deal.wav"), SoundType.Deal),
-                    LoadSound(AppPath.MainDir(@"\data\sound\card-drop.wav"), SoundType.Drop),
-                    LoadSound(AppPath.MainDir(@"\data\sound\card-complete.wav"), SoundType.Complete), 
-                    LoadSound(AppPath.MainDir(@"\data\sound\card-none.wav"), SoundType.Empty),
-                    LoadSound(AppPath.MainDir(@"\data\sound\game-win.wav"), SoundType.Win)
+                    LoadSound(Utils.MainDir(@"\data\sound\card-shuffle.wav"), SoundType.Shuffle),
+                    LoadSound(Utils.MainDir(@"\data\sound\card-deal.wav"), SoundType.Deal),
+                    LoadSound(Utils.MainDir(@"\data\sound\card-drop.wav"), SoundType.Drop),
+                    LoadSound(Utils.MainDir(@"\data\sound\card-complete.wav"), SoundType.Complete), 
+                    LoadSound(Utils.MainDir(@"\data\sound\card-none.wav"), SoundType.Empty),
+                    LoadSound(Utils.MainDir(@"\data\sound\game-win.wav"), SoundType.Win)
                 });
         }
 

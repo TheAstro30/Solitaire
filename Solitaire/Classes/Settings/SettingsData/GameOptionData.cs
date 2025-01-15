@@ -13,9 +13,6 @@ namespace Solitaire.Classes.Settings.SettingsData
         [XmlAttribute("deckBack")]
         public int DeckBack { get; set; }
 
-        [XmlAttribute("drawThree")]
-        public bool DrawThree { get; set; }
-
         [XmlAttribute("sound")]
         public bool PlaySounds { get; set; }
     }

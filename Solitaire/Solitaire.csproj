@@ -66,11 +66,11 @@
   <ItemGroup>
     <Compile Include="Classes\Data\GraphicsObjectData.cs" />
     <Compile Include="Classes\Data\StackData.cs" />
-    <Compile Include="Classes\Helpers\SystemUtils\Monitor.cs" />
-    <Compile Include="Classes\Helpers\UI\CustomMessageBox.cs" />
     <Compile Include="Classes\Helpers\Logic\GameLogic.cs" />
+    <Compile Include="Classes\Helpers\UI\Dialogs.cs" />
     <Compile Include="Classes\Helpers\UI\GraphicsRenderer.cs" />
     <Compile Include="Classes\Helpers\UI\HitTest.cs" />
+    <Compile Include="Classes\Helpers\Utils.cs" />
     <Compile Include="Classes\Settings\SettingsData\GameOptionData.cs" />
     <Compile Include="Classes\Settings\SettingsData\StatisticsData.cs" />
     <Compile Include="Classes\UI\Internal\Firework.cs" />
@@ -88,11 +88,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Classes\Data\GameData.cs" />
-    <Compile Include="Classes\Helpers\SystemUtils\AppPath.cs" />
-    <Compile Include="Classes\Helpers\MenuHelper.cs" />
-    <Compile Include="Classes\Helpers\MyExtensions.cs" />
     <Compile Include="Classes\Serialization\XmlSerialize.cs" />
-    <Compile Include="Classes\Helpers\Undo.cs" />
     <Compile Include="Forms\FrmAbout.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -105,11 +101,20 @@
     <Compile Include="Forms\FrmGame.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FrmNew.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmNew.Designer.cs">
+      <DependentUpon>FrmNew.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FrmStatistics.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Forms\FrmNew.resx">
+      <DependentUpon>FrmNew.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -121,11 +126,6 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
-    <None Include="Images\assets.png" />
-    <None Include="Images\bg.png" />
-    <None Include="Images\card-highlight.png" />
-    <None Include="Images\card-set.png" />
-    <None Include="Images\deck-backs.png" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

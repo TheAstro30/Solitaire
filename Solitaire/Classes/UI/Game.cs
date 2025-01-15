@@ -11,7 +11,6 @@ using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers;
 using Solitaire.Classes.Helpers.Logic;
 using Solitaire.Classes.Helpers.Management;
-using Solitaire.Classes.Helpers.SystemUtils;
 using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.Serialization;
 using Solitaire.Classes.UI.Internal;
@@ -25,6 +24,7 @@ namespace Solitaire.Classes.UI
         public Deck MasterDeck = new Deck();
         public GraphicsObjectData ObjectData = new GraphicsObjectData();
 
+        public bool IsGameRunning { get { return _timerGame.Enabled; }}
         public bool IsDeckReDealt { get; set; }
 
         private Rectangle _stockRegion;
@@ -32,6 +32,7 @@ namespace Solitaire.Classes.UI
         public int GameCenter { get; private set; }
 
         /* Timers */
+        private readonly Timer _timerStart;
         private readonly Timer _timerGame;
         private readonly Timer _checkWin;
         private readonly Timer _timerFireWorks;
@@ -55,6 +56,7 @@ namespace Solitaire.Classes.UI
         private const int MaxFireWorks = 10;
         private readonly FireWork[] _fireWorks = new FireWork[MaxFireWorks];
         private static readonly Random FireWorkPosition = new Random();
+        private bool _cleared;
 
         /* Current game being played */
         public bool IsLoadedGame { get; private set; }
@@ -87,6 +89,13 @@ namespace Solitaire.Classes.UI
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
 
+            _timerStart = new Timer
+            {
+                Interval = 500,
+                Enabled = true
+            };
+            _timerStart.Tick += OnGameStart;
+
             _timerGame = new Timer
             {
                 Interval = 1000
@@ -101,7 +110,7 @@ namespace Solitaire.Classes.UI
 
             _timerFireWorks = new Timer
             {
-                Interval = 10
+                Interval = 10 /* On my machine uses about 7% CPU when updating; 16% at 1ms - no real speed difference */
             };
             _timerFireWorks.Tick += OnFireWorks;
 
@@ -114,13 +123,13 @@ namespace Solitaire.Classes.UI
             /* Setup game data */
             CurrentGame = new GameData();
             var d = new Deck();
-            if (!BinarySerialize<Deck>.Load(AppPath.MainDir(@"\data\gfx\cards.dat"), ref d))
+            if (!BinarySerialize<Deck>.Load(Utils.MainDir(@"\data\gfx\cards.dat"), ref d))
             {
                 /* Complete error */
                 return;
             }
             var g = new GraphicsObjectData();
-            if (!BinarySerialize<GraphicsObjectData>.Load(AppPath.MainDir(@"\data\gfx\obj.dat"), ref g))
+            if (!BinarySerialize<GraphicsObjectData>.Load(Utils.MainDir(@"\data\gfx\obj.dat"), ref g))
             {
                 /* Complete error */
                 return;
@@ -134,22 +143,44 @@ namespace Solitaire.Classes.UI
 
         #region Public methods
         #region New game
-        public bool NewGame(bool ask = true)
+        public void NewGame(bool ask = true)
         {
             if (ask && !GameCompleted)
             {
                 /* Ask user if they want to start a new game */
                 if (CustomMessageBox.Show(this, "Are you sure you want to quit the current game?", "Quit Current Game") == DialogResult.No)
                 {
-                    return false;
+                    return;
                 }
                 SettingsManager.Settings.Statistics.GamesLost++;
+            }
+            var draw3 = false;
+            using (var ng = NewGameDialog.Show(this))
+            {
+                if (ng.DialogResult == DialogResult.Cancel)
+                {
+                    return;
+                }
+                switch (ng.NewGameDialogResult)
+                {
+                    case NewGameDialogResult.DrawThree:
+                        draw3 = true;
+                        break;
+
+                    case NewGameDialogResult.LoadGame:
+                        if (!LoadSavedGame())
+                        {
+                            CustomMessageBox.Show(this, "No game was loaded.\r\n\r\nSave a game to be recalled later first.", "Error", CustomMessageBoxButtons.Ok);
+                            NewGame(false);
+                        }
+                        return;
+                }
             }
             SettingsManager.Settings.Statistics.TotalGamesPlayed++;
             Undo.Clear(); /* Clear undo history */
             GameLogic.ClearHints();
             GameCompleted = false;
-            CurrentGame = new GameData();
+            CurrentGame = new GameData {IsDrawThree = draw3};
             _stockRegion = new Rectangle();
             _timerFireWorks.Enabled = false;
             _timerGame.Enabled = true;
@@ -170,7 +201,6 @@ namespace Solitaire.Classes.UI
                 OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
             }
             Invalidate();
-            return true;
         }
         #endregion
 
@@ -179,7 +209,7 @@ namespace Solitaire.Classes.UI
         {
             /* Load a saved game */
             var d = new GameData();
-            if (!BinarySerialize<GameData>.Load(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), ref d))
+            if (!BinarySerialize<GameData>.Load(Utils.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), ref d))
             {
                 return false;
             }
@@ -215,7 +245,7 @@ namespace Solitaire.Classes.UI
         public bool SaveCurrentGame()
         {
             /* Save current game - if it's a completed game, don't save it */
-            return !GameCompleted && BinarySerialize<GameData>.Save(AppPath.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), CurrentGame);
+            return !GameCompleted && BinarySerialize<GameData>.Save(Utils.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), CurrentGame);
         }
         #endregion
 
@@ -351,16 +381,6 @@ namespace Solitaire.Classes.UI
 
         #region Overrides
         #region Form
-        protected override void OnLoad(EventArgs e)
-        {
-            if (DesignMode)
-            {
-                return;
-            }
-            NewGame(false);
-            base.OnLoad(e);
-        }
-
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             /* Update stats */
@@ -625,6 +645,7 @@ namespace Solitaire.Classes.UI
             }
             if (!_timerFireWorks.Enabled)
             {
+                _cleared = false;
                 if (_dragBitmap == null)
                 {
                     var rect = _gfx.Draw(e.Graphics);
@@ -657,7 +678,14 @@ namespace Solitaire.Classes.UI
             else
             {
                 /* Draw fireworks winning sequence */
-                e.Graphics.Clear(Color.Black);
+                if (!_cleared)
+                {
+                    /* Clear screen ONCE - set form backcolor to black, and the next foreach loop draws much fast with less CPU usage;
+                     * .Clear() is actually a CPU hog */
+                    _cleared = true;
+                    e.Graphics.Clear(Color.Black);
+                }
+                /* On my machine (which the specs aren't that great), I get about 6-7% CPU usage with this drawing loop, which is acceptable */
                 foreach (var fw in _fireWorks.Where(fw => fw != null))
                 {
                     fw.Paint(e.Graphics);
@@ -669,6 +697,12 @@ namespace Solitaire.Classes.UI
         #endregion
 
         #region Timers
+        private void OnGameStart(object sender, EventArgs e)
+        {
+            _timerStart.Enabled = false;
+            NewGame(false);
+        }
+
         private void OnGameTimer(object sender, EventArgs e)
         {
             if (OnGameTimeChanged != null)

@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers;
 using Solitaire.Classes.Helpers.Management;
-using Solitaire.Classes.Helpers.SystemUtils;
 using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.UI;
 
@@ -28,6 +27,7 @@ namespace Solitaire.Forms
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             ClientSize = new Size(720, 470);
             Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            BackColor = Color.Black;
                        
             MinimumSize = new Size(720, 470);
             StartPosition = FormStartPosition.Manual;
@@ -42,7 +42,7 @@ namespace Solitaire.Forms
 
             _statusBar = new StatusStrip
             {
-                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 Location = new Point(0, 409),
                 Padding = new Padding(1, 0, 16, 0),
                 Size = new Size(704, 22),
@@ -76,13 +76,10 @@ namespace Solitaire.Forms
             /* Status bar */
             _statusBar.Items.AddRange(new ToolStripItem[]
             {
-                new ToolStripLabel("Game number: 0") {AutoSize = false, Width = 150, TextAlign = ContentAlignment.MiddleLeft},
-                new ToolStripSeparator(),
-                new ToolStripLabel("Elapsed time: 00:00") {AutoSize = false, Width = 150, TextAlign = ContentAlignment.MiddleLeft},
-                new ToolStripSeparator(),
-                new ToolStripLabel("Total moves: 0") {AutoSize = false, Width = 120, TextAlign = ContentAlignment.MiddleLeft},
-                new ToolStripSeparator(),
-                new ToolStripLabel("Score: 0") {AutoSize = false, Width = 120, TextAlign = ContentAlignment.MiddleLeft}
+                new ToolStripLabel("Game number: 0") {AutoSize = false, Width = 150, TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control},
+                new ToolStripLabel("Elapsed time: 0s") {AutoSize = false, Width = 200, TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control},
+                new ToolStripLabel("Total moves: 0") {AutoSize = false, Width = 120, TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control},
+                new ToolStripLabel("Score: 0") {AutoSize = false, Width = 120, TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control}
             });
 
             OnGameTimeChanged += TimeChanged;
@@ -96,7 +93,7 @@ namespace Solitaire.Forms
             if (loc == Point.Empty)
             {
                 /* Scale form to half the screen width/height */
-                var screen = Monitor.GetCurrentMonitor(this);
+                var screen = Utils.GetCurrentMonitor(this);
                 var x = screen.Bounds.Width / 2;
                 var y = screen.Bounds.Height / 2;
                 Size = new Size(x, y);
@@ -173,12 +170,13 @@ namespace Solitaire.Forms
 
         private void OnSysTrayDoubleClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            if (e.Button != MouseButtons.Left)
             {
-                Show();
-                WindowState = _originalWindowState;
-                _sysTray.Visible = false;
+                return;
             }
+            Show();
+            WindowState = _originalWindowState;
+            _sysTray.Visible = false;
         }
 
         private void TimeChanged(int seconds)
@@ -188,8 +186,7 @@ namespace Solitaire.Forms
                 return;
             }
             _statusBar.Items[0].Text = string.Format("Game number: {0}", SettingsManager.Settings.Statistics.TotalGamesPlayed);
-            var ts = new TimeSpan(0, 0, 0, seconds);
-            _statusBar.Items[2].Text = string.Format("Elapsed time: {0:00}:{1:00}", ts.Minutes, ts.Seconds);
+            _statusBar.Items[1].Text = string.Format("Elapsed time: {0}", Utils.FormatTime(seconds));
         }        
 
         private void ScoreChanged(int score, int moves)
@@ -198,8 +195,8 @@ namespace Solitaire.Forms
             {
                 return;
             }
-            _statusBar.Items[4].Text = string.Format("Total moves: {0}", moves);
-            _statusBar.Items[6].Text = string.Format("Score: {0}", score);
+            _statusBar.Items[2].Text = string.Format("Total moves: {0}", moves);
+            _statusBar.Items[3].Text = string.Format("Score: {0}", score);
         }
 
         /* Menu click callback */
@@ -214,25 +211,7 @@ namespace Solitaire.Forms
             switch (o.Tag.ToString())
             {
                 case "NEW":
-                    NewGame();
-                    break;
-
-                case "LOAD":
-                    if (!GameCompleted && CustomMessageBox.Show(this, "Are you sure you want to quit the current game?", "Quit Current Game") == DialogResult.No)
-                    {
-                        return;
-                    }
-                    if (!LoadSavedGame())
-                    {
-                        CustomMessageBox.Show(this, "No game was loaded.\r\n\r\nSave a game to be recalled later first.", "Error", CustomMessageBoxButtons.Ok);
-                    }
-                    break;
-
-                case "SAVE":
-                    if (SaveCurrentGame())
-                    {
-                        CustomMessageBox.Show(this, "Current game was saved.", "Game Saved", CustomMessageBoxButtons.Ok);
-                    }
+                    NewGame(IsGameRunning);
                     break;
 
                 case "DECK":
@@ -246,14 +225,15 @@ namespace Solitaire.Forms
                     }                    
                     break;
 
-                case "DRAW3":
-                    /* Deciding to either allow current game to be continued to play, or ask to restart using draw 3 */
-                    SettingsManager.Settings.Options.DrawThree = !SettingsManager.Settings.Options.DrawThree;
-                    Invalidate();
-                    break;
-
                 case "SOUND":
                     SettingsManager.Settings.Options.PlaySounds = !SettingsManager.Settings.Options.PlaySounds;
+                    break;
+
+                case "SAVE":
+                    if (SaveCurrentGame())
+                    {
+                        CustomMessageBox.Show(this, "Current game was saved.", "Game Saved", CustomMessageBoxButtons.Ok);
+                    }
                     break;
 
                 case "UNDO":
@@ -289,7 +269,7 @@ namespace Solitaire.Forms
                     break;
 
                 case "STATS":
-                    using (var s = new FrmStatistics())
+                    using (var s = new FrmStatistics(this))
                     {
                         s.ShowDialog(this);
                     }
@@ -300,7 +280,7 @@ namespace Solitaire.Forms
                     break;
 
                 case "ABOUT":
-                    using (var f = new FrmAbout())
+                    using (var f = new FrmAbout(this))
                     {
                         f.ShowDialog(this);
                     }
@@ -309,18 +289,13 @@ namespace Solitaire.Forms
         }
 
         /* Private menu building method */
-
-        private void BuildMenu(ToolStripMenuItem m)
+        private void BuildMenu(ToolStripDropDownItem m)
         {
             m.DropDownItems.Clear();
             m.DropDownItems.AddRange(
                 new ToolStripItem[]
                 {
                     MenuHelper.AddMenuItem("New game", "NEW", Keys.Control | Keys.N, true, OnMenuClick),
-                    new ToolStripSeparator(),
-                    MenuHelper.AddMenuItem("Load saved game", "LOAD", Keys.Control | Keys.O, true, OnMenuClick),
-                    MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, !GameCompleted,
-                        OnMenuClick),
                     new ToolStripSeparator()
                 });
             var o = MenuHelper.AddMenuItem("Options");
@@ -328,7 +303,6 @@ namespace Solitaire.Forms
             {
                 MenuHelper.AddMenuItem("Choose deck image","DECK", OnMenuClick),
                 new ToolStripSeparator(), 
-                MenuHelper.AddMenuItem("Draw three", "DRAW3", Keys.None, true, SettingsManager.Settings.Options.DrawThree, null, OnMenuClick),
                 MenuHelper.AddMenuItem("Play sound effects", "SOUND", Keys.None, true, SettingsManager.Settings.Options.PlaySounds, null, OnMenuClick)
             });
             m.DropDownItems.AddRange(
@@ -336,6 +310,8 @@ namespace Solitaire.Forms
                 {
                     o,
                     new ToolStripSeparator(),
+                    MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, !GameCompleted,
+                        OnMenuClick),
                     MenuHelper.AddMenuItem("Undo last move", "UNDO", Keys.Control | Keys.Z,
                         Undo.Count > 0 && !GameCompleted, OnMenuClick),
                     MenuHelper.AddMenuItem("Restart game", "RESTART", Keys.None, !GameCompleted, OnMenuClick),

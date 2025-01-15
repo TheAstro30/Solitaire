@@ -2,11 +2,9 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
-
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using Solitaire.Classes.Data;
+using System.Drawing.Imaging;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.UI;
 
@@ -24,14 +22,17 @@ namespace Solitaire.Classes.Helpers.UI
 
         public Rectangle Draw(Graphics e)
         {
-            /* Now, the fun part - drawing all the data... draw background tiled */
-            using (var brush = new TextureBrush(_gameCtl.ObjectData.Background, WrapMode.Tile))
-            {
-                /* Yes, we can set the forms background image property... */
-                e.FillRectangle(brush, 0, 0, _gameCtl.ClientSize.Width, _gameCtl.ClientSize.Height);
-            }
+            /* Now, the fun part - drawing all the data... draw background tiled; 
+             * yes, we could set the forms background image property... */
+            e.DrawImageTiled(_gameCtl.ObjectData.Background, _gameCtl.ClientSize);
+
+            /* Draw logo image in bottom right (with 50% opacity) */
+            var img = _gameCtl.ObjectData.Logo;
+            var rect = new Rectangle(_gameCtl.ClientSize.Width - img.Width - 10, _gameCtl.ClientSize.Height - img.Height - 20, img.Width, img.Height);
+            e.DrawImageOpaque(img, rect, 0.5F);
+            
             /* Draw deck */
-            var rect = DrawStock(e);
+            rect = DrawStock(e);
             /* Draw dealt hand */
             DrawWaste(e);
             /* Draw "foundation" slots */
@@ -67,7 +68,7 @@ namespace Solitaire.Classes.Helpers.UI
             var rect = new Rectangle(region.X, region.Y, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height + (offset*cardCount));
             using (var g = _gameCtl.CreateGraphics())
             {
-                using (var p = new Pen(Color.DarkGreen, 3))
+                using (var p = new Pen(Color.Gold, 4))
                 {
                     g.DrawRoundedRectangle(p, rect, 5);
                 }
@@ -77,6 +78,10 @@ namespace Solitaire.Classes.Helpers.UI
         /* Internal drawing methods */
         internal Rectangle DrawStock(Graphics e)
         {
+            if (!_gameCtl.IsGameRunning)
+            {
+                return Rectangle.Empty;
+            }
             var stackSize = 4;
             if (_gameCtl.CurrentGame.StockCards.Count < 8)
             {
@@ -130,7 +135,7 @@ namespace Solitaire.Classes.Helpers.UI
             var xOffset = 0;
             var yOffset = 0;
             var index = 0;
-            var draw3 = SettingsManager.Settings.Options.DrawThree;
+            var draw3 = _gameCtl.CurrentGame.IsDrawThree;
             var draw3Offset = _gameCtl.CardSize.Width / 5;
             /* Point in the deck thats 3 cards less than the top card index */
             var draw3Start = _gameCtl.CurrentGame.WasteCards.Count - 3;
@@ -212,6 +217,65 @@ namespace Solitaire.Classes.Helpers.UI
                 stack.Region = new Rectangle(stackOffset, yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
                 stackOffset += _gameCtl.CardSize.Width + 40;
             }
+        }
+    }
+
+    internal static class GraphicsExtensions
+    {
+        /* Drawing extensions */
+        internal static void DrawImageTiled(this Graphics graphics, Image image, Size size)
+        {
+            using (var brush = new TextureBrush(image, WrapMode.Tile))
+            {
+                graphics.FillRectangle(brush, 0, 0, size.Width, size.Height);
+            }
+        }
+
+        internal static void DrawImageOpaque(this Graphics graphics, Image image, Rectangle destRect, float opacity)
+        {
+            var colormatrix = new ColorMatrix { Matrix33 = opacity };
+            using (var imgAttribute = new ImageAttributes())
+            {
+                imgAttribute.SetColorMatrix(colormatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, imgAttribute);
+            }
+        }
+
+        internal static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle bounds, int cornerRadius)
+        {
+            using (var path = RoundedRect(bounds, cornerRadius))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        /* Private methods */
+        internal static GraphicsPath RoundedRect(Rectangle bounds, int radius)
+        {
+            var diameter = radius * 2;
+            var size = new Size(diameter, diameter);
+            var arc = new Rectangle(bounds.Location, size);
+            var path = new GraphicsPath();
+            /* Just return a rectangle if radius is 0 */
+            if (radius == 0)
+            {
+                path.AddRectangle(bounds);
+                return path;
+            }
+            /* Top left arc */
+            path.AddArc(arc, 180, 90);
+            /* Top right arc */
+            arc.X = bounds.Right - diameter;
+            path.AddArc(arc, 270, 90);
+            /* Bottom right arc */
+            arc.Y = bounds.Bottom - diameter;
+            path.AddArc(arc, 0, 90);
+            /* Bottom left arc */
+            arc.X = bounds.Left;
+            path.AddArc(arc, 90, 90);
+            /* Close path and return result */
+            path.CloseFigure();
+            return path;
         }
     }
 }

@@ -3,7 +3,6 @@
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
 using System.IO;
-using Solitaire.Classes.Helpers.SystemUtils;
 using Solitaire.Classes.Serialization;
 
 namespace Solitaire.Classes.Helpers.Management
@@ -22,7 +21,7 @@ namespace Solitaire.Classes.Helpers.Management
 
         public static void Load()
         {
-            var file = AppPath.MainDir(FilePath, true);
+            var file = Utils.MainDir(FilePath, true);
             if (!File.Exists(file))
             {
                 XmlSerialize<Settings.Settings>.Save(file, Settings);
@@ -37,7 +36,7 @@ namespace Solitaire.Classes.Helpers.Management
 
         public static void Save()
         {
-            XmlSerialize<Settings.Settings>.Save(AppPath.MainDir(FilePath, true), Settings);
+            XmlSerialize<Settings.Settings>.Save(Utils.MainDir(FilePath, true), Settings);
         }
 
         /* Game statistics */

@@ -21,6 +21,14 @@ namespace Solitaire.Classes.Data
 
         public List<Image> CardBacks { get; set; }
 
+        public Image ButtonOk { get; set; }
+
+        public Image ButtonCancel { get; set; }
+
+        public Image NewGameBackground { get; set; }
+
+        public Image Logo { get; set; }
+
         public GraphicsObjectData()
         {
             CardBacks = new List<Image>();

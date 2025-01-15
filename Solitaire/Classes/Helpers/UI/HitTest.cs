@@ -4,7 +4,6 @@
  * ©2025 Kangasoft Software */
 using System.Collections.Generic;
 using System.Drawing;
-using Microsoft.SqlServer.Server;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers.Logic;
 using Solitaire.Classes.UI;
@@ -135,7 +134,7 @@ namespace Solitaire.Classes.Helpers.UI
                     data.StackIndex = stackIndex;
                     return HitTestType.Tableau;
                 }
-                /* Validate dragging card(s) can be placed on top of this card */
+                /* Validate dragging card(s) can be placed on top of this card (destination cannot be hidden) */
                 var index = stack.Cards.Count - 1;
                 if (index < 0)
                 {
@@ -143,7 +142,7 @@ namespace Solitaire.Classes.Helpers.UI
                     continue;
                 }
                 var card = stack.Cards[index];
-                if (src.IntersectsWith(card.Region) && GameLogic.IsValidMove(srcCard, card))
+                if (!card.IsHidden && src.IntersectsWith(card.Region) && GameLogic.IsValidMove(srcCard, card))
                 {
                     data.CardIndex = index;
                     data.StackIndex = stackIndex; /* Index of the stack (1 - 7) */

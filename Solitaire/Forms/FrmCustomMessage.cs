@@ -18,7 +18,7 @@ namespace Solitaire.Forms
         public string MessageText { set { _lblText.Text = value; } }
         public string CaptionText { set { Text = value; } } 
 
-        public FrmCustomMessage(CustomMessageBoxButtons buttons)
+        public FrmCustomMessage(Game game, CustomMessageBoxButtons buttons)
         {
             AcceptButton = _btnYes;
             ClientSize = new Size(365, 131);
@@ -50,22 +50,28 @@ namespace Solitaire.Forms
 
             _btnYes = new Button
             {
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 DialogResult = DialogResult.Yes,
-                Location = new Point(197, 96),
-                Size = new Size(75, 23),
+                Location = new Point(127, 96),
+                Size = new Size(110, 28),
                 TabIndex = 0,
                 Text = @"Yes",
-                UseVisualStyleBackColor = true
+                BackgroundImage = game.ObjectData.ButtonOk,
+                BackgroundImageLayout = ImageLayout.Tile,
+                ForeColor = Color.White
             };
 
             var btnNo = new Button
             {
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 DialogResult = DialogResult.No,
-                Location = new Point(278, 96),
-                Size = new Size(75, 23),
+                Location = new Point(243, 96),
+                Size = new Size(110, 28),
                 TabIndex = 1,
                 Text = @"No",
-                UseVisualStyleBackColor = true
+                BackgroundImage = game.ObjectData.ButtonCancel,
+                BackgroundImageLayout = ImageLayout.Tile,
+                ForeColor = Color.White
             };
 
             switch (buttons)
@@ -73,6 +79,7 @@ namespace Solitaire.Forms
                 case CustomMessageBoxButtons.Ok:
                     btnNo.Text = @"Ok";
                     btnNo.DialogResult = DialogResult.OK;
+                    btnNo.BackgroundImage = game.ObjectData.ButtonOk;
                     _btnYes.Visible = false;
                     break;
             }

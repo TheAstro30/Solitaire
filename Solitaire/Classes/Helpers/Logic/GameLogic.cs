@@ -57,7 +57,7 @@ namespace Solitaire.Classes.Helpers.Logic
             if (ctl.CurrentGame.StockCards.Count > 0)
             {
                 Card card;
-                if (SettingsManager.Settings.Options.DrawThree)
+                if (ctl.CurrentGame.IsDrawThree)
                 {
                     /* Need to draw 3 cards out of deck */
                     var count = 0;

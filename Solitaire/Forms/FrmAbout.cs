@@ -15,7 +15,7 @@ namespace Solitaire.Forms
     {
         private readonly Button _btnOk;
 
-        public FrmAbout()
+        public FrmAbout(Game game)
         {
             /* I'm afraid, Captain, that's just illogical */
             AcceptButton = _btnOk;
@@ -83,12 +83,15 @@ namespace Solitaire.Forms
 
             _btnOk = new Button
             {
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 DialogResult = DialogResult.OK,
-                Location = new Point(222, 138),
-                Size = new Size(75, 23),
+                Location = new Point(187, 138),
+                Size = new Size(110, 28),
                 TabIndex = 0,
                 Text = @"Ok",
-                UseVisualStyleBackColor = true
+                BackgroundImage = game.ObjectData.ButtonOk,
+                BackgroundImageLayout = ImageLayout.Tile,
+                ForeColor = Color.White
             };
 
             Controls.AddRange(new Control[]

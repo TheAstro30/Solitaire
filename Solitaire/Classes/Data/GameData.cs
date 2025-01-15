@@ -17,6 +17,8 @@ namespace Solitaire.Classes.Data
         public List<StackData> Foundation { get; set; } /* Foundation (aces to kings) */
         public List<StackData> Tableau { get; set; } /* Tableau (each playing stack out of 7) */
 
+        public bool IsDrawThree { get; set; }
+
         public int GameTime { get; set; }
         public int GameScore { get; set; }
         public int Moves { get; set; }
@@ -56,6 +58,7 @@ namespace Solitaire.Classes.Data
                 Tableau.Add(new StackData(s));
             }
             Moves = data.Moves;
+            IsDrawThree = data.IsDrawThree;
         }      
     }
 }

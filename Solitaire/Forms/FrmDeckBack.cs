@@ -48,23 +48,28 @@ namespace Solitaire.Forms
 
             _btnOk = new Button
             {
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 DialogResult = DialogResult.OK,
                 Enabled = false,
-                Location = new Point(337, 289),
-                Size = new Size(75, 23),
+                Location = new Point(302, 289),
+                Size = new Size(110, 28),
                 TabIndex = 1,
                 Text = @"Ok",
-                UseVisualStyleBackColor = true
+                BackgroundImage = game.ObjectData.ButtonOk,
+                BackgroundImageLayout = ImageLayout.Tile,
+                ForeColor = Color.White
             };
 
             var btnCancel = new Button
             {
                 DialogResult = DialogResult.Cancel,
-                Location = new Point(256, 289),
-                Size = new Size(75, 23),
+                Location = new Point(186, 289),
+                Size = new Size(110, 28),
                 TabIndex = 2,
                 Text = @"Cancel",
-                UseVisualStyleBackColor = true
+                BackgroundImage = game.ObjectData.ButtonCancel,
+                BackgroundImageLayout = ImageLayout.Tile,
+                ForeColor = Color.White
             };
                      
             /* Add images to listview */
