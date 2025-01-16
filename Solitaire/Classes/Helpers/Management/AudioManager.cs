@@ -64,7 +64,7 @@ namespace Solitaire.Classes.Helpers.Management
             {
                 if (s.Player != null)
                 {
-                    s.Player.Play();                        
+                    s.Player.Play();    
                 }
                 return;
             }

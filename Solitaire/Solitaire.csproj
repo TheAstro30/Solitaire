@@ -26,7 +26,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -73,6 +74,15 @@
     <Compile Include="Classes\Helpers\Utils.cs" />
     <Compile Include="Classes\Settings\SettingsData\GameOptionData.cs" />
     <Compile Include="Classes\Settings\SettingsData\StatisticsData.cs" />
+    <Compile Include="Classes\Theme\BaseRenderer.cs" />
+    <Compile Include="Classes\Theme\ColorTables\CustomizableColorTable.cs" />
+    <Compile Include="Classes\Theme\ColorTables\PresetColorTable.cs" />
+    <Compile Include="Classes\Theme\Presets\DarkPreset.cs" />
+    <Compile Include="Classes\Theme\Presets\DefaultPreset.cs" />
+    <Compile Include="Classes\Theme\Presets\Office2003BluePreset.cs" />
+    <Compile Include="Classes\Theme\Presets\OfficeClassicPreset.cs" />
+    <Compile Include="Classes\Theme\Presets\SystemPreset.cs" />
+    <Compile Include="Classes\Helpers\Management\ThemeManager.cs" />
     <Compile Include="Classes\UI\Internal\Firework.cs" />
     <Compile Include="Classes\Helpers\Management\AudioManager.cs" />
     <Compile Include="Classes\Serialization\XmlFormatting.cs" />
@@ -107,6 +117,12 @@
     <Compile Include="Forms\FrmNew.Designer.cs">
       <DependentUpon>FrmNew.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FrmOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmOptions.Designer.cs">
+      <DependentUpon>FrmOptions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FrmStatistics.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -114,6 +130,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\FrmNew.resx">
       <DependentUpon>FrmNew.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FrmOptions.resx">
+      <DependentUpon>FrmOptions.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -138,6 +157,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Icons\aboutIcon.ico" />
+    <None Include="Icons\Menus\close.ico" />
+    <None Include="Icons\Menus\options.ico" />
+    <None Include="Icons\Menus\save.ico" />
+    <None Include="Icons\Menus\undo.ico" />
+    <None Include="Icons\Menus\stats.ico" />
+    <None Include="Icons\Menus\hint.ico" />
+    <None Include="Icons\Menus\about.ico" />
+    <None Include="Icons\Menus\restart.ico" />
+    <None Include="Icons\Menus\newGame.ico" />
+    <None Include="Icons\Menus\appearance.ico" />
+    <None Include="Icons\Menus\auto.ico" />
+    <None Include="Icons\Menus\deckBack.ico" />
     <Content Include="mainIcon.ico" />
   </ItemGroup>
   <ItemGroup>

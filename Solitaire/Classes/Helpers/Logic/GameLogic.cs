@@ -108,7 +108,12 @@ namespace Solitaire.Classes.Helpers.Logic
 
         public static bool CheckWin(Game ctl)
         {
-            return ctl.CurrentGame.Foundation.Sum(stack => stack.Cards.Count) == 52;
+            return FoundationCount(ctl) == 52;
+        }
+
+        public static int FoundationCount(Game ctl)
+        {
+            return ctl.CurrentGame.Foundation.Sum(stack => stack.Cards.Count);
         }
 
         public static void ReturnCardsToSource(Game ctl, bool foundation)

@@ -4,12 +4,15 @@
  * ©2025 Kangasoft Software */
 using System;
 using System.Drawing;
+using System.Globalization;
 using System.Reflection;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers;
+using Solitaire.Classes.Helpers.Logic;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.UI;
+using Solitaire.Properties;
 
 namespace Solitaire.Forms
 {
@@ -17,6 +20,8 @@ namespace Solitaire.Forms
     {
         /* Move all the passengers away from the deadly plane... */
         private readonly ToolStripMenuItem _menuGame;
+        private readonly ToolStripMenuItem _menuOptions;
+
         private readonly StatusStrip _statusBar;
 
         private readonly NotifyIcon _sysTray;
@@ -46,7 +51,9 @@ namespace Solitaire.Forms
                 Location = new Point(0, 409),
                 Padding = new Padding(1, 0, 16, 0),
                 Size = new Size(704, 22),
-                TabIndex = 1
+                TabIndex = 1,
+                RenderMode = ToolStripRenderMode.ManagerRenderMode,
+                LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow
             };
 
             _sysTray = new NotifyIcon {Icon = Icon, Text = @"Kanga's Solitaire - Double-click to restore"};
@@ -65,22 +72,64 @@ namespace Solitaire.Forms
             
             /* Build menubar */
             _menuGame = (ToolStripMenuItem)menuBar.Items.Add("Game");
-            _menuGame.DropDownOpening += OnMenuOpening;
+            _menuGame.DropDownOpening += OnMenuGameOpening;
 
-            BuildMenu(_menuGame);
+            BuildMenuGame(_menuGame);
             menuBar.Items.Add(_menuGame);
 
+            _menuOptions = (ToolStripMenuItem) menuBar.Items.Add("Options");
+            _menuOptions.DropDownOpening += OnMenuOptionsOpening;
+
+            BuildMenuOptions(_menuOptions);
+            menuBar.Items.Add(_menuOptions);
+
             var m = (ToolStripMenuItem) menuBar.Items.Add("Help");
-            m.DropDownItems.Add(MenuHelper.AddMenuItem("About", "ABOUT", OnMenuClick));
+            m.DropDownItems.Add(MenuHelper.AddMenuItem("About", "ABOUT", Keys.None, true, false, Resources.about.ToBitmap(), OnMenuClick));
 
             /* Status bar */
             _statusBar.Items.AddRange(new ToolStripItem[]
             {
-                new ToolStripLabel("Game number: 0") {AutoSize = false, Width = 150, TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control},
-                new ToolStripLabel("Elapsed time: 0s") {AutoSize = false, Width = 200, TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control},
-                new ToolStripLabel("Total moves: 0") {AutoSize = false, Width = 120, TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control},
-                new ToolStripLabel("Score: 0") {AutoSize = false, Width = 120, TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control}
-            });
+                new ToolStripLabel("Game number: 0")
+                {
+                    AutoSize = false,
+                    Width = 150,
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = SystemColors.Control
+                },
+                new ToolStripLabel("Elapsed time: 0s")
+                {
+                    AutoSize = false,
+                    Width = 200,
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = SystemColors.Control
+                },
+                new ToolStripLabel("Total moves: 0")
+                {
+                    AutoSize = false,
+                    Width = 120,
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = SystemColors.Control
+                },
+                new ToolStripLabel("Score: 0")
+                {
+                    AutoSize = true,
+                    Width = 120,
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = SystemColors.Control
+                },
+                new ToolStripProgressBar
+                {
+                    Width = 120,
+                    Height = 6,
+                    Minimum = 0,
+                    Maximum = 52,
+                    Alignment = ToolStripItemAlignment.Right,
+                    Visible = SettingsManager.Settings.Options.ShowProgress
+                }
+            });            
+
+            ToolStripManager.Renderer = ThemeManager.Renderer;
+            ThemeManager.SetTheme(SettingsManager.Settings.Options.AppearanceStyle);
 
             OnGameTimeChanged += TimeChanged;
             OnScoreChanged += ScoreChanged;
@@ -117,17 +166,24 @@ namespace Solitaire.Forms
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             /* Ask the user if they really want to quit - yes, I know, kind of annoying */
-            if (CustomMessageBox.Show(this, "Are you sure you want to really quit?", "Quit Solitaire") == DialogResult.No)
+            if (SettingsManager.Settings.Options.Confirm.OnExit)
             {
-                e.Cancel = true;
-                return;
+                if (CustomMessageBox.Show(this, "Are you sure you want to really quit?", "Quit Solitaire") == DialogResult.No)
+                {
+                    e.Cancel = true;
+                    return;
+                }
             }
             if (WindowState == FormWindowState.Normal)
             {
                 SettingsManager.Settings.Location = Location;
                 SettingsManager.Settings.Size = Size;
             }
-            SettingsManager.Settings.Maximized = WindowState == FormWindowState.Maximized;            
+            SettingsManager.Settings.Maximized = WindowState == FormWindowState.Maximized;
+            if (SettingsManager.Settings.Options.SaveRecover && IsGameRunning)
+            {
+                SaveCurrentGame(true);
+            }
             /* Through the cockpit window, we can now piss off :) */
             AudioManager.Dispose();
             base.OnFormClosing(e);
@@ -197,12 +253,18 @@ namespace Solitaire.Forms
             }
             _statusBar.Items[2].Text = string.Format("Total moves: {0}", moves);
             _statusBar.Items[3].Text = string.Format("Score: {0}", score);
+            ((ToolStripProgressBar)_statusBar.Items[4]).Value = GameLogic.FoundationCount(this);
         }
 
         /* Menu click callback */
-        private void OnMenuOpening(object sender, EventArgs e)
+        private void OnMenuGameOpening(object sender, EventArgs e)
         {
-            BuildMenu(_menuGame);
+            BuildMenuGame(_menuGame);
+        }
+
+        private void OnMenuOptionsOpening(object sender, EventArgs e)
+        {
+            BuildMenuOptions(_menuOptions);
         }
 
         private void OnMenuClick(object sender, EventArgs e)
@@ -225,8 +287,13 @@ namespace Solitaire.Forms
                     }                    
                     break;
 
-                case "SOUND":
-                    SettingsManager.Settings.Options.PlaySounds = !SettingsManager.Settings.Options.PlaySounds;
+                case "OPTIONS":
+                    using (var opt = new FrmOptions(this))
+                    {
+                        opt.ShowDialog(this);
+                    }
+                    /* Apply statusbar progress change */
+                    _statusBar.Items[4].Visible = SettingsManager.Settings.Options.ShowProgress;
                     break;
 
                 case "SAVE":
@@ -288,42 +355,60 @@ namespace Solitaire.Forms
             }
         }
 
-        /* Private menu building method */
-        private void BuildMenu(ToolStripDropDownItem m)
+        private static void OnMenuOptionsStyleClick(object sender, EventArgs e)
+        {
+            var o = (ToolStripItem) sender;
+            int index;
+            if (!int.TryParse(o.Tag.ToString(), out index))
+            {
+                return;
+            }
+            ThemeManager.SetTheme(index);
+            SettingsManager.Settings.Options.AppearanceStyle = index;
+        }
+
+        /* Private menu building methods */
+        private void BuildMenuGame(ToolStripDropDownItem m)
         {
             m.DropDownItems.Clear();
+
             m.DropDownItems.AddRange(
                 new ToolStripItem[]
                 {
-                    MenuHelper.AddMenuItem("New game", "NEW", Keys.Control | Keys.N, true, OnMenuClick),
-                    new ToolStripSeparator()
+                    MenuHelper.AddMenuItem("New game", "NEW", Keys.Control | Keys.N, true, false, Resources.newGame.ToBitmap(), OnMenuClick),
+                    new ToolStripSeparator(),
+                    MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, !GameCompleted && IsGameRunning, false, Resources.save.ToBitmap(), OnMenuClick),
+                    MenuHelper.AddMenuItem("Undo last move", "UNDO", Keys.Control | Keys.Z, Undo.Count > 0 && !GameCompleted, false, Resources.undo.ToBitmap(), OnMenuClick),
+                    MenuHelper.AddMenuItem("Restart game", "RESTART", Keys.None, !GameCompleted && IsGameRunning, false, Resources.restart.ToBitmap(), OnMenuClick),
+                    new ToolStripSeparator(),
+                    MenuHelper.AddMenuItem("Hint...", "HINT", Keys.Control | Keys.H, IsGameRunning, false, Resources.hint.ToBitmap(), OnMenuClick),
+                    MenuHelper.AddMenuItem("Auto complete...", "AUTO", Keys.Control | Keys.A, !GameCompleted && IsGameRunning, false, Resources.auto.ToBitmap(), OnMenuClick),
+                    new ToolStripSeparator(),
+                    MenuHelper.AddMenuItem("Statistics", "STATS", Keys.None, true, false, Resources.stats.ToBitmap(), OnMenuClick),
+                    new ToolStripSeparator(),
+                    MenuHelper.AddMenuItem("Exit", "EXIT", Keys.Alt | Keys.F4, true, false, Resources.close.ToBitmap(), OnMenuClick)
                 });
-            var o = MenuHelper.AddMenuItem("Options");
-            o.DropDownItems.AddRange(new ToolStripItem[]
+        }
+
+        private void BuildMenuOptions(ToolStripDropDownItem m)
+        {
+            m.DropDownItems.Clear();
+            var style = MenuHelper.AddMenuItem("Appearance", Resources.appearance.ToBitmap());
+            var index = 0;
+            var themeIndex = SettingsManager.Settings.Options.AppearanceStyle;
+            foreach (var preset in ThemeManager.Presets)
             {
-                MenuHelper.AddMenuItem("Choose deck image","DECK", OnMenuClick),
-                new ToolStripSeparator(), 
-                MenuHelper.AddMenuItem("Play sound effects", "SOUND", Keys.None, true, SettingsManager.Settings.Options.PlaySounds, null, OnMenuClick)
+                var d = MenuHelper.AddMenuItem(preset.Name, index.ToString(CultureInfo.InvariantCulture), Keys.None, true, index == themeIndex, null, OnMenuOptionsStyleClick);
+                style.DropDownItems.Add(d);
+                index++;
+            }
+            m.DropDownItems.AddRange(new ToolStripItem[]
+            {
+                style, new ToolStripSeparator(), 
+                MenuHelper.AddMenuItem("Choose deck image","DECK", Keys.None, true, false, Resources.deckBack.ToBitmap(), OnMenuClick),
+                MenuHelper.AddMenuItem("Game options", "OPTIONS", Keys.None, true, false, Resources.options.ToBitmap(), OnMenuClick)
             });
-            m.DropDownItems.AddRange(
-                new ToolStripItem[]
-                {
-                    o,
-                    new ToolStripSeparator(),
-                    MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, !GameCompleted,
-                        OnMenuClick),
-                    MenuHelper.AddMenuItem("Undo last move", "UNDO", Keys.Control | Keys.Z,
-                        Undo.Count > 0 && !GameCompleted, OnMenuClick),
-                    MenuHelper.AddMenuItem("Restart game", "RESTART", Keys.None, !GameCompleted, OnMenuClick),
-                    new ToolStripSeparator(),
-                    MenuHelper.AddMenuItem("Hint...", "HINT", Keys.Control | Keys.H, true, OnMenuClick),
-                    MenuHelper.AddMenuItem("Auto complete...", "AUTO", Keys.Control | Keys.A, !GameCompleted,
-                        OnMenuClick),
-                    new ToolStripSeparator(),
-                    MenuHelper.AddMenuItem("Statistics", "STATS", Keys.None, true, OnMenuClick),
-                    new ToolStripSeparator(),
-                    MenuHelper.AddMenuItem("Exit", "EXIT", Keys.Alt | Keys.F4, true, OnMenuClick)
-                });
+
         }
     }
 }

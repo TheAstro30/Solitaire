@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Solitaire.Classes.Data;
@@ -69,7 +70,6 @@ namespace Solitaire.Classes.UI
         private int _hintIndex;
         private readonly Timer _hintTimer;
         private bool _hintDestShown;
-
 
         /* Events raised back to form */
         public event Action<int> OnGameTimeChanged;
@@ -145,7 +145,7 @@ namespace Solitaire.Classes.UI
         #region New game
         public void NewGame(bool ask = true)
         {
-            if (ask && !GameCompleted)
+            if (SettingsManager.Settings.Options.Confirm.OnNewLoad && ask && !GameCompleted)
             {
                 /* Ask user if they want to start a new game */
                 if (CustomMessageBox.Show(this, "Are you sure you want to quit the current game?", "Quit Current Game") == DialogResult.No)
@@ -205,11 +205,12 @@ namespace Solitaire.Classes.UI
         #endregion
 
         #region Load/save game
-        public bool LoadSavedGame()
+        public bool LoadSavedGame(bool saveRecover = false)
         {
             /* Load a saved game */
             var d = new GameData();
-            if (!BinarySerialize<GameData>.Load(Utils.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), ref d))
+            var file = string.Format(@"\KangaSoft\Solitaire\{0}", saveRecover ? "recovery.dat" : "saved.dat");
+            if (!BinarySerialize<GameData>.Load(Utils.MainDir(file, true), ref d))
             {
                 return false;
             }
@@ -242,10 +243,21 @@ namespace Solitaire.Classes.UI
             return true;
         }
 
-        public bool SaveCurrentGame()
+        public bool SaveCurrentGame(bool saveRecover = false)
         {
             /* Save current game - if it's a completed game, don't save it */
-            return !GameCompleted && BinarySerialize<GameData>.Save(Utils.MainDir(@"\KangaSoft\Solitaire\saved.dat", true), CurrentGame);
+            var file = Utils.MainDir(string.Format(@"\KangaSoft\Solitaire\{0}", saveRecover ? "recovery.dat" : "saved.dat"), true);
+            if (!GameCompleted)
+            {
+                return BinarySerialize<GameData>.Save(file, CurrentGame);
+            }
+            if (saveRecover)
+            {
+                /* Delete current recovery file */
+                System.Diagnostics.Debug.Print(file);
+                File.Delete(file);
+            }
+            return false;
         }
         #endregion
 
@@ -390,6 +402,9 @@ namespace Solitaire.Classes.UI
             }
             /* Dump settings */
             SettingsManager.Save();
+            /* Stop all running timers */
+            _timerFireWorks.Enabled = false;
+            _timerGame.Enabled = false;
             base.OnFormClosing(e);
         }
         #endregion
@@ -700,6 +715,10 @@ namespace Solitaire.Classes.UI
         private void OnGameStart(object sender, EventArgs e)
         {
             _timerStart.Enabled = false;
+            if (SettingsManager.Settings.Options.SaveRecover && LoadSavedGame(true))
+            {
+                return;
+            }
             NewGame(false);
         }
 

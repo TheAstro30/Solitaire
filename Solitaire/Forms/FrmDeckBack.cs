@@ -13,12 +13,11 @@ namespace Solitaire.Forms
     {
         private readonly ListView _lvImages;
         private readonly Button _btnOk;
-
+        
         public int SelectedImage { get; private set; }
 
         public FrmDeckBack(Game game, int imageIndex)
         {
-            AcceptButton = _btnOk;
             ClientSize = new Size(424, 324);
             Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -32,7 +31,7 @@ namespace Solitaire.Forms
             var images = new ImageList
             {
                 ColorDepth = ColorDepth.Depth32Bit,
-                ImageSize = new Size((int) (game.CardSize.Width/1.5), (int) (game.CardSize.Height/1.5))
+                ImageSize = new Size((int)(game.CardSize.Width / 1.5), (int)(game.CardSize.Height / 1.5))
             };
             images.Images.AddRange(game.ObjectData.CardBacks.ToArray());
 
@@ -45,6 +44,12 @@ namespace Solitaire.Forms
                 UseCompatibleStateImageBehavior = false,
                 LargeImageList = images
             };
+
+            /* Add images to listview */
+            for (var i = 0; i <= images.Images.Count - 1; i++)
+            {
+                _lvImages.Items.Add(new ListViewItem { ImageIndex = i, Selected = imageIndex == i });
+            }
 
             _btnOk = new Button
             {
@@ -70,18 +75,14 @@ namespace Solitaire.Forms
                 BackgroundImage = game.ObjectData.ButtonCancel,
                 BackgroundImageLayout = ImageLayout.Tile,
                 ForeColor = Color.White
-            };
-                     
-            /* Add images to listview */
-            for (var i = 0; i <= images.Images.Count - 1; i++)
-            {
-                _lvImages.Items.Add(new ListViewItem {ImageIndex = i, Selected = imageIndex == i});
-            }
+            };                    
 
             Controls.AddRange(new Control[]
             {
                 _lvImages, _btnOk, btnCancel
             });
+
+            AcceptButton = _btnOk;
 
             _lvImages.SelectedIndexChanged += OnListViewSelectionChanged;
             _lvImages.MouseDoubleClick += OnListViewItemDoubleClick;
@@ -103,7 +104,13 @@ namespace Solitaire.Forms
         private void OnListViewSelectionChanged(object sender, EventArgs e)
         {
             var o = (ListView) sender;
+            if (o.SelectedItems.Count == 0)
+            {
+                return;
+            }
             _btnOk.Enabled = o.SelectedItems.Count > 0;
+            /* Bring selection into view */
+            o.EnsureVisible(o.SelectedItems[0].Index);
         }
 
         private void OnListViewItemDoubleClick(object sender, EventArgs e)

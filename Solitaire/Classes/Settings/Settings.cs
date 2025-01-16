@@ -50,6 +50,10 @@ namespace Solitaire.Classes.Settings
             /* Set default settings */
             Size = new Size(720, 470);
             Options.PlaySounds = true;
+            Options.SaveRecover = true;
+            Options.ShowProgress = true;
+            Options.Confirm.OnExit = true;
+            Options.Confirm.OnNewLoad = true;
         }
     }
 }
