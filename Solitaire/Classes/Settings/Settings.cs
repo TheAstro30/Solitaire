@@ -49,7 +49,10 @@ namespace Solitaire.Classes.Settings
         {
             /* Set default settings */
             Size = new Size(720, 470);
-            Options.PlaySounds = true;
+            Options.Sound.EnableEffects = true;
+            Options.Sound.EffectsVolume = 100;
+            Options.Sound.EnableMusic = true;
+            Options.Sound.MusicVolume = 60;
             Options.SaveRecover = true;
             Options.ShowProgress = true;
             Options.Confirm.OnExit = true;

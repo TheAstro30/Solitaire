@@ -53,6 +53,14 @@
   <PropertyGroup>
     <ApplicationIcon>mainIcon.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup />
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -67,12 +75,15 @@
   <ItemGroup>
     <Compile Include="Classes\Data\GraphicsObjectData.cs" />
     <Compile Include="Classes\Data\StackData.cs" />
+    <Compile Include="Classes\DirectSound\Sound.cs" />
+    <Compile Include="Classes\FolderSearch.cs" />
     <Compile Include="Classes\Helpers\Logic\GameLogic.cs" />
     <Compile Include="Classes\Helpers\UI\Dialogs.cs" />
     <Compile Include="Classes\Helpers\UI\GraphicsRenderer.cs" />
     <Compile Include="Classes\Helpers\UI\HitTest.cs" />
     <Compile Include="Classes\Helpers\Utils.cs" />
     <Compile Include="Classes\Settings\SettingsData\GameOptionData.cs" />
+    <Compile Include="Classes\Settings\SettingsData\SoundData.cs" />
     <Compile Include="Classes\Settings\SettingsData\StatisticsData.cs" />
     <Compile Include="Classes\Theme\BaseRenderer.cs" />
     <Compile Include="Classes\Theme\ColorTables\CustomizableColorTable.cs" />
@@ -91,7 +102,7 @@
     <Compile Include="Classes\Data\Deck.cs" />
     <Compile Include="Classes\Settings\Settings.cs" />
     <Compile Include="Classes\Helpers\Management\SettingsManager.cs" />
-    <Compile Include="Classes\UI\FormEx.cs">
+    <Compile Include="Controls\FormEx.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Classes\UI\Game.cs">
@@ -99,6 +110,14 @@
     </Compile>
     <Compile Include="Classes\Data\GameData.cs" />
     <Compile Include="Classes\Serialization\XmlSerialize.cs" />
+    <Compile Include="Classes\UI\TipProvider.cs" />
+    <Compile Include="Controls\TrackBar\TrackBarBase\Enums.cs" />
+    <Compile Include="Controls\TrackBar\TrackBarBase\NativeMethods.cs" />
+    <Compile Include="Controls\TrackBar\TrackBarBase\TrackBarDrawItemEventArgs.cs" />
+    <Compile Include="Controls\TrackBar\TrackBarBase\TrackDrawModeEditor.cs" />
+    <Compile Include="Controls\TrackBar\TrackBarEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Forms\FrmAbout.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -169,7 +188,9 @@
     <None Include="Icons\Menus\appearance.ico" />
     <None Include="Icons\Menus\auto.ico" />
     <None Include="Icons\Menus\deckBack.ico" />
-    <Content Include="mainIcon.ico" />
+    <None Include="Icons\errorIcon.ico" />
+    <None Include="Icons\warningIcon.ico" />
+    <None Include="Icons\infoIcon.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -182,6 +203,26 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\Status\tip.ico" />
+    <None Include="Icons\Status\time.ico" />
+    <None Include="Icons\Status\scorePositive.ico" />
+    <None Include="Icons\Status\scoreNegative.ico" />
+    <None Include="Icons\Status\moves.ico" />
+    <Content Include="mainIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xsDirectX\xsDirectX.csproj">
+      <Project>{902cc476-5a7a-40e1-876b-8abf265307aa}</Project>
+      <Name>xsDirectX</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Images\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

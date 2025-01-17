@@ -136,8 +136,17 @@
   <data name="deckBack" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\deckBack.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="errorIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\errorIcon.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="hint" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\hint.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="infoIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\infoIcon.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="moves" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\Status\moves.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="newGame" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\newGame.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -151,10 +160,25 @@
   <data name="save" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\save.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="scoreNegative" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\Status\scoreNegative.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="scorePositive" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\Status\scorePositive.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="stats" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\stats.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="time" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\Status\time.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tip" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\Status\tip.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="undo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\undo.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="warningIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\warningIcon.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

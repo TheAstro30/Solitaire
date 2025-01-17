@@ -14,6 +14,13 @@ namespace Solitaire.Classes.Helpers.UI
         YesNo = 1
     }
 
+    public enum CustomMessageBoxIcon
+    {
+        Warning = 0,
+        Error = 1,
+        Information = 2
+    }
+
     public enum NewGameDialogResult
     {
         None = 0,
@@ -32,7 +39,17 @@ namespace Solitaire.Classes.Helpers.UI
 
         public static DialogResult Show(IWin32Window parent, string text, string caption, CustomMessageBoxButtons buttons)
         {
-            using (var f = new FrmCustomMessage((Game)parent, buttons))
+            return Show(parent, text, caption, buttons, CustomMessageBoxIcon.Warning);
+        }
+
+        public static DialogResult Show(IWin32Window parent, string text, string caption, CustomMessageBoxIcon icon)
+        {
+            return Show(parent, text, caption, CustomMessageBoxButtons.YesNo, icon);
+        }
+
+        public static DialogResult Show(IWin32Window parent, string text, string caption, CustomMessageBoxButtons buttons, CustomMessageBoxIcon icon)
+        {
+            using (var f = new FrmCustomMessage((Game)parent, buttons, icon))
             {
                 f.MessageText = text;
                 f.CaptionText = caption;

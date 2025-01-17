@@ -123,9 +123,39 @@ namespace Solitaire.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
+        internal static System.Drawing.Icon errorIcon {
+            get {
+                object obj = ResourceManager.GetObject("errorIcon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
         internal static System.Drawing.Icon hint {
             get {
                 object obj = ResourceManager.GetObject("hint", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon infoIcon {
+            get {
+                object obj = ResourceManager.GetObject("infoIcon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon moves {
+            get {
+                object obj = ResourceManager.GetObject("moves", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
@@ -173,6 +203,26 @@ namespace Solitaire.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
+        internal static System.Drawing.Icon scoreNegative {
+            get {
+                object obj = ResourceManager.GetObject("scoreNegative", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon scorePositive {
+            get {
+                object obj = ResourceManager.GetObject("scorePositive", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
         internal static System.Drawing.Icon stats {
             get {
                 object obj = ResourceManager.GetObject("stats", resourceCulture);
@@ -183,9 +233,39 @@ namespace Solitaire.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
+        internal static System.Drawing.Icon time {
+            get {
+                object obj = ResourceManager.GetObject("time", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon tip {
+            get {
+                object obj = ResourceManager.GetObject("tip", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
         internal static System.Drawing.Icon undo {
             get {
                 object obj = ResourceManager.GetObject("undo", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon warningIcon {
+            get {
+                object obj = ResourceManager.GetObject("warningIcon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }

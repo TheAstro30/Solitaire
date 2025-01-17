@@ -2,36 +2,97 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
+
+using System;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.UI;
+using Solitaire.Controls;
+using Solitaire.Controls.TrackBar;
 
 namespace Solitaire.Forms
 {
     public partial class FrmOptions : FormEx
     {
+        private bool _init;
+
         public FrmOptions(Game ctl)
         {
+            _init = true;
             InitializeComponent();
 
             btnOk.BackgroundImage = ctl.ObjectData.ButtonOk;
             btnOk.BackgroundImageLayout = ImageLayout.Tile;
 
-            chkSound.Checked = SettingsManager.Settings.Options.PlaySounds;
-            chkSave.Checked = SettingsManager.Settings.Options.SaveRecover;
+            chkMusic.CheckedChanged += MusicCheckChanged;
+
+            tbEffects.ValueChanged += TrackBarValueChanged;
+            tbMusic.ValueChanged += TrackBarValueChanged;
+
             chkProgress.Checked = SettingsManager.Settings.Options.ShowProgress;
+            chkSave.Checked = SettingsManager.Settings.Options.SaveRecover;            
+
+            chkEffects.Checked = SettingsManager.Settings.Options.Sound.EnableEffects;
+            tbEffects.Value = SettingsManager.Settings.Options.Sound.EffectsVolume;
+
+            chkMusic.Checked = SettingsManager.Settings.Options.Sound.EnableMusic;
+            tbMusic.Value = SettingsManager.Settings.Options.Sound.MusicVolume;
+
             chkExit.Checked = SettingsManager.Settings.Options.Confirm.OnExit;
             chkNew.Checked = SettingsManager.Settings.Options.Confirm.OnNewLoad;
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            _init = false;
+            base.OnLoad(e);
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            SettingsManager.Settings.Options.PlaySounds = chkSound.Checked;
-            SettingsManager.Settings.Options.SaveRecover = chkSave.Checked;
             SettingsManager.Settings.Options.ShowProgress = chkProgress.Checked;
+            SettingsManager.Settings.Options.SaveRecover = chkSave.Checked;
+
+            SettingsManager.Settings.Options.Sound.EnableEffects = chkEffects.Checked;
+            SettingsManager.Settings.Options.Sound.EffectsVolume = tbEffects.Value;
+            SettingsManager.Settings.Options.Sound.MusicVolume = tbMusic.Value;
+
             SettingsManager.Settings.Options.Confirm.OnExit = chkExit.Checked;
             SettingsManager.Settings.Options.Confirm.OnNewLoad = chkNew.Checked;
             base.OnFormClosing(e);
+        }
+
+        private void MusicCheckChanged(object sender, EventArgs e)
+        {
+            if (_init)
+            {
+                return;
+            }
+            var o = (CheckBox) sender;
+            SettingsManager.Settings.Options.Sound.EnableMusic = o.Checked;
+            if (o.Checked)
+            {
+                AudioManager.PlayMusic();
+            }
+            else
+            {
+                AudioManager.StopMusic();
+            }
+        }
+
+        private void TrackBarValueChanged(object sender, EventArgs e)
+        {
+            var o = (TrackBarEx) sender;
+            switch (o.Tag.ToString())
+            {
+                case "EFFECTS":
+                    AudioManager.SetEffectsVolume(o.Value);
+                    break;
+
+                case "MUSIC":
+                    AudioManager.SetMusicVolume(o.Value);
+                    break;
+            }
         }
     }
 }

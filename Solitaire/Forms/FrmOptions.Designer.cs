@@ -1,4 +1,6 @@
-﻿namespace Solitaire.Forms
+﻿using Solitaire.Controls.TrackBar;
+
+namespace Solitaire.Forms
 {
     partial class FrmOptions
     {
@@ -28,28 +30,37 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.chkSound = new System.Windows.Forms.CheckBox();
+            this.chkEffects = new System.Windows.Forms.CheckBox();
             this.chkSave = new System.Windows.Forms.CheckBox();
             this.chkExit = new System.Windows.Forms.CheckBox();
             this.chkNew = new System.Windows.Forms.CheckBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.gbConfirm = new System.Windows.Forms.GroupBox();
+            this.gbGeneral = new System.Windows.Forms.GroupBox();
             this.chkProgress = new System.Windows.Forms.CheckBox();
             this.btnOk = new System.Windows.Forms.Button();
-            this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.gbSound = new System.Windows.Forms.GroupBox();
+            this.lblMusicVol = new System.Windows.Forms.Label();
+            this.tbMusic = new Solitaire.Controls.TrackBar.TrackBarEx();
+            this.lblFxVol = new System.Windows.Forms.Label();
+            this.tbEffects = new Solitaire.Controls.TrackBar.TrackBarEx();
+            this.chkMusic = new System.Windows.Forms.CheckBox();
+            this.gbConfirm.SuspendLayout();
+            this.gbGeneral.SuspendLayout();
+            this.gbSound.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbMusic)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbEffects)).BeginInit();
             this.SuspendLayout();
             // 
-            // chkSound
+            // chkEffects
             // 
-            this.chkSound.AutoSize = true;
-            this.chkSound.BackColor = System.Drawing.Color.Transparent;
-            this.chkSound.Location = new System.Drawing.Point(6, 21);
-            this.chkSound.Name = "chkSound";
-            this.chkSound.Size = new System.Drawing.Size(101, 17);
-            this.chkSound.TabIndex = 0;
-            this.chkSound.Text = "Play all sounds";
-            this.chkSound.UseVisualStyleBackColor = false;
+            this.chkEffects.AutoSize = true;
+            this.chkEffects.BackColor = System.Drawing.Color.Transparent;
+            this.chkEffects.Location = new System.Drawing.Point(6, 21);
+            this.chkEffects.Name = "chkEffects";
+            this.chkEffects.Size = new System.Drawing.Size(118, 17);
+            this.chkEffects.TabIndex = 0;
+            this.chkEffects.Text = "Play sound effects";
+            this.chkEffects.UseVisualStyleBackColor = false;
             // 
             // chkSave
             // 
@@ -84,36 +95,35 @@
             this.chkNew.Text = "When starting a new game or loading a game";
             this.chkNew.UseVisualStyleBackColor = false;
             // 
-            // groupBox1
+            // gbConfirm
             // 
-            this.groupBox1.BackColor = System.Drawing.Color.Transparent;
-            this.groupBox1.Controls.Add(this.chkExit);
-            this.groupBox1.Controls.Add(this.chkNew);
-            this.groupBox1.Location = new System.Drawing.Point(12, 111);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(324, 71);
-            this.groupBox1.TabIndex = 4;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Confirm:";
+            this.gbConfirm.BackColor = System.Drawing.Color.Transparent;
+            this.gbConfirm.Controls.Add(this.chkExit);
+            this.gbConfirm.Controls.Add(this.chkNew);
+            this.gbConfirm.Location = new System.Drawing.Point(12, 188);
+            this.gbConfirm.Name = "gbConfirm";
+            this.gbConfirm.Size = new System.Drawing.Size(324, 71);
+            this.gbConfirm.TabIndex = 4;
+            this.gbConfirm.TabStop = false;
+            this.gbConfirm.Text = "Confirm:";
             // 
-            // groupBox2
+            // gbGeneral
             // 
-            this.groupBox2.BackColor = System.Drawing.Color.Transparent;
-            this.groupBox2.Controls.Add(this.chkProgress);
-            this.groupBox2.Controls.Add(this.chkSound);
-            this.groupBox2.Controls.Add(this.chkSave);
-            this.groupBox2.Location = new System.Drawing.Point(12, 12);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(324, 93);
-            this.groupBox2.TabIndex = 5;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "General:";
+            this.gbGeneral.BackColor = System.Drawing.Color.Transparent;
+            this.gbGeneral.Controls.Add(this.chkProgress);
+            this.gbGeneral.Controls.Add(this.chkSave);
+            this.gbGeneral.Location = new System.Drawing.Point(12, 12);
+            this.gbGeneral.Name = "gbGeneral";
+            this.gbGeneral.Size = new System.Drawing.Size(324, 71);
+            this.gbGeneral.TabIndex = 5;
+            this.gbGeneral.TabStop = false;
+            this.gbGeneral.Text = "General:";
             // 
             // chkProgress
             // 
             this.chkProgress.AutoSize = true;
             this.chkProgress.BackColor = System.Drawing.Color.Transparent;
-            this.chkProgress.Location = new System.Drawing.Point(6, 67);
+            this.chkProgress.Location = new System.Drawing.Point(6, 21);
             this.chkProgress.Name = "chkProgress";
             this.chkProgress.Size = new System.Drawing.Size(221, 17);
             this.chkProgress.TabIndex = 3;
@@ -125,22 +135,88 @@
             this.btnOk.BackColor = System.Drawing.Color.White;
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnOk.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOk.Location = new System.Drawing.Point(226, 204);
+            this.btnOk.Location = new System.Drawing.Point(226, 278);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(110, 28);
             this.btnOk.TabIndex = 6;
             this.btnOk.Text = "Ok";
             this.btnOk.UseVisualStyleBackColor = false;
             // 
+            // gbSound
+            // 
+            this.gbSound.BackColor = System.Drawing.Color.Transparent;
+            this.gbSound.Controls.Add(this.lblMusicVol);
+            this.gbSound.Controls.Add(this.tbMusic);
+            this.gbSound.Controls.Add(this.lblFxVol);
+            this.gbSound.Controls.Add(this.tbEffects);
+            this.gbSound.Controls.Add(this.chkMusic);
+            this.gbSound.Controls.Add(this.chkEffects);
+            this.gbSound.Location = new System.Drawing.Point(12, 89);
+            this.gbSound.Name = "gbSound";
+            this.gbSound.Size = new System.Drawing.Size(324, 93);
+            this.gbSound.TabIndex = 7;
+            this.gbSound.TabStop = false;
+            this.gbSound.Text = "Sound:";
+            // 
+            // lblMusicVol
+            // 
+            this.lblMusicVol.AutoSize = true;
+            this.lblMusicVol.Location = new System.Drawing.Point(160, 60);
+            this.lblMusicVol.Name = "lblMusicVol";
+            this.lblMusicVol.Size = new System.Drawing.Size(48, 13);
+            this.lblMusicVol.TabIndex = 5;
+            this.lblMusicVol.Text = "Volume:";
+            // 
+            // tbMusic
+            // 
+            this.tbMusic.Location = new System.Drawing.Point(214, 58);
+            this.tbMusic.Maximum = 100;
+            this.tbMusic.Name = "tbMusic";
+            this.tbMusic.Size = new System.Drawing.Size(104, 45);
+            this.tbMusic.TabIndex = 4;
+            this.tbMusic.Tag = "MUSIC";
+            this.tbMusic.TickStyle = System.Windows.Forms.TickStyle.None;
+            // 
+            // lblFxVol
+            // 
+            this.lblFxVol.AutoSize = true;
+            this.lblFxVol.Location = new System.Drawing.Point(160, 22);
+            this.lblFxVol.Name = "lblFxVol";
+            this.lblFxVol.Size = new System.Drawing.Size(48, 13);
+            this.lblFxVol.TabIndex = 3;
+            this.lblFxVol.Text = "Volume:";
+            // 
+            // tbEffects
+            // 
+            this.tbEffects.Location = new System.Drawing.Point(214, 20);
+            this.tbEffects.Maximum = 100;
+            this.tbEffects.Name = "tbEffects";
+            this.tbEffects.Size = new System.Drawing.Size(104, 45);
+            this.tbEffects.TabIndex = 2;
+            this.tbEffects.Tag = "EFFECTS";
+            this.tbEffects.TickStyle = System.Windows.Forms.TickStyle.None;
+            // 
+            // chkMusic
+            // 
+            this.chkMusic.AutoSize = true;
+            this.chkMusic.BackColor = System.Drawing.Color.Transparent;
+            this.chkMusic.Location = new System.Drawing.Point(6, 59);
+            this.chkMusic.Name = "chkMusic";
+            this.chkMusic.Size = new System.Drawing.Size(79, 17);
+            this.chkMusic.TabIndex = 1;
+            this.chkMusic.Text = "Play music";
+            this.chkMusic.UseVisualStyleBackColor = false;
+            // 
             // FrmOptions
             // 
             this.AcceptButton = this.btnOk;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(348, 238);
+            this.ClientSize = new System.Drawing.Size(348, 312);
+            this.Controls.Add(this.gbSound);
             this.Controls.Add(this.btnOk);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.gbGeneral);
+            this.Controls.Add(this.gbConfirm);
             this.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -150,23 +226,33 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Options";
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.gbConfirm.ResumeLayout(false);
+            this.gbConfirm.PerformLayout();
+            this.gbGeneral.ResumeLayout(false);
+            this.gbGeneral.PerformLayout();
+            this.gbSound.ResumeLayout(false);
+            this.gbSound.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbMusic)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbEffects)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.CheckBox chkSound;
+        private System.Windows.Forms.CheckBox chkEffects;
         private System.Windows.Forms.CheckBox chkSave;
         private System.Windows.Forms.CheckBox chkExit;
         private System.Windows.Forms.CheckBox chkNew;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox gbConfirm;
+        private System.Windows.Forms.GroupBox gbGeneral;
         private System.Windows.Forms.CheckBox chkProgress;
         private System.Windows.Forms.Button btnOk;
+        private System.Windows.Forms.GroupBox gbSound;
+        private System.Windows.Forms.CheckBox chkMusic;
+        private TrackBarEx tbEffects;
+        private System.Windows.Forms.Label lblFxVol;
+        private System.Windows.Forms.Label lblMusicVol;
+        private TrackBarEx tbMusic;
     }
 }

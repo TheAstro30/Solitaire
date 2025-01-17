@@ -26,14 +26,14 @@ namespace Solitaire.Classes.Settings.SettingsData
         [XmlAttribute("deckBack")]
         public int DeckBack { get; set; }
 
-        [XmlAttribute("sound")]
-        public bool PlaySounds { get; set; }
-
         [XmlAttribute("saveRecover")]
         public bool SaveRecover { get; set; }
 
         [XmlAttribute("showProgress")]
         public bool ShowProgress { get; set; }
+
+        [XmlElement("sound")]
+        public SoundData Sound = new SoundData();
 
         [XmlElement("confirm")]
         public ConfirmOptionData Confirm = new ConfirmOptionData();

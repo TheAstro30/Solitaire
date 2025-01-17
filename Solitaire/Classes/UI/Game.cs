@@ -44,14 +44,16 @@ namespace Solitaire.Classes.UI
         private Bitmap _dragBitmap;
         private bool _isFoundationDrag;
 
-        public bool IsDragging { get; private set; }
-        public List<Card> DraggingCards { get; private set; }
-        public int DragStackIndex { get; private set; }
-        public Point DragLocation { get; private set; }
+        public bool IsDragging { get; set; }
+        public List<Card> DraggingCards { get; set; }
+        public int DragStackIndex { get; set; }
+        public Point DragLocation { get; set; }
        
         /* Loaded game score and time */
         private int _time;
         private int _score;
+
+        private bool _firstRun;
 
         /* Fireworks variables */
         private const int MaxFireWorks = 10;
@@ -85,39 +87,25 @@ namespace Solitaire.Classes.UI
             }
             /* Settings - this class is called first, before FrmGame, so load settings here */
             SettingsManager.Load();
+            _firstRun = SettingsManager.Settings.Statistics.TotalGamesPlayed == 0;
             /* Double buffering */
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
 
-            _timerStart = new Timer
-            {
-                Interval = 500,
-                Enabled = true
-            };
+            _timerStart = new Timer {Interval = 500, Enabled = true};
             _timerStart.Tick += OnGameStart;
 
-            _timerGame = new Timer
-            {
-                Interval = 1000
-            };
+            _timerGame = new Timer {Interval = 1000};
             _timerGame.Tick += OnGameTimer;
 
-            _checkWin = new Timer
-            {
-                Interval = 100
-            };
+            _checkWin = new Timer {Interval = 100};
             _checkWin.Tick += OnCheckWin;
 
-            _timerFireWorks = new Timer
-            {
-                Interval = 10 /* On my machine uses about 7% CPU when updating; 16% at 1ms - no real speed difference */
-            };
+            /* On my machine uses about 7% CPU when updating; 16% at 1ms - no real speed difference */
+            _timerFireWorks = new Timer {Interval = 10};
             _timerFireWorks.Tick += OnFireWorks;
 
-            _hintTimer = new Timer
-            {
-                Interval = 500
-            };
+            _hintTimer = new Timer {Interval = 500};
             _hintTimer.Tick += OnHintTimer;
 
             /* Setup game data */
@@ -170,13 +158,23 @@ namespace Solitaire.Classes.UI
                     case NewGameDialogResult.LoadGame:
                         if (!LoadSavedGame())
                         {
-                            CustomMessageBox.Show(this, "No game was loaded.\r\n\r\nSave a game to be recalled later first.", "Error", CustomMessageBoxButtons.Ok);
+                            CustomMessageBox.Show(this, "No game was loaded.\r\n\r\nSave a game to be recalled later first.", "Error", CustomMessageBoxButtons.Ok, CustomMessageBoxIcon.Error);
                             NewGame(false);
                         }
                         return;
                 }
             }
-            SettingsManager.Settings.Statistics.TotalGamesPlayed++;
+            System.Diagnostics.Debug.Print("here");
+            if (!_firstRun)
+            {
+                SettingsManager.Settings.Statistics.TotalGamesPlayed++;
+            }
+            else
+            {
+                /* Game count is 0, so we don't increment until NewGame is called again on new game, win/loss */
+                System.Diagnostics.Debug.Print("fucking off");
+                _firstRun = false;
+            }
             Undo.Clear(); /* Clear undo history */
             GameLogic.ClearHints();
             GameCompleted = false;
@@ -222,10 +220,10 @@ namespace Solitaire.Classes.UI
             /* Set time and score (used for restart) */
             _time = CurrentGame.GameTime;
             _score = CurrentGame.GameScore;
-
-            SettingsManager.Settings.Statistics.TotalGamesPlayed++;
-            if (!GameCompleted)
+            _firstRun = false;
+            if (!GameCompleted && !saveRecover)
             {
+                SettingsManager.Settings.Statistics.TotalGamesPlayed++;
                 SettingsManager.Settings.Statistics.GamesLost++;
             }
             AudioManager.Play(SoundType.Shuffle);
@@ -273,7 +271,7 @@ namespace Solitaire.Classes.UI
             var s = CurrentGame.GameScore;
             CurrentGame = new GameData(d) { GameTime = t, GameScore = s };
             AudioManager.Play(SoundType.Drop);
-            /* Penalize by 2 points on the score for using undo */
+            /* Penalize by 5 points on the score for using undo */
             CurrentGame.GameScore -= 5;
             if (OnScoreChanged != null)
             {
@@ -396,7 +394,7 @@ namespace Solitaire.Classes.UI
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             /* Update stats */
-            if (!GameCompleted)
+            if (!GameCompleted && !SettingsManager.Settings.Options.SaveRecover)
             {
                 SettingsManager.Settings.Statistics.GamesLost++;
             }
@@ -525,7 +523,7 @@ namespace Solitaire.Classes.UI
                             }
                             break;
                     }
-                    break;            
+                    break;
 
                 case MouseButtons.Right:
                     AutoComplete();
@@ -556,7 +554,7 @@ namespace Solitaire.Classes.UI
                 }
                 HitTestData data;
                 /* This rectangle intersect code does work better than using the HitTest.CompareClick method */
-                var src = new Rectangle(e.Location.X - (CardSize.Width/2), e.Location.Y + 5, CardSize.Width, CardSize.Height);
+                var src = new Rectangle(e.Location.X - (CardSize.Width / 2), e.Location.Y + 5, CardSize.Width, CardSize.Height);
                 switch (HitTest.CompareDrop(this, src, out data))
                 {
                     case HitTestType.Foundation:
@@ -771,7 +769,7 @@ namespace Solitaire.Classes.UI
             }
             SettingsManager.UpdateStats(CurrentGame.GameTime, CurrentGame.GameScore);
             AudioManager.Play(SoundType.Win);
-            if (CustomMessageBox.Show(this, "Congratulations! You win!\r\n\r\nWould you like to deal again?", "Congratulations!") == DialogResult.Yes)
+            if (CustomMessageBox.Show(this, "Congratulations! You win!\r\n\r\nWould you like to deal again?", "Congratulations!", CustomMessageBoxIcon.Information) == DialogResult.Yes)
             {
                 NewGame(false);
             }
@@ -812,18 +810,19 @@ namespace Solitaire.Classes.UI
                 return;
             }
             _hintDestShown = true;
-            var o = (Timer)sender;           
-            if (o.Tag != null)
+            var o = (Timer)sender;
+            if (o.Tag == null)
             {
-                var tag = (Rectangle)o.Tag;
-                if (tag == Rectangle.Empty)
-                {
-                    /* Do nothing */
-                    return;
-                }
-                /* Draw hint destination highlight */
-                _gfx.DrawFocusRing(tag, 0);
+                return;
             }
+            var tag = (Rectangle)o.Tag;
+            if (tag == Rectangle.Empty)
+            {
+                /* Do nothing */
+                return;
+            }
+            /* Draw hint destination highlight */
+            _gfx.DrawFocusRing(tag, 0);
         }
         #endregion
     }

@@ -6,7 +6,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Solitaire.Classes.UI
+namespace Solitaire.Controls
 {
     public class FormEx : Form
     {

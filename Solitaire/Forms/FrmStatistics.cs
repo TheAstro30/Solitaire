@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.UI;
+using Solitaire.Controls;
 using Solitaire.Properties;
 
 namespace Solitaire.Forms

@@ -31,15 +31,14 @@ namespace Solitaire.Classes.Settings.SettingsData
 
         public override string ToString()
         {
-            var winPercent = Math.Round(((float) GamesWon/TotalGamesPlayed)*100, 1);
+            //var games = TotalGamesPlayed - 1;
+            var winPercent = TotalGamesPlayed != 0 ? Math.Round(((float)GamesWon / TotalGamesPlayed) * 100, 1) : 0;
+            var lossPercent = TotalGamesPlayed != 0 ? Math.Round(((float)GamesLost / TotalGamesPlayed) * 100, 1) : 0;
             return
                 string.Format(
                     "Total games played: {0}\r\n\r\nGames won: {1} ({2}% win rate)\r\n\r\nGames lost: {3} ({4}% loss rate)\r\n\r\nShortest game time: {5}\r\n\r\nLongest game time: {6}\r\n\r\nHighest score: {7}",
-                    TotalGamesPlayed, GamesWon, winPercent, GamesLost,
-                    Math.Round(100 - winPercent, 1),
-                    Utils.FormatTime(ShortestGameTime),
-                    Utils.FormatTime(LongestGameTime),
-                    HighestScore);
+                    TotalGamesPlayed, GamesWon, winPercent, GamesLost, lossPercent,
+                    Utils.FormatTime(ShortestGameTime), Utils.FormatTime(LongestGameTime), HighestScore);
         }
     }
 }

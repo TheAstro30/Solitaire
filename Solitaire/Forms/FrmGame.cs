@@ -37,33 +37,34 @@ namespace Solitaire.Forms
             MinimumSize = new Size(720, 470);
             StartPosition = FormStartPosition.Manual;
 
-            var menuBar = new MenuStrip
-            {
-                Location = new Point(0, 0),
-                Padding = new Padding(7, 2, 0, 2),
-                Size = new Size(704, 24),
-                TabIndex = 0
-            };
+            var menuBar = new MenuStrip {Location = new Point(0, 0), Padding = new Padding(7, 2, 0, 2)};
+
+            var statusImages = new ImageList {ColorDepth = ColorDepth.Depth32Bit};
+            statusImages.Images.AddRange(
+                new Image[]
+                {
+                    Resources.newGame.ToBitmap(),
+                    Resources.time.ToBitmap(),
+                    Resources.moves.ToBitmap(),
+                    Resources.scorePositive.ToBitmap(),
+                    Resources.scoreNegative.ToBitmap(),
+                    Resources.tip.ToBitmap()
+                });
 
             _statusBar = new StatusStrip
             {
-                Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                Font = new Font("Segoe UI Semibold", 9.0F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 Location = new Point(0, 409),
-                Padding = new Padding(1, 0, 16, 0),
-                Size = new Size(704, 22),
-                TabIndex = 1,
+                Padding = new Padding(1, 0, 16, 0),                
                 RenderMode = ToolStripRenderMode.ManagerRenderMode,
-                LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow
+                LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow,
+                ImageList = statusImages
             };
 
             _sysTray = new NotifyIcon {Icon = Icon, Text = @"Kanga's Solitaire - Double-click to restore"};
             _sysTray.MouseDoubleClick += OnSysTrayDoubleClick;
 
-            Controls.AddRange(new Control[]
-            {
-                menuBar,
-                _statusBar
-            });
+            Controls.AddRange(new Control[] {menuBar, _statusBar});
 
             MainMenuStrip = menuBar;            
 
@@ -89,47 +90,37 @@ namespace Solitaire.Forms
             /* Status bar */
             _statusBar.Items.AddRange(new ToolStripItem[]
             {
-                new ToolStripLabel("Game number: 0")
+                new ToolStripStatusLabel("Game number: 0")
                 {
-                    AutoSize = false,
-                    Width = 150,
-                    TextAlign = ContentAlignment.MiddleLeft,
-                    BackColor = SystemColors.Control
+                    AutoSize = false, Size = new Size(140, 16), TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control, ImageIndex = 0
                 },
-                new ToolStripLabel("Elapsed time: 0s")
+                new ToolStripStatusLabel("Elapsed time: 0s")
                 {
-                    AutoSize = false,
-                    Width = 200,
-                    TextAlign = ContentAlignment.MiddleLeft,
-                    BackColor = SystemColors.Control
+                    AutoSize = false, Size = new Size(180, 16), TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control, ImageIndex = 1
                 },
-                new ToolStripLabel("Total moves: 0")
+                new ToolStripStatusLabel("Total moves: 0")
                 {
-                    AutoSize = false,
-                    Width = 120,
-                    TextAlign = ContentAlignment.MiddleLeft,
-                    BackColor = SystemColors.Control
+                    AutoSize = false, Size = new Size(120, 16), TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control, ImageIndex = 2
                 },
-                new ToolStripLabel("Score: 0")
+                new ToolStripStatusLabel("Score: 0")
+                {        
+                    AutoSize = false, Size = new Size(105, 16), TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control, ImageIndex = 3
+                },
+                new ToolStripStatusLabel("Welcome to Kanga's Solitaire. Are you ready for a challenge?")
                 {
-                    AutoSize = true,
-                    Width = 120,
-                    TextAlign = ContentAlignment.MiddleLeft,
-                    BackColor = SystemColors.Control
+                    AutoSize = true, TextAlign = ContentAlignment.TopLeft, BackColor = SystemColors.Control, ImageIndex = 5, Spring = true
                 },
                 new ToolStripProgressBar
                 {
-                    Width = 120,
-                    Height = 6,
-                    Minimum = 0,
-                    Maximum = 52,
-                    Alignment = ToolStripItemAlignment.Right,
-                    Visible = SettingsManager.Settings.Options.ShowProgress
+                    Width = 120, Minimum = 0, Maximum = 52, Alignment = ToolStripItemAlignment.Right, Visible = SettingsManager.Settings.Options.ShowProgress
                 }
             });            
 
             ToolStripManager.Renderer = ThemeManager.Renderer;
             ThemeManager.SetTheme(SettingsManager.Settings.Options.AppearanceStyle);
+
+            var tips = new TipProvider();
+            tips.OnTipChange += TipChanged;
 
             OnGameTimeChanged += TimeChanged;
             OnScoreChanged += ScoreChanged;
@@ -185,7 +176,6 @@ namespace Solitaire.Forms
                 SaveCurrentGame(true);
             }
             /* Through the cockpit window, we can now piss off :) */
-            AudioManager.Dispose();
             base.OnFormClosing(e);
         }
 
@@ -213,6 +203,7 @@ namespace Solitaire.Forms
                     WindowState = FormWindowState.Minimized;
                     Hide();
                     _sysTray.Visible = true;
+                    AudioManager.PauseMusic();
                     break;
 
                 case Keys.Control | Keys.Z:
@@ -233,6 +224,7 @@ namespace Solitaire.Forms
             Show();
             WindowState = _originalWindowState;
             _sysTray.Visible = false;
+            AudioManager.ResumeMusic();
         }
 
         private void TimeChanged(int seconds)
@@ -241,7 +233,7 @@ namespace Solitaire.Forms
             {
                 return;
             }
-            _statusBar.Items[0].Text = string.Format("Game number: {0}", SettingsManager.Settings.Statistics.TotalGamesPlayed);
+            _statusBar.Items[0].Text = string.Format("Game number: {0}", SettingsManager.Settings.Statistics.TotalGamesPlayed + 1);
             _statusBar.Items[1].Text = string.Format("Elapsed time: {0}", Utils.FormatTime(seconds));
         }        
 
@@ -253,7 +245,17 @@ namespace Solitaire.Forms
             }
             _statusBar.Items[2].Text = string.Format("Total moves: {0}", moves);
             _statusBar.Items[3].Text = string.Format("Score: {0}", score);
-            ((ToolStripProgressBar)_statusBar.Items[4]).Value = GameLogic.FoundationCount(this);
+            _statusBar.Items[3].ImageIndex = score < 0 ? 4 : 3;
+            ((ToolStripProgressBar)_statusBar.Items[5]).Value = GameLogic.FoundationCount(this);
+        }
+
+        private void TipChanged(string tip)
+        {
+            if (!Visible)
+            {
+                return;
+            }
+            _statusBar.Items[4].Text = tip;
         }
 
         /* Menu click callback */
@@ -277,11 +279,11 @@ namespace Solitaire.Forms
                     break;
 
                 case "DECK":
-                    using (var f = new FrmDeckBack(this, SettingsManager.Settings.Options.DeckBack))
+                    using (var back = new FrmDeckBack(this, SettingsManager.Settings.Options.DeckBack))
                     {
-                        if (f.ShowDialog(this) == DialogResult.OK && f.SelectedImage != -1)
+                        if (back.ShowDialog(this) == DialogResult.OK && back.SelectedImage != -1)
                         {
-                            SettingsManager.Settings.Options.DeckBack = f.SelectedImage;
+                            SettingsManager.Settings.Options.DeckBack = back.SelectedImage;
                             Invalidate();
                         }
                     }                    
@@ -299,7 +301,7 @@ namespace Solitaire.Forms
                 case "SAVE":
                     if (SaveCurrentGame())
                     {
-                        CustomMessageBox.Show(this, "Current game was saved.", "Game Saved", CustomMessageBoxButtons.Ok);
+                        CustomMessageBox.Show(this, "Current game was saved.", "Game Saved", CustomMessageBoxButtons.Ok, CustomMessageBoxIcon.Information);
                     }
                     break;
 
@@ -336,9 +338,9 @@ namespace Solitaire.Forms
                     break;
 
                 case "STATS":
-                    using (var s = new FrmStatistics(this))
+                    using (var stats = new FrmStatistics(this))
                     {
-                        s.ShowDialog(this);
+                        stats.ShowDialog(this);
                     }
                     break;
 
@@ -347,9 +349,9 @@ namespace Solitaire.Forms
                     break;
 
                 case "ABOUT":
-                    using (var f = new FrmAbout(this))
+                    using (var about = new FrmAbout(this))
                     {
-                        f.ShowDialog(this);
+                        about.ShowDialog(this);
                     }
                     break;
             }
@@ -406,7 +408,7 @@ namespace Solitaire.Forms
             {
                 style, new ToolStripSeparator(), 
                 MenuHelper.AddMenuItem("Choose deck image","DECK", Keys.None, true, false, Resources.deckBack.ToBitmap(), OnMenuClick),
-                MenuHelper.AddMenuItem("Game options", "OPTIONS", Keys.None, true, false, Resources.options.ToBitmap(), OnMenuClick)
+                MenuHelper.AddMenuItem("Game options", "OPTIONS", Keys.Control | Keys.O, true, false, Resources.options.ToBitmap(), OnMenuClick)
             });
 
         }

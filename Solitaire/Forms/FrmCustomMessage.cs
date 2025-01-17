@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.UI;
+using Solitaire.Controls;
 using Solitaire.Properties;
 
 namespace Solitaire.Forms
@@ -18,7 +19,7 @@ namespace Solitaire.Forms
         public string MessageText { set { _lblText.Text = value; } }
         public string CaptionText { set { Text = value; } } 
 
-        public FrmCustomMessage(Game game, CustomMessageBoxButtons buttons)
+        public FrmCustomMessage(Game game, CustomMessageBoxButtons buttons, CustomMessageBoxIcon icon)
         {
             AcceptButton = _btnYes;
             ClientSize = new Size(365, 131);
@@ -36,16 +37,31 @@ namespace Solitaire.Forms
                 BackColor = Color.Transparent,
                 Location = new Point(12, 12),
                 Size = new Size(64, 64),
-                BackgroundImage = Resources.aboutIcon.ToBitmap(),
                 BackgroundImageLayout = ImageLayout.None
             };
+
+            switch (icon)
+            {
+                case CustomMessageBoxIcon.Warning:
+                    pnlIcon.BackgroundImage = Resources.warningIcon.ToBitmap();
+                    break;
+
+                case CustomMessageBoxIcon.Error:
+                    pnlIcon.BackgroundImage = Resources.errorIcon.ToBitmap();
+                    break;
+
+                case CustomMessageBoxIcon.Information:
+                    pnlIcon.BackgroundImage = Resources.infoIcon.ToBitmap();
+                    break;
+            }
 
             _lblText = new Label
             {
                 BackColor = Color.Transparent,
                 Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 Location = new Point(82, 12),
-                Size = new Size(271, 64)
+                Size = new Size(271, 64),
+                TextAlign = ContentAlignment.MiddleCenter
             };
 
             _btnYes = new Button
