@@ -78,6 +78,7 @@
     <Compile Include="Classes\DirectSound\Sound.cs" />
     <Compile Include="Classes\FolderSearch.cs" />
     <Compile Include="Classes\Helpers\Logic\GameLogic.cs" />
+    <Compile Include="Classes\Data\MutliKeyDictionary.cs" />
     <Compile Include="Classes\Helpers\UI\Dialogs.cs" />
     <Compile Include="Classes\Helpers\UI\GraphicsRenderer.cs" />
     <Compile Include="Classes\Helpers\UI\HitTest.cs" />
@@ -164,6 +165,14 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
+    <None Include="Images\assets.png" />
+    <None Include="Images\bg.png" />
+    <None Include="Images\button-cancel.png" />
+    <None Include="Images\button-ok.png" />
+    <None Include="Images\card-set.png" />
+    <None Include="Images\deck-backs.png" />
+    <None Include="Images\logo.png" />
+    <None Include="Images\new-game-bg.png" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -221,9 +230,7 @@
       <Name>xsDirectX</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Images\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

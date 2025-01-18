@@ -17,12 +17,23 @@ namespace Solitaire.Classes.Data
         None = 4
     }
 
+    /* Serialized class of card images */
+    [Serializable]
+    public sealed class CardData
+    {
+        /* Spades, diamonds, hearts, clubs */
+        public Suit Suit { get; set; }
+
+        /* Ace - King (1 - 13) */
+        public int Value { get; set; }
+
+        public Image Image { get; set; }
+    }
+
+    /* Card class used during game play (no images; uses above data class) */
     [Serializable]
     public sealed class Card
     {
-        /* Is the card the card back or a normal card */
-        public bool IsCardBack { get; set; }
-
         /* Card can't be seen */
         public bool IsHidden { get; set; }
         
@@ -32,35 +43,20 @@ namespace Solitaire.Classes.Data
         /* Ace - King (1 - 13) */
         public int Value { get; set; }
 
-        /* Card face or back */
-        public Image CardImage { get; set; }
-
         /* Rectangle to drawn region on the screen for dunny hit test */
         public Rectangle Region { get; set; }
 
         /* Constructors */
         public Card()
         {
-            Region = new Rectangle();
-        }
-
-        public Card(bool isBack, Suit suit, int value, Image image)
-        {            
-            IsCardBack = isBack;
-            Suit = suit;
-            Value = value;
-            CardImage = image;
-            Region = new Rectangle(); /* I don't think it's necessary to copy this value, as painting resets it anyway */
+            /* Empty by default */
         }
 
         public Card(Card card)
         {
-            IsCardBack = card.IsCardBack;
             IsHidden = card.IsHidden;
             Suit = card.Suit;
             Value = card.Value;
-            CardImage = new Bitmap(card.CardImage);
-            Region = new Rectangle(); /* I don't think it's necessary to copy this value, as painting resets it anyway */
         }
 
         public bool IsHitTest(Point location)

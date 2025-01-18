@@ -2,9 +2,13 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
+
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Linq;
+using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.UI;
 
@@ -49,12 +53,53 @@ namespace Solitaire.Classes.Helpers.UI
                 /* Nothing to do */
                 return;
             }
+            if (SettingsManager.Settings.Options.ShowHighlight)
+            {
+                /* Draw a focus ring around destination card that the first dragging card is above */
+                HitTestData d;
+                var rect = new Rectangle(_gameCtl.DragLocation.X - (_gameCtl.CardSize.Width/2),
+                    _gameCtl.DragLocation.Y - 5,
+                    _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
+
+                switch (HitTest.CompareDrop(_gameCtl, rect, out d))
+                {
+                    case HitTestType.Foundation:
+                        if (_gameCtl.DraggingCards.Count == 1)
+                        {
+                            rect = _gameCtl.CurrentGame.Foundation[d.StackIndex].Region;
+                        }
+                        break;
+
+                    case HitTestType.Tableau:
+                        if (d.CardIndex == -1 && _gameCtl.DraggingCards[0].Value == 13)
+                        {
+                            rect = _gameCtl.CurrentGame.Tableau[d.StackIndex].Region;
+                        }
+                        else if (d.CardIndex >= 0)
+                        {
+                            rect = _gameCtl.CurrentGame.Tableau[d.StackIndex].Cards[d.CardIndex].Region;
+                        }
+                        break;
+
+                    default:
+                        rect = Rectangle.Empty;
+                        break;
+                }
+                if (rect != Rectangle.Empty)
+                {
+                    using (var p = new Pen(Color.Blue, 3))
+                    {
+                        e.DrawRoundedRectangle(p, rect, 5);
+                    }
+                }
+            }
+            /* Draw all dragging cards */
             var visibleOffset = _gameCtl.CardSize.Height/8;
             var offsetY = 0;
             var x = _gameCtl.CardSize.Width/2;
-            foreach (var card in _gameCtl.DraggingCards)
+            foreach (var img in _gameCtl.DraggingCards.Select(card => _gameCtl.Cards[card.Suit][card.Value].Image))
             {
-                e.DrawImage(card.CardImage, _gameCtl.DragLocation.X - x, (_gameCtl.DragLocation.Y - 5) + offsetY,
+                e.DrawImage(img, _gameCtl.DragLocation.X - x, (_gameCtl.DragLocation.Y - 5) + offsetY,
                     _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
                 offsetY += visibleOffset;
             }
@@ -153,7 +198,8 @@ namespace Solitaire.Classes.Helpers.UI
                 }
                 /* Set card region where it is drawn on screen */
                 var rect = new Rectangle(stackOffset + xOffset, 40 + yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
-                e.DrawImage(c.CardImage, rect);
+                var img = _gameCtl.Cards[c.Suit][c.Value].Image;
+                e.DrawImage(img, rect);
                 c.Region = rect;     
                 /* Increase our draw three mode index */
                 index++;
@@ -183,7 +229,8 @@ namespace Solitaire.Classes.Helpers.UI
                 if (stack.Cards.Count > 0)
                 {
                     var card = stack.Cards[stack.Cards.Count - 1];
-                    e.DrawImage(card.CardImage, rect);
+                    var img = _gameCtl.Cards[card.Suit][card.Value].Image;
+                    e.DrawImage(img, rect);
                     card.Region = rect;
                 }
                 /* Set hit test region */
@@ -207,7 +254,7 @@ namespace Solitaire.Classes.Helpers.UI
                 /* Draw each card in the tableau */
                 foreach (var card in stack.Cards)
                 {
-                    var img = card.IsHidden ? _gameCtl.ObjectData.CardBacks[back] : card.CardImage;
+                    var img = card.IsHidden ? _gameCtl.ObjectData.CardBacks[back] : _gameCtl.Cards[card.Suit][card.Value].Image;
                     var rect = new Rectangle(stackOffset, yOffset + offset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
                     e.DrawImage(img, rect);
                     card.Region = rect;

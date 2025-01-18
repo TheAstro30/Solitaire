@@ -108,7 +108,8 @@ namespace Solitaire.Forms
                 },
                 new ToolStripStatusLabel("Welcome to Kanga's Solitaire. Are you ready for a challenge?")
                 {
-                    AutoSize = true, TextAlign = ContentAlignment.TopLeft, BackColor = SystemColors.Control, ImageIndex = 5, Spring = true
+                    AutoSize = true, TextAlign = ContentAlignment.TopLeft, BackColor = SystemColors.Control, ImageIndex = 5,
+                    Spring = true, Visible = SettingsManager.Settings.Options.ShowTips
                 },
                 new ToolStripProgressBar
                 {
@@ -211,6 +212,11 @@ namespace Solitaire.Forms
                      * What I don't want to do is clear the menu list and re-add every single call of Ctrl+Z... */
                     UndoMove();
                     break;
+
+                case Keys.Control | Keys.H:
+                    /* This is also disabled unless the menu is opened */                    
+                    Hint();
+                    break;
             }
             base.OnKeyDown(e);
         }
@@ -295,7 +301,8 @@ namespace Solitaire.Forms
                         opt.ShowDialog(this);
                     }
                     /* Apply statusbar progress change */
-                    _statusBar.Items[4].Visible = SettingsManager.Settings.Options.ShowProgress;
+                    _statusBar.Items[4].Visible = SettingsManager.Settings.Options.ShowTips;
+                    _statusBar.Items[5].Visible = SettingsManager.Settings.Options.ShowProgress;
                     break;
 
                 case "SAVE":
@@ -311,18 +318,8 @@ namespace Solitaire.Forms
                     OnKeyDown(new KeyEventArgs(Keys.Control | Keys.Z));
                     break;
                     
-                case "RESTART":                    
-                    if (IsLoadedGame)
-                    {
-                        if (
-                            CustomMessageBox.Show(this,
-                                "Restarting a loaded game will cause it to restart from the saved point.\r\n\r\nDo you want to restart this game?",
-                                "Restart Current Game") == DialogResult.No)
-                        {
-                            return;
-                        }
-                    }
-                    else if (CustomMessageBox.Show(this, "Are you sure you want to restart the current game?", "Restart Current Game") == DialogResult.No)
+                case "RESTART":
+                    if (CustomMessageBox.Show(this, "Are you sure you want to restart the current game?", "Restart Current Game") == DialogResult.No)
                     {
                         return;
                     }
@@ -330,7 +327,7 @@ namespace Solitaire.Forms
                     break;
 
                 case "HINT":
-                    Hint();
+                    OnKeyDown(new KeyEventArgs(Keys.Control | Keys.H));
                     break;
 
                 case "AUTO":
@@ -410,7 +407,6 @@ namespace Solitaire.Forms
                 MenuHelper.AddMenuItem("Choose deck image","DECK", Keys.None, true, false, Resources.deckBack.ToBitmap(), OnMenuClick),
                 MenuHelper.AddMenuItem("Game options", "OPTIONS", Keys.Control | Keys.O, true, false, Resources.options.ToBitmap(), OnMenuClick)
             });
-
         }
     }
 }

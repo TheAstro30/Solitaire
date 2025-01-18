@@ -2,6 +2,8 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
+
+using System.Collections.Generic;
 using System.Drawing;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Serialization;
@@ -16,7 +18,7 @@ namespace Solitaire.Classes.Helpers
     {
         private static readonly Size CardSize = new Size(120, 184); /* Hard programmed for now */
 
-        private static readonly Deck Deck = new Deck();
+        private static readonly List<CardData> Deck = new List<CardData>(); 
 
         private static readonly GraphicsObjectData ObjData = new GraphicsObjectData();
 
@@ -35,7 +37,12 @@ namespace Solitaire.Classes.Helpers
                     cardImage = new Bitmap(CardSize.Width, CardSize.Height);
                     src = new Rectangle(x*CardSize.Width, startY, CardSize.Width, CardSize.Height);
                     GetImage(cardImage, src, Resources.card_set);
-                    var card = new Card(false, (Suit) y, x + 1, cardImage);
+                    var card = new CardData
+                    {
+                        Suit = (Suit) y,
+                        Value = x + 1,
+                        Image = cardImage
+                    };
                     /* Push new image to the deck */
                     Deck.Add(card);
                 }
@@ -46,7 +53,6 @@ namespace Solitaire.Classes.Helpers
                 cardImage = new Bitmap(CardSize.Width, CardSize.Height);
                 src = new Rectangle(asset * CardSize.Width, 0, CardSize.Width, CardSize.Height);
                 GetImage(cardImage, src, Resources.assets);
-                //cardImage.MakeTransparent(Color.FromArgb(1, 1, 1));
                 switch (asset)
                 {
                     case 0:
@@ -83,7 +89,7 @@ namespace Solitaire.Classes.Helpers
             ObjData.NewGameBackground = Resources.new_game_bg;
             ObjData.Logo = Resources.logo;
             /* Serialize the output */
-            if (BinarySerialize<Deck>.Save(Utils.MainDir(@"\data\gfx\cards.dat"), Deck))
+            if (BinarySerialize<List<CardData>>.Save(Utils.MainDir(@"\data\gfx\cards.dat"), Deck))
             {
                 System.Diagnostics.Debug.Print(">>>> Sucessfully wrote cards.dat!");
             }

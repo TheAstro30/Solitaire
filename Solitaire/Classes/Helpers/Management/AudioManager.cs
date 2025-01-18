@@ -98,19 +98,28 @@ namespace Solitaire.Classes.Helpers.Management
             {
                 if (s.Player != null)
                 {
-                    s.Player.PlayAsync();    
+                    s.Player.PlayAsync(true);    
                 }
                 return;
             }
         }
 
-        public static void PlayMusic()
+        public static void PlayMusic(bool next = false)
         {
             if (!SettingsManager.Settings.Options.Sound.EnableMusic || Music.Count == 0)
             {
                 return;
             }
-            _music = new Sound(Music[0]) {Volume = _musicVolume};
+            if (next)
+            {
+                _musicIndex++;
+                if (_musicIndex > Music.Count - 1)
+                {
+                    _musicIndex = 0;
+                    Music.Shuffle();
+                }
+            }
+            _music = new Sound(Music[_musicIndex]) { Volume = _musicVolume };
             _music.OnMediaEnded += OnMusicEnd;
             _music.PlayAsync();
         }

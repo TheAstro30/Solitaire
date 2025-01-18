@@ -32,6 +32,12 @@ namespace Solitaire.Classes.Settings.SettingsData
         [XmlAttribute("showProgress")]
         public bool ShowProgress { get; set; }
 
+        [XmlAttribute("showHighlight")]
+        public bool ShowHighlight { get; set; }
+
+        [XmlAttribute("showTips")]
+        public bool ShowTips { get; set; }
+
         [XmlElement("sound")]
         public SoundData Sound = new SoundData();
 

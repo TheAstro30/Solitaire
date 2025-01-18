@@ -113,9 +113,14 @@ namespace Solitaire.Classes.Helpers
         }
     }
 
-    /* Undo move helper */    public static class Undo
+    /* Undo move helper */
+    public static class Undo
     {
-        private static readonly Stack<GameData> Data = new Stack<GameData>();
+        /* This class was a memory hog as it copies ALL card data including the images;
+         * I re-wrote the Card.cs class and separated the card images to a new class CardData.
+         * This GREATLY reduces the memory footprint (I was over 500MB!!), but we still want to
+         * keep the amount we store conservitive. 1000 should be enough! */
+        private static readonly List<GameData> Data = new List<GameData>(); 
 
         public static int Count { get { return Data.Count; } }
 
@@ -123,39 +128,41 @@ namespace Solitaire.Classes.Helpers
         {
             /* Add a move to undo history */
             var d = new GameData(data);
-            Data.Push(d);
+            Data.Add(d);
+            /* Keep a list of only 1000 moves (should be more than enough for most games) */
+            if (Data.Count <= 1000)
+            {
+                return;
+            }
+            Data.RemoveAt(0);
         }
 
         public static void RemoveLastEntry()
         {
+            /* A card was moved nowhere, and returned to where it came from - no point keeping the last move
+             * recorded on MouseDown of Game.cs */
             if (Data.Count == 0)
             {
                 return;
             }
-            Data.Pop();
+            Data.RemoveAt(Data.Count - 1);
         }
 
         public static GameData UndoLastMove()
         {
-            return Data.Count == 0 ? null : Data.Pop();
-        }
-
-        public static GameData GetRestartPoint()
-        {
-            /* Not the most elegant way to do it... */
-            for (var i = Data.Count - 1; i >= 0; i--)
+            /* Get last entry, remove it from undo list and return result */
+            if (Data.Count == 0)
             {
-                var d = Data.Pop();
-                if (i == 0)
-                {
-                    return d;
-                }
+                return null;
             }
-            return null;
+            var d = Data[Data.Count - 1];
+            Data.Remove(d);
+            return d;
         }
 
         public static void Clear()
         {
+            /* Obvious */
             Data.Clear();
         }
     }

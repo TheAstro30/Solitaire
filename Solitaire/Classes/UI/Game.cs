@@ -22,6 +22,8 @@ namespace Solitaire.Classes.UI
     {
         #region Member variables/Events
         /* Main graphics objects */
+        public MultiKeyDictionary<Suit, int, CardData> Cards = new MultiKeyDictionary<Suit, int, CardData>(); /* Main look-up table for card images */
+        
         public Deck MasterDeck = new Deck();
         public GraphicsObjectData ObjectData = new GraphicsObjectData();
 
@@ -110,8 +112,8 @@ namespace Solitaire.Classes.UI
 
             /* Setup game data */
             CurrentGame = new GameData();
-            var d = new Deck();
-            if (!BinarySerialize<Deck>.Load(Utils.MainDir(@"\data\gfx\cards.dat"), ref d))
+            var d = new List<CardData>();
+            if (!BinarySerialize<List<CardData>>.Load(Utils.MainDir(@"\data\gfx\cards.dat"), ref d))
             {
                 /* Complete error */
                 return;
@@ -123,7 +125,17 @@ namespace Solitaire.Classes.UI
                 return;
             }
             ObjectData = g;
-            MasterDeck = new Deck(d);
+            /* Build master deck */
+            foreach (var c in d)
+            {
+                var card = new Card
+                {
+                    Suit = c.Suit,
+                    Value = c.Value
+                };
+                Cards.Add(card.Suit, card.Value, c);
+                MasterDeck.Add(card);
+            }
             _gfx = new GraphicsRenderer(this);
             DraggingCards = new List<Card>();
         }
@@ -140,7 +152,6 @@ namespace Solitaire.Classes.UI
                 {
                     return;
                 }
-                SettingsManager.Settings.Statistics.GamesLost++;
             }
             var draw3 = false;
             using (var ng = NewGameDialog.Show(this))
@@ -156,23 +167,26 @@ namespace Solitaire.Classes.UI
                         break;
 
                     case NewGameDialogResult.LoadGame:
-                        if (!LoadSavedGame())
+                        if (LoadSavedGame())
                         {
-                            CustomMessageBox.Show(this, "No game was loaded.\r\n\r\nSave a game to be recalled later first.", "Error", CustomMessageBoxButtons.Ok, CustomMessageBoxIcon.Error);
-                            NewGame(false);
+                            return;
                         }
+                        CustomMessageBox.Show(this, "No game was loaded.\r\n\r\nSave a game to be recalled later first.", "Error", CustomMessageBoxButtons.Ok, CustomMessageBoxIcon.Error);
+                        NewGame(false);
                         return;
                 }
             }
-            System.Diagnostics.Debug.Print("here");
             if (!_firstRun)
             {
                 SettingsManager.Settings.Statistics.TotalGamesPlayed++;
+                if (!GameCompleted)
+                {
+                    SettingsManager.Settings.Statistics.GamesLost++;
+                }
             }
             else
             {
                 /* Game count is 0, so we don't increment until NewGame is called again on new game, win/loss */
-                System.Diagnostics.Debug.Print("fucking off");
                 _firstRun = false;
             }
             Undo.Clear(); /* Clear undo history */
@@ -190,6 +204,8 @@ namespace Solitaire.Classes.UI
             CurrentGame.StockCards = new Deck(MasterDeck);
             GameLogic.BuildStacks(this);
             AudioManager.Play(SoundType.Shuffle);
+            /* Set restart point (yes, it's duplicate data, but allows us to load a saved game and restart from beginning) */
+            CurrentGame.RestartPoint = new GameData(CurrentGame);
             if (OnGameTimeChanged != null)
             {
                 OnGameTimeChanged(CurrentGame.GameTime);
@@ -252,7 +268,6 @@ namespace Solitaire.Classes.UI
             if (saveRecover)
             {
                 /* Delete current recovery file */
-                System.Diagnostics.Debug.Print(file);
                 File.Delete(file);
             }
             return false;
@@ -284,7 +299,7 @@ namespace Solitaire.Classes.UI
         #region Restart
         public void RestartGame(bool keepTimeAndScore)
         {
-            var d = Undo.GetRestartPoint();
+            var d = CurrentGame.RestartPoint;
             if (d != null)
             {
                 /* If it's a loaded game, we don't want to reset time or score */
@@ -434,7 +449,7 @@ namespace Solitaire.Classes.UI
                             break;
 
                         case HitTestType.Waste:
-                            /* Pick up first card on pile, begin drag */
+                            /* Pick up first card on pile, begin drag (but first check it can be moved to foundation) */
                             Undo.AddMove(CurrentGame);
                             DragStackIndex = -1;
                             card = CurrentGame.WasteCards[CurrentGame.WasteCards.Count - 1];

@@ -55,6 +55,8 @@ namespace Solitaire.Classes.Settings
             Options.Sound.MusicVolume = 60;
             Options.SaveRecover = true;
             Options.ShowProgress = true;
+            Options.ShowTips = true;
+            Options.ShowHighlight = true;
             Options.Confirm.OnExit = true;
             Options.Confirm.OnNewLoad = true;
         }

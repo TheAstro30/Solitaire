@@ -118,15 +118,15 @@ namespace Solitaire.Classes.DirectSound
         }
 
         /* Public methods */
-        public void PlayAsync()
+        public void PlayAsync(bool noEvents = false)
         {
             /* This does NOT check for cross-threading, so if events are raised, it's up to the code at the other
              * end to do Invoke/BeginInvoke (if dealing with UI) */
-            var t = new Thread(Play) {IsBackground = true};
+            var t = new Thread(() => Play(noEvents)) {IsBackground = true};
             t.Start();
         }
 
-        public void Play()
+        public void Play(bool noEvents = false)
         {
             Close();
             if (!Open() || _media == null || _media.Run() < 0)
@@ -137,7 +137,10 @@ namespace Solitaire.Classes.DirectSound
             {
                 _audio.SetVolume((_volume - 100) * 50);
                 _audio.SetBalance((_pan - 50) * 200);
-                _play = new Timer(TimerTick, null, 0, 100);
+                if (!noEvents)
+                {
+                    _play = new Timer(TimerTick, null, 0, 200);
+                }
             }
             catch (Exception)
             {
@@ -183,7 +186,7 @@ namespace Solitaire.Classes.DirectSound
                     return;
                 }
             }
-            _play = new Timer(TimerTick, null, 0, 100);
+            _play = new Timer(TimerTick, null, 0, 200);
         }
 
         /* Private helper methods */    

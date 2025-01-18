@@ -30,7 +30,9 @@ namespace Solitaire.Forms
             tbMusic.ValueChanged += TrackBarValueChanged;
 
             chkProgress.Checked = SettingsManager.Settings.Options.ShowProgress;
-            chkSave.Checked = SettingsManager.Settings.Options.SaveRecover;            
+            chkTips.Checked = SettingsManager.Settings.Options.ShowTips;
+            chkSave.Checked = SettingsManager.Settings.Options.SaveRecover;
+            chkHighlight.Checked = SettingsManager.Settings.Options.ShowHighlight;
 
             chkEffects.Checked = SettingsManager.Settings.Options.Sound.EnableEffects;
             tbEffects.Value = SettingsManager.Settings.Options.Sound.EffectsVolume;
@@ -51,7 +53,9 @@ namespace Solitaire.Forms
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             SettingsManager.Settings.Options.ShowProgress = chkProgress.Checked;
+            SettingsManager.Settings.Options.ShowTips = chkTips.Checked;
             SettingsManager.Settings.Options.SaveRecover = chkSave.Checked;
+            SettingsManager.Settings.Options.ShowHighlight = chkHighlight.Checked;
 
             SettingsManager.Settings.Options.Sound.EnableEffects = chkEffects.Checked;
             SettingsManager.Settings.Options.Sound.EffectsVolume = tbEffects.Value;
@@ -72,7 +76,7 @@ namespace Solitaire.Forms
             SettingsManager.Settings.Options.Sound.EnableMusic = o.Checked;
             if (o.Checked)
             {
-                AudioManager.PlayMusic();
+                AudioManager.PlayMusic(true);
             }
             else
             {

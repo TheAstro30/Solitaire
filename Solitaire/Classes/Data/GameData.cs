@@ -23,8 +23,10 @@ namespace Solitaire.Classes.Data
         public int GameScore { get; set; }
         public int Moves { get; set; }
 
+        public GameData RestartPoint { get; set; }
+
         public GameData()
-        {
+        {            
             StockCards = new Deck();
             WasteCards = new List<Card>();
             Foundation = new List<StackData>();
