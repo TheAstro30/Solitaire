@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace xsDirectX
+namespace DirectX
 {
     namespace DShowNET
     {

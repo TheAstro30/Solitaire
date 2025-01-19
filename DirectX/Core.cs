@@ -2,7 +2,7 @@
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace xsDirectX
+namespace DirectX
 {
     [ComVisible(false)]
     public enum PinDirection // PIN_DIRECTION

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solitaire", "Solitaire\Solitaire.csproj", "{BF22D4D5-BB97-43A7-A0FE-AE4191F12877}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xsDirectX", "xsDirectX\xsDirectX.csproj", "{902CC476-5A7A-40E1-876B-8ABF265307AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectX", "DirectX\DirectX.csproj", "{902CC476-5A7A-40E1-876B-8ABF265307AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

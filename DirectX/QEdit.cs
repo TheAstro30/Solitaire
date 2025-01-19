@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace xsDirectX
+namespace DirectX
 {
     [ComVisible(true), ComImport,
         Guid("6B652FFF-11FE-4fce-92AD-0266B5D7C78F"),

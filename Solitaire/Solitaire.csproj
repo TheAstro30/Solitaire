@@ -51,7 +51,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>mainIcon.ico</ApplicationIcon>
+    <ApplicationIcon>Icons\mainIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -165,14 +165,6 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
-    <None Include="Images\assets.png" />
-    <None Include="Images\bg.png" />
-    <None Include="Images\button-cancel.png" />
-    <None Include="Images\button-ok.png" />
-    <None Include="Images\card-set.png" />
-    <None Include="Images\deck-backs.png" />
-    <None Include="Images\logo.png" />
-    <None Include="Images\new-game-bg.png" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -219,18 +211,17 @@
     <None Include="Icons\Status\scorePositive.ico" />
     <None Include="Icons\Status\scoreNegative.ico" />
     <None Include="Icons\Status\moves.ico" />
-    <Content Include="mainIcon.ico" />
+    <None Include="Icons\mainIcon.ico" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\xsDirectX\xsDirectX.csproj">
+    <ProjectReference Include="..\DirectX\DirectX.csproj">
       <Project>{902cc476-5a7a-40e1-876b-8abf265307aa}</Project>
-      <Name>xsDirectX</Name>
+      <Name>DirectX</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

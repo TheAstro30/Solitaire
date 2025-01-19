@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace xsDirectX
+namespace DirectX
 {
     [ComVisible(false)]
     public class FilterCategory
@@ -11,7 +11,7 @@ namespace xsDirectX
     }
 
     [ComVisible(false)]
-    public class Clsid
+    public class ClsId
     {
         public static readonly Guid SystemDeviceEnum = new Guid(0x62BE5D10, 0x60EB, 0x11d0, 0xBD, 0x3B, 0x00, 0xA0, 0xC9, 0x11, 0xCE, 0x86);
         public static readonly Guid FilterGraph = new Guid(0xe436ebb3, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70);

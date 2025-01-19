@@ -394,6 +394,7 @@ namespace Solitaire.Classes.UI
                 _hintIndex = 0;                
                 if (CurrentGame.StockCards.Count == 0)
                 {
+                    AudioManager.Play(SoundType.NoHint);
                     return;
                 }
                 _hintTimer.Tag = null;

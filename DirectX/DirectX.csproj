@@ -8,8 +8,8 @@
     <ProjectGuid>{902CC476-5A7A-40E1-876B-8ABF265307AA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>xsDirectX</RootNamespace>
-    <AssemblyName>xsDirectX</AssemblyName>
+    <RootNamespace>DirectX</RootNamespace>
+    <AssemblyName>DirectX</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -37,14 +37,14 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QEdit.cs" />
-    <Compile Include="XsBugFix.cs" />
-    <Compile Include="XsControl.cs" />
-    <Compile Include="XsDevice.cs" />
-    <Compile Include="XsDvd.cs" />
-    <Compile Include="XsExtend.cs" />
-    <Compile Include="XsUtils.cs" />
-    <Compile Include="XsUuids.cs" />
-    <Compile Include="XsCore.cs" />
+    <Compile Include="BugFix.cs" />
+    <Compile Include="Control.cs" />
+    <Compile Include="Device.cs" />
+    <Compile Include="Dvd.cs" />
+    <Compile Include="Extend.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="UuIds.cs" />
+    <Compile Include="Core.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

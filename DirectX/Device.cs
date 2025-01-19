@@ -3,7 +3,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 
-namespace xsDirectX
+namespace DirectX
 {
     [ComVisible(false)]
     public class DsDev
@@ -16,7 +16,7 @@ namespace xsDirectX
             var mon = new IMoniker[1];
             try
             {
-                var srvType = Type.GetTypeFromCLSID(Clsid.SystemDeviceEnum);
+                var srvType = Type.GetTypeFromCLSID(ClsId.SystemDeviceEnum);
                 if (srvType == null)
                 {
                     throw new NotImplementedException("System Device Enumerator");
@@ -39,7 +39,7 @@ namespace xsDirectX
                     {
                         break;
                     }
-                    var dev = new XsDevice { Name = GetFriendlyName(mon[0]) };
+                    var dev = new Device { Name = GetFriendlyName(mon[0]) };
                     if (devs == null)
                     {
                         devs = new ArrayList();
@@ -56,7 +56,7 @@ namespace xsDirectX
             {
                 if (devs != null)
                 {
-                    foreach (XsDevice d in devs)
+                    foreach (Device d in devs)
                     {
                         d.Dispose();
                     }
@@ -118,7 +118,7 @@ namespace xsDirectX
     }
 
     [ComVisible(false)]
-    public class XsDevice : IDisposable
+    public class Device : IDisposable
     {
         public string Name;
         public IMoniker Mon;

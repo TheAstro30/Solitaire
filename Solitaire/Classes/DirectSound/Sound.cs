@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using xsDirectX;
+using DirectX;
 
 namespace Solitaire.Classes.DirectSound
 {
@@ -137,6 +137,10 @@ namespace Solitaire.Classes.DirectSound
             {
                 _audio.SetVolume((_volume - 100) * 50);
                 _audio.SetBalance((_pan - 50) * 200);
+                /* This parameter is used if the sound being played is only a few 100ms; it prevents the timer from ever being created,
+                 * or firing the events. This causes exceptions and sometimes even the sound not to be heard at all. This is because of
+                 * the Stop() function being called within the timer if the position == length, and at 200ms time interval, still causes
+                 * problems... if the file is longer than a second, no problem! */
                 if (!noEvents)
                 {
                     _play = new Timer(TimerTick, null, 0, 200);
@@ -200,7 +204,7 @@ namespace Solitaire.Classes.DirectSound
             object o = null;
             try
             {
-                var typeFromClsid = Type.GetTypeFromCLSID(Clsid.FilterGraph);
+                var typeFromClsid = Type.GetTypeFromCLSID(ClsId.FilterGraph);
                 if (typeFromClsid == null)
                 {
                     return false;

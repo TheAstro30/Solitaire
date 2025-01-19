@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Runtime.InteropServices.ComTypes;
 
-namespace xsDirectX
+namespace DirectX
 {
     [ComVisible(true)]
     [ComImport]
@@ -78,7 +78,7 @@ namespace xsDirectX
         public int ClrImportant;
     }
 
-    public class XsUtils
+    public class Utils
     {
         [DllImport("olepro32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
         private static extern int OleCreatePropertyFrame(

@@ -133,13 +133,13 @@ namespace Solitaire.Forms
             var loc = SettingsManager.Settings.Location;
             if (loc == Point.Empty)
             {
-                /* Scale form to half the screen width/height */
+                /* Scale form to less than the screen width/height */
                 var screen = Utils.GetCurrentMonitor(this);
-                var x = screen.Bounds.Width / 2;
-                var y = screen.Bounds.Height / 2;
+                var x = screen.Bounds.Width - 100;
+                var y = screen.Bounds.Height - 100;
                 Size = new Size(x, y);
                 /* Set location to center screen */
-                Location = new Point(x - (Size.Width / 2), y - (Size.Height / 2));
+                Location = new Point((screen.Bounds.Width/2) - (Size.Width/2), (screen.Bounds.Height/2) - (Size.Height/2));
             }
             else
             {

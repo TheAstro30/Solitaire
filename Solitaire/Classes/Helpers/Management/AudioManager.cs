@@ -18,7 +18,8 @@ namespace Solitaire.Classes.Helpers.Management
         Drop = 2,
         Complete = 3,
         Empty = 5,
-        Win = 6
+        NoHint = 6,
+        Win = 7
     }
 
     internal class AudioData
@@ -51,6 +52,7 @@ namespace Solitaire.Classes.Helpers.Management
                     LoadSound(Utils.MainDir(@"\data\sound\card-drop.wav"), SoundType.Drop),
                     LoadSound(Utils.MainDir(@"\data\sound\card-complete.wav"), SoundType.Complete), 
                     LoadSound(Utils.MainDir(@"\data\sound\card-none.wav"), SoundType.Empty),
+                    LoadSound(Utils.MainDir(@"\data\sound\no-hint.wav"), SoundType.NoHint),
                     LoadSound(Utils.MainDir(@"\data\sound\game-win.mp3"), SoundType.Win)
                 });
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace xsDirectX
+namespace DirectX
 {
     /* AM_DVD_GRAPH_FLAGS */
     [Flags]
