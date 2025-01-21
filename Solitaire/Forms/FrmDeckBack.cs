@@ -19,7 +19,7 @@ namespace Solitaire.Forms
 
         public FrmDeckBack(Game game, int imageIndex)
         {
-            ClientSize = new Size(424, 324);
+            ClientSize = new Size(444, 324);
             Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
@@ -40,7 +40,7 @@ namespace Solitaire.Forms
             {
                 Location = new Point(12, 12),
                 MultiSelect = false,
-                Size = new Size(400, 260),
+                Size = new Size(420, 260),
                 TabIndex = 0,
                 UseCompatibleStateImageBehavior = false,
                 LargeImageList = images
@@ -57,7 +57,7 @@ namespace Solitaire.Forms
                 Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 DialogResult = DialogResult.OK,
                 Enabled = false,
-                Location = new Point(302, 289),
+                Location = new Point(322, 289),
                 Size = new Size(110, 28),
                 TabIndex = 1,
                 Text = @"Ok",
@@ -69,7 +69,7 @@ namespace Solitaire.Forms
             var btnCancel = new Button
             {
                 DialogResult = DialogResult.Cancel,
-                Location = new Point(186, 289),
+                Location = new Point(206, 289),
                 Size = new Size(110, 28),
                 TabIndex = 2,
                 Text = @"Cancel",

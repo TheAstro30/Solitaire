@@ -179,7 +179,7 @@ namespace Solitaire.Classes.UI
             if (!_firstRun)
             {
                 SettingsManager.Settings.Statistics.TotalGamesPlayed++;
-                if (!GameCompleted)
+                if (!GameCompleted && IsGameRunning)
                 {
                     SettingsManager.Settings.Statistics.GamesLost++;
                 }
@@ -267,8 +267,7 @@ namespace Solitaire.Classes.UI
             }
             if (saveRecover)
             {
-                /* Delete current recovery file */
-                File.Delete(file);
+                Utils.DeleteFile(file);
             }
             return false;
         }
@@ -785,6 +784,8 @@ namespace Solitaire.Classes.UI
             }
             SettingsManager.UpdateStats(CurrentGame.GameTime, CurrentGame.GameScore);
             AudioManager.Play(SoundType.Win);
+            /* Remove recovery file, if it exists */
+            Utils.DeleteFile(Utils.MainDir(@"\KangaSoft\Solitaire\recovery.dat", true));
             if (CustomMessageBox.Show(this, "Congratulations! You win!\r\n\r\nWould you like to deal again?", "Congratulations!", CustomMessageBoxIcon.Information) == DialogResult.Yes)
             {
                 NewGame(false);

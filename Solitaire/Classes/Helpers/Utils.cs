@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 using System.Windows.Forms;
 using Solitaire.Classes.Data;
 
@@ -65,6 +66,24 @@ namespace Solitaire.Classes.Helpers
                 return s;
             }
             return Screen.PrimaryScreen;
+        }
+
+        /* Quick method for deleting data files */
+        public static void DeleteFile(string file)
+        {
+            try
+            {
+                if (File.Exists(file))
+                {
+                    /* Delete current recovery file */
+                    File.Delete(file);
+                }
+            }
+            catch (Exception)
+            {
+                /* Silently ignore any file IO exceptions */
+                Debug.Assert(true);
+            }
         }
     }
 

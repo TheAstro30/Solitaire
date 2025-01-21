@@ -165,6 +165,14 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
+    <None Include="Images\assets.png" />
+    <None Include="Images\bg.png" />
+    <None Include="Images\button-cancel.png" />
+    <None Include="Images\button-ok.png" />
+    <None Include="Images\card-set.png" />
+    <None Include="Images\deck-backs.png" />
+    <None Include="Images\logo.png" />
+    <None Include="Images\new-game-bg.png" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

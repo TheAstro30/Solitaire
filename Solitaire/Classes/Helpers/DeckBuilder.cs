@@ -16,7 +16,7 @@ namespace Solitaire.Classes.Helpers
      * code below and remember to remove it! */
     public static class DeckBuilder
     {
-        private static readonly Size CardSize = new Size(120, 184); /* Hard programmed for now */
+        private static readonly Size CardSize = new Size(146, 198); /* Hard programmed for now */
 
         private static readonly List<CardData> Deck = new List<CardData>(); 
 
@@ -75,7 +75,7 @@ namespace Solitaire.Classes.Helpers
                 }
             }
             /* Build the deck backs list */
-            for (var i = 0; i <= 5; i++)
+            for (var i = 0; i <= 6; i++)
             {
                 cardImage = new Bitmap(CardSize.Width, CardSize.Height);
                 src = new Rectangle(i * CardSize.Width, 0, CardSize.Width, CardSize.Height);
