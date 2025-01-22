@@ -27,18 +27,20 @@ namespace Solitaire.Classes.UI
                 "Press the Escape key to send the game to the system tray.",
                 "Stuck? Press Ctrl+H to get a hint.",
                 "You can save the current game to be recalled later.",
-                "Challenge yourself further by playing in Draw Three mode.",
+                "Challenge yourself: Playing a game of Solitaire in Draw-Three mode.",
                 "Build tableau columns from King to Ace in alternating suits.",
                 "To complete the game, move all cards of same suit from Ace to King to home cells.",
                 "Take your time: Avoid rushing and consider all possible moves and their consequences.",
                 "You can use the undo feature (Ctrl+Z) to correct mistakes.",
                 "Build foundation piles evenly: Building piles too quickly or unevenly can make it difficult to work the tableau.",
+                "Challenge yourself: Set difficulty level to medium to limit the number of deck redeals to three.",
                 "Create empty columns: Move cards out of a tableau column to create space to place Kings.",
                 "Prioritize moves that reveal facedown cards: Move a card to flip over a facedown card so you can play it.",
                 "Assess the tableau: Look at the tableau to see what moves make the most sense.",
                 "Move aces: Move aces and twos to home cells to see how to move the other cards.",
                 "Play regularly: Playing solitaire regularly can help improve your skills.",
-                "Avoid emptying a slot without a King: These spaces will remain empty as only Kings go there."
+                "Avoid emptying a slot without a King: These spaces will remain empty as only Kings go there.",
+                "Challenge yourself: Set difficulty level to hard for no deck redealing."
             });
             _tips.Shuffle();
             /* Timer */

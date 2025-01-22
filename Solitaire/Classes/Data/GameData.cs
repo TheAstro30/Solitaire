@@ -19,6 +19,8 @@ namespace Solitaire.Classes.Data
 
         public bool IsDrawThree { get; set; }
 
+        public int DeckRedeals { get; set; }
+
         public int GameTime { get; set; }
         public int GameScore { get; set; }
         public int Moves { get; set; }
@@ -31,6 +33,7 @@ namespace Solitaire.Classes.Data
             WasteCards = new List<Card>();
             Foundation = new List<StackData>();
             Tableau = new List<StackData>();
+            DeckRedeals = 0;
         }
 
         /* Copy constructor - reference deep copy */
@@ -61,6 +64,7 @@ namespace Solitaire.Classes.Data
             }
             Moves = data.Moves;
             IsDrawThree = data.IsDrawThree;
+            DeckRedeals = data.DeckRedeals;
         }      
     }
 }

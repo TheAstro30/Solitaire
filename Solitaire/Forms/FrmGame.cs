@@ -3,6 +3,7 @@
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Reflection;
@@ -11,6 +12,7 @@ using Solitaire.Classes.Helpers;
 using Solitaire.Classes.Helpers.Logic;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.Helpers.UI;
+using Solitaire.Classes.Settings.SettingsData;
 using Solitaire.Classes.UI;
 using Solitaire.Properties;
 
@@ -295,6 +297,24 @@ namespace Solitaire.Forms
                     }                    
                     break;
 
+                case "EASY":
+                    CurrentGame.DeckRedeals = 0;
+                    SettingsManager.Settings.Options.Difficulty = DifficultyLevel.Easy;
+                    Invalidate();
+                    break;
+
+                case "MEDIUM":
+                    CurrentGame.DeckRedeals = 0;
+                    SettingsManager.Settings.Options.Difficulty = DifficultyLevel.Medium;
+                    Invalidate();
+                    break;
+
+                case "HARD":
+                    CurrentGame.DeckRedeals = 0;
+                    SettingsManager.Settings.Options.Difficulty = DifficultyLevel.Hard;
+                    Invalidate();
+                    break;
+
                 case "OPTIONS":
                     using (var opt = new FrmOptions(this))
                     {
@@ -401,9 +421,17 @@ namespace Solitaire.Forms
                 style.DropDownItems.Add(d);
                 index++;
             }
+            var diff = MenuHelper.AddMenuItem("Difficulty");
+            index = 0;
+            foreach (var d in (DifficultyLevel[]) Enum.GetValues(typeof (DifficultyLevel)))
+            {
+                diff.DropDownItems.Add(MenuHelper.AddMenuItem(d.ToString(), d.ToString().ToUpper(), Keys.None, true,
+                    (DifficultyLevel) index == SettingsManager.Settings.Options.Difficulty, null, OnMenuClick));
+                index++;
+            }
             m.DropDownItems.AddRange(new ToolStripItem[]
             {
-                style, new ToolStripSeparator(), 
+                style, new ToolStripSeparator(), diff, new ToolStripSeparator(), 
                 MenuHelper.AddMenuItem("Choose deck image","DECK", Keys.None, true, false, Resources.deckBack.ToBitmap(), OnMenuClick),
                 MenuHelper.AddMenuItem("Game options", "OPTIONS", Keys.Control | Keys.O, true, false, Resources.options.ToBitmap(), OnMenuClick)
             });

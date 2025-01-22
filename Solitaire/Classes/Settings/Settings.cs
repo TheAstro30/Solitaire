@@ -53,6 +53,7 @@ namespace Solitaire.Classes.Settings
             Options.Sound.EffectsVolume = 100;
             Options.Sound.EnableMusic = true;
             Options.Sound.MusicVolume = 60;
+            Options.AutoTurn = true;
             Options.SaveRecover = true;
             Options.ShowProgress = true;
             Options.ShowTips = true;

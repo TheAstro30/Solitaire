@@ -2,14 +2,12 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
-
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
-using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers.Management;
+using Solitaire.Classes.Settings.SettingsData;
 using Solitaire.Classes.UI;
 
 namespace Solitaire.Classes.Helpers.UI
@@ -34,7 +32,7 @@ namespace Solitaire.Classes.Helpers.UI
             var img = _gameCtl.ObjectData.Logo;
             var rect = new Rectangle(_gameCtl.ClientSize.Width - img.Width - 10, _gameCtl.ClientSize.Height - img.Height - 20, img.Width, img.Height);
             e.DrawImageOpaque(img, rect, 0.5F);
-            
+
             /* Draw deck */
             rect = DrawStock(e);
             /* Draw dealt hand */
@@ -150,8 +148,23 @@ namespace Solitaire.Classes.Helpers.UI
             
             if (_gameCtl.CurrentGame.StockCards.Count == 0)
             {
-                /* Stock is empty, draw empty deck image and piss off */
                 rect = new Rectangle(stackOffset, 40, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
+                /* Check difficulty level */
+                switch (SettingsManager.Settings.Options.Difficulty)
+                {
+                    case DifficultyLevel.Medium:
+                        if (_gameCtl.CurrentGame.DeckRedeals == 3)
+                        {
+                            e.DrawImage(_gameCtl.ObjectData.NoRedeal, rect);
+                            return rect;
+                        }
+                        break;
+
+                    case DifficultyLevel.Hard:
+                        e.DrawImage(_gameCtl.ObjectData.NoRedeal, rect);
+                        return rect;
+                }
+                /* Stock is empty, draw redeal image and piss off */
                 e.DrawImage(_gameCtl.ObjectData.EmptyStock, rect);
                 return rect;
             }

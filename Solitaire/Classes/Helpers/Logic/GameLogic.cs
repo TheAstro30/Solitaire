@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers.Management;
+using Solitaire.Classes.Settings.SettingsData;
 using Solitaire.Classes.UI;
 
 namespace Solitaire.Classes.Helpers.Logic
@@ -51,7 +52,7 @@ namespace Solitaire.Classes.Helpers.Logic
             }
         }
 
-        public static void Deal(Game ctl)
+        public static bool Deal(Game ctl)
         {
             /* Deal cards from deck - may need to consult the NTSB */
             if (ctl.CurrentGame.StockCards.Count > 0)
@@ -89,7 +90,25 @@ namespace Solitaire.Classes.Helpers.Logic
                 {
                     /* Nothing to do */
                     AudioManager.Play(SoundType.Empty);
-                    return;
+                    return false;
+                }
+                /* Check difficulty */
+                switch (SettingsManager.Settings.Options.Difficulty)
+                {
+                    case DifficultyLevel.Medium:
+                        /* Limit redeals to 3 */
+                        if (ctl.CurrentGame.DeckRedeals == 3)
+                        {
+                            AudioManager.Play(SoundType.Empty);
+                            return false;
+                        }
+                        ctl.CurrentGame.DeckRedeals++;
+                        break;
+
+                    case DifficultyLevel.Hard:
+                        /* 0 redeals */
+                        AudioManager.Play(SoundType.Empty);
+                        return false;
                 }
                 /* Copy cards from disposed back to normal deck */
                 ctl.CurrentGame.StockCards.AddRange(ctl.CurrentGame.WasteCards);
@@ -97,6 +116,7 @@ namespace Solitaire.Classes.Helpers.Logic
                 ctl.CurrentGame.WasteCards = new List<Card>();
                 AudioManager.Play(SoundType.Shuffle);
             }
+            return true;
         }
 
         public static bool IsValidMove(Card source, Card destination)

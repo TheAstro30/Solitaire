@@ -46,6 +46,7 @@ namespace Solitaire.Forms
             this.lblFxVol = new System.Windows.Forms.Label();
             this.tbEffects = new Solitaire.Controls.TrackBar.TrackBarEx();
             this.chkMusic = new System.Windows.Forms.CheckBox();
+            this.chkAutoTurn = new System.Windows.Forms.CheckBox();
             this.gbConfirm.SuspendLayout();
             this.gbGeneral.SuspendLayout();
             this.gbSound.SuspendLayout();
@@ -68,7 +69,7 @@ namespace Solitaire.Forms
             // 
             this.chkSave.AutoSize = true;
             this.chkSave.BackColor = System.Drawing.Color.Transparent;
-            this.chkSave.Location = new System.Drawing.Point(6, 67);
+            this.chkSave.Location = new System.Drawing.Point(6, 90);
             this.chkSave.Name = "chkSave";
             this.chkSave.Size = new System.Drawing.Size(262, 17);
             this.chkSave.TabIndex = 1;
@@ -102,7 +103,7 @@ namespace Solitaire.Forms
             this.gbConfirm.BackColor = System.Drawing.Color.Transparent;
             this.gbConfirm.Controls.Add(this.chkExit);
             this.gbConfirm.Controls.Add(this.chkNew);
-            this.gbConfirm.Location = new System.Drawing.Point(12, 221);
+            this.gbConfirm.Location = new System.Drawing.Point(12, 243);
             this.gbConfirm.Name = "gbConfirm";
             this.gbConfirm.Size = new System.Drawing.Size(274, 73);
             this.gbConfirm.TabIndex = 4;
@@ -112,13 +113,14 @@ namespace Solitaire.Forms
             // gbGeneral
             // 
             this.gbGeneral.BackColor = System.Drawing.Color.Transparent;
+            this.gbGeneral.Controls.Add(this.chkAutoTurn);
             this.gbGeneral.Controls.Add(this.chkHighlight);
             this.gbGeneral.Controls.Add(this.chkTips);
             this.gbGeneral.Controls.Add(this.chkProgress);
             this.gbGeneral.Controls.Add(this.chkSave);
             this.gbGeneral.Location = new System.Drawing.Point(12, 12);
             this.gbGeneral.Name = "gbGeneral";
-            this.gbGeneral.Size = new System.Drawing.Size(274, 119);
+            this.gbGeneral.Size = new System.Drawing.Size(274, 141);
             this.gbGeneral.TabIndex = 5;
             this.gbGeneral.TabStop = false;
             this.gbGeneral.Text = "General:";
@@ -127,7 +129,7 @@ namespace Solitaire.Forms
             // 
             this.chkHighlight.AutoSize = true;
             this.chkHighlight.BackColor = System.Drawing.Color.Transparent;
-            this.chkHighlight.Location = new System.Drawing.Point(6, 90);
+            this.chkHighlight.Location = new System.Drawing.Point(6, 113);
             this.chkHighlight.Name = "chkHighlight";
             this.chkHighlight.Size = new System.Drawing.Size(205, 17);
             this.chkHighlight.TabIndex = 5;
@@ -137,7 +139,7 @@ namespace Solitaire.Forms
             // chkTips
             // 
             this.chkTips.AutoSize = true;
-            this.chkTips.Location = new System.Drawing.Point(6, 44);
+            this.chkTips.Location = new System.Drawing.Point(6, 67);
             this.chkTips.Name = "chkTips";
             this.chkTips.Size = new System.Drawing.Size(137, 17);
             this.chkTips.TabIndex = 4;
@@ -148,7 +150,7 @@ namespace Solitaire.Forms
             // 
             this.chkProgress.AutoSize = true;
             this.chkProgress.BackColor = System.Drawing.Color.Transparent;
-            this.chkProgress.Location = new System.Drawing.Point(6, 21);
+            this.chkProgress.Location = new System.Drawing.Point(6, 44);
             this.chkProgress.Name = "chkProgress";
             this.chkProgress.Size = new System.Drawing.Size(221, 17);
             this.chkProgress.TabIndex = 3;
@@ -160,7 +162,7 @@ namespace Solitaire.Forms
             this.btnOk.BackColor = System.Drawing.Color.White;
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnOk.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOk.Location = new System.Drawing.Point(176, 313);
+            this.btnOk.Location = new System.Drawing.Point(176, 334);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(110, 28);
             this.btnOk.TabIndex = 6;
@@ -176,7 +178,7 @@ namespace Solitaire.Forms
             this.gbSound.Controls.Add(this.tbEffects);
             this.gbSound.Controls.Add(this.chkMusic);
             this.gbSound.Controls.Add(this.chkEffects);
-            this.gbSound.Location = new System.Drawing.Point(12, 137);
+            this.gbSound.Location = new System.Drawing.Point(12, 159);
             this.gbSound.Name = "gbSound";
             this.gbSound.Size = new System.Drawing.Size(274, 78);
             this.gbSound.TabIndex = 7;
@@ -232,12 +234,23 @@ namespace Solitaire.Forms
             this.chkMusic.Text = "Play music";
             this.chkMusic.UseVisualStyleBackColor = false;
             // 
+            // chkAutoTurn
+            // 
+            this.chkAutoTurn.AutoSize = true;
+            this.chkAutoTurn.BackColor = System.Drawing.Color.Transparent;
+            this.chkAutoTurn.Location = new System.Drawing.Point(6, 21);
+            this.chkAutoTurn.Name = "chkAutoTurn";
+            this.chkAutoTurn.Size = new System.Drawing.Size(187, 17);
+            this.chkAutoTurn.TabIndex = 6;
+            this.chkAutoTurn.Text = "Automatically turn hidden cards";
+            this.chkAutoTurn.UseVisualStyleBackColor = false;
+            // 
             // FrmOptions
             // 
             this.AcceptButton = this.btnOk;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(298, 347);
+            this.ClientSize = new System.Drawing.Size(298, 368);
             this.Controls.Add(this.gbSound);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.gbGeneral);
@@ -281,5 +294,6 @@ namespace Solitaire.Forms
         private TrackBarEx tbMusic;
         private System.Windows.Forms.CheckBox chkTips;
         private System.Windows.Forms.CheckBox chkHighlight;
+        private System.Windows.Forms.CheckBox chkAutoTurn;
     }
 }

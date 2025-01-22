@@ -4,8 +4,8 @@
  * ©2025 Kangasoft Software */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Solitaire.Classes.Data;
@@ -83,7 +83,7 @@ namespace Solitaire.Classes.UI
         #region Constructor
         public Game()
         {
-            if (DesignMode)
+            if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime)
             {
                 return;
             }
@@ -302,7 +302,7 @@ namespace Solitaire.Classes.UI
             if (d != null)
             {
                 /* If it's a loaded game, we don't want to reset time or score */
-                CurrentGame = keepTimeAndScore ? new GameData(d) {GameTime = _time, GameScore = _score} : new GameData(d);
+                CurrentGame = keepTimeAndScore ? new GameData(d) {GameTime = _time, GameScore = _score, DeckRedeals = 0} : new GameData(d);
             }
             /* Reset time and score */
             if (OnGameTimeChanged != null)
@@ -343,19 +343,30 @@ namespace Solitaire.Classes.UI
                     }
                 }
                 /* Each stack */
-                foreach (var stack in CurrentGame.Tableau.Where(stack => stack.Cards.Count > 0))
+                for (var stack = 0; stack <= 6; stack++)
                 {
-                    card = stack.Cards[stack.Cards.Count - 1];
+                    var s = CurrentGame.Tableau[stack];
+                    if (s.Cards.Count == 0)
+                    {
+                        continue;
+                    }
+                    card = s.Cards[s.Cards.Count - 1];
                     /* Is it an ace ? - Find free home slot; if not see if it can be completed */
-                    if ((card.IsHidden || !GameLogic.IsCompleted(this, card)) && (card.Value != 1 || !GameLogic.AddAceToFreeSlot(this, card)))
+                    if (card.IsHidden)
+                    {
+                        AutoTurnCard(stack);
+                        continue;         
+                    }
+                    if (!GameLogic.IsCompleted(this, card) && (card.Value != 1 || !GameLogic.AddAceToFreeSlot(this, card)))
                     {
                         continue;
                     }
                     success = true;
-                    stack.Cards.Remove(card);
+                    s.Cards.Remove(card);
                     movedCards++;
                     CurrentGame.Moves++;
                     CurrentGame.GameScore += 10;
+                    AutoTurnCard(stack);
                 }
                 complete = movedCards != 0;
             }
@@ -435,7 +446,11 @@ namespace Solitaire.Classes.UI
                     {
                         case HitTestType.Stock:
                             Undo.AddMove(CurrentGame);
-                            GameLogic.Deal(this);
+                            if (!GameLogic.Deal(this))
+                            {
+                                base.OnMouseDown(e);
+                                return;
+                            }
                             if (IsDeckReDealt)
                             {
                                 IsDeckReDealt = false;
@@ -584,6 +599,7 @@ namespace Solitaire.Classes.UI
                         stack.Cards.Add(c);
                         CurrentGame.GameScore += 10;
                         CurrentGame.Moves++;
+                        AutoTurnCard();
                         break;
 
                     case HitTestType.Tableau:
@@ -598,6 +614,7 @@ namespace Solitaire.Classes.UI
                             }
                             CurrentGame.GameScore += 5;
                             CurrentGame.Moves++;
+                            AutoTurnCard();
                         }
                         else if (data.CardIndex >= 0)
                         {
@@ -605,6 +622,7 @@ namespace Solitaire.Classes.UI
                             CurrentGame.Tableau[data.StackIndex].Cards.AddRange(DraggingCards);
                             CurrentGame.GameScore += _isFoundationDrag ? -15 : 5;
                             CurrentGame.Moves++;
+                            AutoTurnCard();
                         }
                         else
                         {
@@ -641,7 +659,7 @@ namespace Solitaire.Classes.UI
         #region Resize override
         protected override void OnResize(EventArgs e)
         {
-            if (DesignMode)
+            if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime)
             {
                 return;
             }
@@ -656,17 +674,18 @@ namespace Solitaire.Classes.UI
             var newHeight = Convert.ToInt32(img.Height * ratio) / 5;
             CardSize = new Size(newWidth > img.Width ? img.Width : newWidth, newHeight > img.Height ? img.Height : newHeight);
             /* This is used for centering drawing of images on X axis and for mouse hit test */
-            GameCenter = (ClientSize.Width/2) - (CardSize.Width/2);
+            GameCenter = (ClientSize.Width / 2) - (CardSize.Width / 2);
             GameLogic.ClearHints();
             Invalidate();
             base.OnResize(e);
         }
+
         #endregion
 
         #region Paint override
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (DesignMode)
+            if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime)
             {
                 /* Steve Jobs was here */
                 return;
@@ -724,6 +743,7 @@ namespace Solitaire.Classes.UI
         #endregion
         #endregion
 
+        #region Private methods
         #region Timers
         private void OnGameStart(object sender, EventArgs e)
         {
@@ -841,6 +861,31 @@ namespace Solitaire.Classes.UI
             /* Draw hint destination highlight */
             _gfx.DrawFocusRing(tag, 0);
         }
+        #endregion
+
+        #region Auto turn card
+        private void AutoTurnCard(int stackIndex = -1)
+        {
+            /* Automatically turn over hidden cards on tableau stacks and award player points */
+            var index = stackIndex != -1 ? stackIndex : DragStackIndex;
+            if (index == -1 || !SettingsManager.Settings.Options.AutoTurn)
+            {
+                return;
+            }
+            var stack = CurrentGame.Tableau[index].Cards;
+            if (stack.Count == 0 || !stack[stack.Count - 1].IsHidden)
+            {
+                return;
+            }
+            Undo.AddMove(CurrentGame);
+            stack[stack.Count - 1].IsHidden = false;
+            CurrentGame.GameScore += 5;
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
+            }
+        }
+        #endregion
         #endregion
     }
 }

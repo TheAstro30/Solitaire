@@ -48,7 +48,7 @@ namespace Solitaire.Classes.Helpers
                 }
             }
             /* Build assets */
-            for (var asset = 0; asset <= 2; asset++)
+            for (var asset = 0; asset <= 3; asset++)
             {
                 cardImage = new Bitmap(CardSize.Width, CardSize.Height);
                 src = new Rectangle(asset * CardSize.Width, 0, CardSize.Width, CardSize.Height);
@@ -62,12 +62,17 @@ namespace Solitaire.Classes.Helpers
                         break;
 
                     case 1:
+                        System.Diagnostics.Debug.Print(">> Set no redeal");
+                        ObjData.NoRedeal = cardImage;
+                        break;
+
+                    case 2:
                         /* Set empty foundation image */
                         System.Diagnostics.Debug.Print(">> Set empty foundation");
                         ObjData.EmptyFoundation = cardImage;
                         break;
 
-                    case 2:
+                    case 3:
                         /* Set empty tableau image */
                         System.Diagnostics.Debug.Print(">> Set empty taleau");
                         ObjData.EmptyTableau = cardImage;

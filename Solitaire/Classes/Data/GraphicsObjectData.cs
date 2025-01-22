@@ -15,6 +15,8 @@ namespace Solitaire.Classes.Data
 
         public Image EmptyStock { get; set; }
 
+        public Image NoRedeal { get; set; }
+
         public Image EmptyFoundation { get; set; }
 
         public Image EmptyTableau { get; set; }

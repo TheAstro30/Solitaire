@@ -29,6 +29,7 @@ namespace Solitaire.Forms
             tbEffects.ValueChanged += TrackBarValueChanged;
             tbMusic.ValueChanged += TrackBarValueChanged;
 
+            chkAutoTurn.Checked = SettingsManager.Settings.Options.AutoTurn;
             chkProgress.Checked = SettingsManager.Settings.Options.ShowProgress;
             chkTips.Checked = SettingsManager.Settings.Options.ShowTips;
             chkSave.Checked = SettingsManager.Settings.Options.SaveRecover;
@@ -52,6 +53,7 @@ namespace Solitaire.Forms
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            SettingsManager.Settings.Options.AutoTurn = chkAutoTurn.Checked;
             SettingsManager.Settings.Options.ShowProgress = chkProgress.Checked;
             SettingsManager.Settings.Options.ShowTips = chkTips.Checked;
             SettingsManager.Settings.Options.SaveRecover = chkSave.Checked;
