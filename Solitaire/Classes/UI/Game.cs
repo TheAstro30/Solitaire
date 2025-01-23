@@ -788,11 +788,11 @@ namespace Solitaire.Classes.UI
             /* Award time bonuses */
             if (CurrentGame.GameTime <= 120)
             {
-                CurrentGame.GameScore += 120;
+                CurrentGame.GameScore += 1000 * 3;
             }
             else if (CurrentGame.GameTime <= 300)
             {
-                CurrentGame.GameScore += 60;
+                CurrentGame.GameScore += 200 * 3;
             }
             if (OnGameTimeChanged != null)
             {
