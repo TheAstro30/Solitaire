@@ -22,11 +22,8 @@ namespace Solitaire.Classes.Helpers
         public static string FormatTime(int seconds)
         {
             var ts = new TimeSpan(0, 0, 0, seconds);
-            return ts.Hours > 0
-                ? string.Format("{0}h {1}m {2}s", ts.Hours, ts.Minutes, ts.Seconds)
-                : ts.Minutes > 0
-                    ? string.Format("{0}m {1}s", ts.Minutes, ts.Seconds)
-                    : string.Format("{0}s", ts.Seconds);
+            return ts.Hours > 0 ? $"{ts.Hours}h {ts.Minutes}m {ts.Seconds}s" :
+                ts.Minutes > 0 ? $"{ts.Minutes}m {ts.Seconds}s" : $"{ts.Seconds}s";
         }
 
         /* Main application folder */
@@ -151,7 +148,7 @@ namespace Solitaire.Classes.Helpers
          * keep the amount we store conservitive. 1000 should be enough! */
         private static readonly List<GameData> Data = new List<GameData>(); 
 
-        public static int Count { get { return Data.Count; } }
+        public static int Count => Data.Count;
 
         public static void AddMove(GameData data)
         {

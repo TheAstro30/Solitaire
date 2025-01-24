@@ -1,7 +1,9 @@
 # Solitaire
 A simple implementation of the classic game "Klondike", or "Patience"
 
-Configuration: Any CPU; Target Framework: .NET3.5; Visual Studio 2012
+Configuration: Any CPU; Target Framework: .NET3.5; C# v7.0, Visual Studio 2017
+
+This was written using features of C# version 7 (Visual Studio 2017). It will NOT compile in Visual Studio 2012.
 
 Make sure to copy the "data" folder from the "Debug' folder to the "Release" folder, or the graphics won't work.
 

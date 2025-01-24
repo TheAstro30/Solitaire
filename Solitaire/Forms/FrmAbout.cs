@@ -67,9 +67,7 @@ namespace Solitaire.Forms
                 Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 Location = new Point(84, 43),
                 Size = new Size(49, 15),
-                Text =
-                    string.Format("Version: {0}.{1}.{2} (Build: {3})", version.Major, version.Minor, version.Build,
-                        version.MinorRevision)
+                Text = $@"Version: {version.Major}.{version.Minor}.{version.Build} (Build: {version.MinorRevision})"
             };
 
             var lblCopyright = new Label

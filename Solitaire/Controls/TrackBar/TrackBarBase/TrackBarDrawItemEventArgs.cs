@@ -12,40 +12,18 @@ namespace Solitaire.Controls.TrackBar.TrackBarBase
 
     public class TrackBarDrawItemEventArgs : EventArgs
     {
-        private readonly Rectangle _bounds;
-        private readonly Graphics _graphics;
-        private readonly TrackBarItemState _state;
-
         public TrackBarDrawItemEventArgs(Graphics graphics, Rectangle bounds, TrackBarItemState state)
         {
-            _graphics = graphics;
-            _bounds = bounds;
-            _state = state;
+            Graphics = graphics;
+            Bounds = bounds;
+            State = state;
         }
 
-        public Rectangle Bounds
-        {
-            get
-            {
-                return _bounds;
-            }
-        }
+        public Rectangle Bounds { get; }
 
-        public Graphics Graphics
-        {
-            get
-            {
-                return _graphics;
-            }
-        }
+        public Graphics Graphics { get; }
 
-        public TrackBarItemState State
-        {
-            get
-            {
-                return _state;
-            }
-        }
+        public TrackBarItemState State { get; }
     }
 }
 

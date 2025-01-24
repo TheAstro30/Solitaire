@@ -13,6 +13,8 @@ namespace Solitaire.Classes.DirectSound
 {
     public class Sound
     {
+        // ReSharper disable SuspiciousTypeConversion.Global
+
         private Timer _play;
         private IBasicAudio _audio;
         private IGraphBuilder _graph;
@@ -48,7 +50,7 @@ namespace Solitaire.Classes.DirectSound
         /* Public properties */
         public int Volume
         {
-            get { return _volume; }
+            get => _volume;
             set
             {
                 _volume = value;
@@ -60,16 +62,13 @@ namespace Solitaire.Classes.DirectSound
                 {
                     _volume = 100;
                 }
-                if (_audio != null)
-                {
-                    _audio.SetVolume((_volume - 100)*50);
-                }
+                _audio?.SetVolume((_volume - 100)*50);
             }
         }
 
         public int Pan
         {
-            get { return _pan; }
+            get => _pan;
             set
             {
                 _pan = value;
@@ -81,10 +80,7 @@ namespace Solitaire.Classes.DirectSound
                 {
                     _pan = 100;
                 }
-                if (_audio != null)
-                {
-                    _audio.SetBalance((_pan - 50)*200);
-                }
+                _audio?.SetBalance((_pan - 50)*200);
             }
         }
 
@@ -92,14 +88,12 @@ namespace Solitaire.Classes.DirectSound
         {
             get
             {
-                double pos;
-                _position.GetCurrentPosition(out pos);
+                _position.GetCurrentPosition(out var pos);
                 return pos;
             }
             set
             {
-                double duration;
-                _position.GetDuration(out duration);
+                _position.GetDuration(out var duration);
                 if (value <= duration)
                 {
                     _position.SetCurrentPosition(value);
@@ -111,8 +105,7 @@ namespace Solitaire.Classes.DirectSound
         {
             get
             {
-                double duration;
-                _position.GetDuration(out duration);
+                _position.GetDuration(out var duration);
                 return duration;
             }
         }
@@ -155,10 +148,7 @@ namespace Solitaire.Classes.DirectSound
 
         public void Stop()
         {
-            if (_media != null)
-            {
-                _media.Stop();
-            }
+            _media?.Stop();
             if (_play == null)
             {
                 return;
@@ -169,10 +159,7 @@ namespace Solitaire.Classes.DirectSound
 
         public void Pause()
         {
-           if (_media != null)
-           {
-               _media.Pause();
-           }
+            _media?.Pause();
            if (_play == null)
            {
                return;
@@ -216,8 +203,8 @@ namespace Solitaire.Classes.DirectSound
                 {
                     return false;
                 }
-                _media = (IMediaControl)_graph;
-                _position = (IMediaPosition)_graph;
+                _media = (IMediaControl) _graph;
+                _position = (IMediaPosition) _graph;
                 _audio = _graph as IBasicAudio;                   
                 flag = true;
             }
@@ -271,19 +258,13 @@ namespace Solitaire.Classes.DirectSound
                 /* Silently ignore - this will sometimes happen when playing short files (1sec or so) in quick succession */
                 return;
             }
-            if (OnMediaPositionChanged != null)
-            {
-                OnMediaPositionChanged(this, pos);
-            }
+            OnMediaPositionChanged?.Invoke(this, pos);
             if (pos < duration)
             {
                 return;
             }
             Stop();
-            if (OnMediaEnded != null)
-            {
-                OnMediaEnded.Invoke(this);
-            }
+            OnMediaEnded?.Invoke(this);
         }
     }
 }

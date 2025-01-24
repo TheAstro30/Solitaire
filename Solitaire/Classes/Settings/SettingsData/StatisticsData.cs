@@ -35,10 +35,7 @@ namespace Solitaire.Classes.Settings.SettingsData
             var winPercent = TotalGamesPlayed != 0 ? Math.Round(((float)GamesWon / TotalGamesPlayed) * 100, 1) : 0;
             var lossPercent = TotalGamesPlayed != 0 ? Math.Round(((float)GamesLost / TotalGamesPlayed) * 100, 1) : 0;
             return
-                string.Format(
-                    "Total games played: {0}\r\n\r\nGames won: {1} ({2}% win rate)\r\n\r\nGames lost: {3} ({4}% loss rate)\r\n\r\nShortest game time: {5}\r\n\r\nLongest game time: {6}\r\n\r\nHighest score: {7}",
-                    TotalGamesPlayed, GamesWon, winPercent, GamesLost, lossPercent,
-                    Utils.FormatTime(ShortestGameTime), Utils.FormatTime(LongestGameTime), HighestScore);
+                $"Total games played: {TotalGamesPlayed}\r\n\r\nGames won: {GamesWon} ({winPercent}% win rate)\r\n\r\nGames lost: {GamesLost} ({lossPercent}% loss rate)\r\n\r\nShortest game time: {Utils.FormatTime(ShortestGameTime)}\r\n\r\nLongest game time: {Utils.FormatTime(LongestGameTime)}\r\n\r\nHighest score: {HighestScore}";
         }
     }
 }

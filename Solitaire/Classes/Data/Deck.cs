@@ -53,15 +53,9 @@ namespace Solitaire.Classes.Data
             return _cards.Remove(item);
         }
 
-        public int Count
-        {
-            get { return _cards.Count; }
-        }
+        public int Count => _cards.Count;
 
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         public int IndexOf(Card item)
         {
@@ -80,8 +74,8 @@ namespace Solitaire.Classes.Data
 
         public Card this[int index]
         {
-            get { return _cards[index]; }
-            set { _cards[index] = value; }
+            get => _cards[index];
+            set => _cards[index] = value;
         }
 
         public IEnumerator<Card> GetEnumerator()

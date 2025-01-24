@@ -36,13 +36,7 @@ namespace Solitaire.Controls.TrackBar
         [DefaultValue(typeof(TrackBarOwnerDrawParts), "None"), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible), Editor(typeof(TrackDrawModeEditor), typeof(UITypeEditor)), Description("Gets/sets the trackbar parts that will be OwnerDrawn.")]
         public TrackBarOwnerDrawParts OwnerDrawParts { get; set; }
 
-        private static bool VisualStylesEnabled
-        {
-            get
-            {
-                return Application.RenderWithVisualStyles;
-            }
-        }
+        private static bool VisualStylesEnabled => Application.RenderWithVisualStyles;
 
         /* Private control methods */
         private void DrawHorizontalTicks(Graphics g, Color color)
@@ -310,10 +304,7 @@ namespace Solitaire.Controls.TrackBar
             {
                 var e = new TrackBarDrawItemEventArgs(graphics, _channelBounds, (TrackBarItemState)_thumbState);
                 var drawChannelEvent = DrawChannel;
-                if (drawChannelEvent != null)
-                {
-                    drawChannelEvent(this, e);
-                }
+                drawChannelEvent?.Invoke(this, e);
             }
             else
             {
@@ -349,10 +340,7 @@ namespace Solitaire.Controls.TrackBar
                 {
                     var e = new TrackBarDrawItemEventArgs(graphics, _thumbBounds, (TrackBarItemState)_thumbState);
                     var drawThumbEvent = DrawThumb;
-                    if (drawThumbEvent != null)
-                    {
-                        drawThumbEvent(this, e);
-                    }
+                    drawThumbEvent?.Invoke(this, e);
                 }
                 else
                 {
@@ -459,10 +447,7 @@ namespace Solitaire.Controls.TrackBar
                                                         _channelBounds.Height - _thumbBounds.Height);
                     var e = new TrackBarDrawItemEventArgs(graphics, rectangle, (TrackBarItemState)_thumbState);
                     var drawTicksEvent = DrawTicks;
-                    if (drawTicksEvent != null)
-                    {
-                        drawTicksEvent(this, e);
-                    }
+                    drawTicksEvent?.Invoke(this, e);
                 }
                 else
                 {

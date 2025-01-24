@@ -28,6 +28,10 @@ namespace Solitaire.Controls.TrackBar.TrackBarBase
                     return value;
                 }
             }
+            if (provider == null)
+            {
+                return parts;
+            }
             var service = (IWindowsFormsEditorService) provider.GetService(typeof(IWindowsFormsEditorService));
             if (service == null)
             {
@@ -37,17 +41,14 @@ namespace Solitaire.Controls.TrackBar.TrackBarBase
                 }
             }
             var control = new CheckedListBox
-                              {
-                                  BorderStyle = BorderStyle.None,
-                                  CheckOnClick = true
-                              };
-            control.Items.Add("Ticks", (((TrackBarEx)context.Instance).OwnerDrawParts & TrackBarOwnerDrawParts.Ticks) == TrackBarOwnerDrawParts.Ticks);
-            control.Items.Add("Thumb", (((TrackBarEx)context.Instance).OwnerDrawParts & TrackBarOwnerDrawParts.Thumb) == TrackBarOwnerDrawParts.Thumb);
-            control.Items.Add("Channel", (((TrackBarEx)context.Instance).OwnerDrawParts & TrackBarOwnerDrawParts.Channel) == TrackBarOwnerDrawParts.Channel);
-            if (service != null)
             {
-                service.DropDownControl(control);
-            }
+                BorderStyle = BorderStyle.None,
+                CheckOnClick = true
+            };
+            control.Items.Add("Ticks", context != null && (((TrackBarEx)context.Instance).OwnerDrawParts & TrackBarOwnerDrawParts.Ticks) == TrackBarOwnerDrawParts.Ticks);
+            control.Items.Add("Thumb", context != null && (((TrackBarEx)context.Instance).OwnerDrawParts & TrackBarOwnerDrawParts.Thumb) == TrackBarOwnerDrawParts.Thumb);
+            control.Items.Add("Channel", context != null && (((TrackBarEx)context.Instance).OwnerDrawParts & TrackBarOwnerDrawParts.Channel) == TrackBarOwnerDrawParts.Channel);
+            service?.DropDownControl(control);
             try
             {
                 enumerator = control.CheckedItems.GetEnumerator();
@@ -59,16 +60,14 @@ namespace Solitaire.Controls.TrackBar.TrackBarBase
             }
             finally
             {
-                if (enumerator is IDisposable)
+                if (enumerator is IDisposable disposable)
                 {
-                    (enumerator as IDisposable).Dispose();
+                    disposable.Dispose();
                 }
             }
             control.Dispose();
-            if (service != null)
-            {
-                service.CloseDropDown();
-            }
+            service?.CloseDropDown();
+
             return parts;
         }
 

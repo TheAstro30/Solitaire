@@ -62,11 +62,7 @@ namespace Solitaire.Classes.UI
                 _tipIndex = 0;
                 _tips.Shuffle();
             }
-            if (OnTipChange == null)
-            {
-                return;
-            }
-            OnTipChange(_tips[_tipIndex]);
+            OnTipChange?.Invoke(_tips[_tipIndex]);
         }
     }
 }

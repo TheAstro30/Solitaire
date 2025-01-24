@@ -45,14 +45,9 @@ namespace Solitaire.Classes.Data
             return ContainsKey(key1) && this[key1].ContainsKey(key2);
         }
 
-        public new IEnumerable<TValue> Values
-        {
-            get
-            {
-                return from baseDict in base.Values
-                       from baseKey in baseDict.Keys
-                       select baseDict[baseKey];
-            }
-        }
+        public new IEnumerable<TValue> Values =>
+            from baseDict in base.Values
+            from baseKey in baseDict.Keys
+            select baseDict[baseKey];
     }
 }

@@ -98,10 +98,7 @@ namespace Solitaire.Classes.Helpers.Management
             }
             foreach (var s in Sounds.Where(s => s.Type == type))
             {
-                if (s.Player != null)
-                {
-                    s.Player.PlayAsync(true);    
-                }
+                s.Player?.PlayAsync(true);
                 return;
             }
         }
@@ -128,29 +125,17 @@ namespace Solitaire.Classes.Helpers.Management
 
         public static void PauseMusic()
         {
-            if (_music == null)
-            {
-                return;
-            }
-            _music.Pause();            
+            _music?.Pause();            
         }
 
         public static void ResumeMusic()
         {
-            if (_music == null)
-            {
-                return;
-            }
-            _music.Resume(); 
+            _music?.Resume(); 
         }
 
         public static void StopMusic()
         {
-            if (_music == null)
-            {
-                return;
-            }
-            _music.Stop();
+            _music?.Stop();
         }
 
         /* FolderSearch callback */

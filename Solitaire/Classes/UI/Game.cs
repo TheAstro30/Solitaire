@@ -27,7 +27,8 @@ namespace Solitaire.Classes.UI
         public Deck MasterDeck = new Deck();
         public GraphicsObjectData ObjectData = new GraphicsObjectData();
 
-        public bool IsGameRunning { get { return _timerGame.Enabled; }}
+        public bool IsGameRunning => _timerGame.Enabled;
+
         public bool IsDeckReDealt { get; set; }
 
         private Rectangle _stockRegion;
@@ -206,14 +207,8 @@ namespace Solitaire.Classes.UI
             AudioManager.Play(SoundType.Shuffle);
             /* Set restart point (yes, it's duplicate data, but allows us to load a saved game and restart from beginning) */
             CurrentGame.RestartPoint = new GameData(CurrentGame);
-            if (OnGameTimeChanged != null)
-            {
-                OnGameTimeChanged(CurrentGame.GameTime);
-            }
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-            }
+            OnGameTimeChanged?.Invoke(CurrentGame.GameTime);
+            OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             Invalidate();
         }
         #endregion
@@ -223,7 +218,7 @@ namespace Solitaire.Classes.UI
         {
             /* Load a saved game */
             var d = new GameData();
-            var file = string.Format(@"\KangaSoft\Solitaire\{0}", saveRecover ? "recovery.dat" : "saved.dat");
+            var file = $@"\KangaSoft\Solitaire\{(saveRecover ? "recovery.dat" : "saved.dat")}";
             if (!BinarySerialize<GameData>.Load(Utils.MainDir(file, true), ref d))
             {
                 return false;
@@ -243,14 +238,8 @@ namespace Solitaire.Classes.UI
                 SettingsManager.Settings.Statistics.GamesLost++;
             }
             AudioManager.Play(SoundType.Shuffle);
-            if (OnGameTimeChanged != null)
-            {
-                OnGameTimeChanged(CurrentGame.GameTime);
-            }
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-            }
+            OnGameTimeChanged?.Invoke(CurrentGame.GameTime);
+            OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             _timerFireWorks.Enabled = false;
             _timerGame.Enabled = true;
             Invalidate();
@@ -260,7 +249,7 @@ namespace Solitaire.Classes.UI
         public bool SaveCurrentGame(bool saveRecover = false)
         {
             /* Save current game - if it's a completed game, don't save it */
-            var file = Utils.MainDir(string.Format(@"\KangaSoft\Solitaire\{0}", saveRecover ? "recovery.dat" : "saved.dat"), true);
+            var file = Utils.MainDir($@"\KangaSoft\Solitaire\{(saveRecover ? "recovery.dat" : "saved.dat")}", true);
             if (!GameCompleted)
             {
                 return BinarySerialize<GameData>.Save(file, CurrentGame);
@@ -287,10 +276,7 @@ namespace Solitaire.Classes.UI
             AudioManager.Play(SoundType.Drop);
             /* Penalize by 5 points on the score for using undo */
             CurrentGame.GameScore -= 5;
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-            }
+            OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             Invalidate();
         }
         #endregion
@@ -305,14 +291,8 @@ namespace Solitaire.Classes.UI
                 CurrentGame = keepTimeAndScore ? new GameData(d) {GameTime = _time, GameScore = _score, DeckRedeals = 0} : new GameData(d);
             }
             /* Reset time and score */
-            if (OnGameTimeChanged != null)
-            {
-                OnGameTimeChanged(CurrentGame.GameTime);
-            }
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-            }
+            OnGameTimeChanged?.Invoke(CurrentGame.GameTime);
+            OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             AudioManager.Play(SoundType.Shuffle);
             Invalidate();
         }
@@ -376,10 +356,7 @@ namespace Solitaire.Classes.UI
             }
             Invalidate();
             AudioManager.Play(SoundType.Complete);
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-            }
+            OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
         }
         #endregion
 
@@ -440,9 +417,8 @@ namespace Solitaire.Classes.UI
             {
                 case MouseButtons.Left:
                     DragLocation = e.Location;
-                    HitTestData data;
                     Card card;
-                    switch (HitTest.CompareClick(this, e.Location, _stockRegion, out data))
+                    switch (HitTest.CompareClick(this, e.Location, _stockRegion, out var data))
                     {
                         case HitTestType.Stock:
                             Undo.AddMove(CurrentGame);
@@ -455,10 +431,7 @@ namespace Solitaire.Classes.UI
                             {
                                 IsDeckReDealt = false;
                                 CurrentGame.GameScore -= 5;
-                                if (OnScoreChanged != null)
-                                {
-                                    OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-                                }
+                                OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
                             }
                             Invalidate();
                             break;
@@ -512,10 +485,7 @@ namespace Solitaire.Classes.UI
                                     Invalidate();
                                     AudioManager.Play(SoundType.Deal);
                                     CurrentGame.GameScore += 5;
-                                    if (OnScoreChanged != null)
-                                    {
-                                        OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-                                    }
+                                    OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
                                     return;
                                 }
                                 if (data.CardIndex < data.Cards.Count - 1)
@@ -582,10 +552,9 @@ namespace Solitaire.Classes.UI
                 {
                     return;
                 }
-                HitTestData data;
                 /* This rectangle intersect code does work better than using the HitTest.CompareClick method */
                 var src = new Rectangle(e.Location.X - (CardSize.Width / 2), e.Location.Y + 5, CardSize.Width, CardSize.Height);
-                switch (HitTest.CompareDrop(this, src, out data))
+                switch (HitTest.CompareDrop(this, src, out var data))
                 {
                     case HitTestType.Foundation:
                         /* Dropping a card on a home stack? Cards must go from ace to king and be the same suit */
@@ -646,10 +615,7 @@ namespace Solitaire.Classes.UI
                 }
                 Invalidate();
                 AudioManager.Play(SoundType.Drop);
-                if (OnScoreChanged != null)
-                {
-                    OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-                }
+                OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             }
             GameLogic.ClearHints();
             base.OnMouseUp(e);
@@ -757,20 +723,14 @@ namespace Solitaire.Classes.UI
 
         private void OnGameTimer(object sender, EventArgs e)
         {
-            if (OnGameTimeChanged != null)
-            {
-                OnGameTimeChanged(CurrentGame.GameTime);
-            }
+            OnGameTimeChanged?.Invoke(CurrentGame.GameTime);
             CurrentGame.GameTime++;
             if (CurrentGame.GameTime % 10 != 0)
             {
                 return;
             }
             CurrentGame.GameScore -= 5;
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-            }
+            OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
         }
 
         private void OnCheckWin(object sender, EventArgs e)
@@ -794,14 +754,9 @@ namespace Solitaire.Classes.UI
             {
                 CurrentGame.GameScore += 200 * 3;
             }
-            if (OnGameTimeChanged != null)
-            {
-                OnGameTimeChanged(CurrentGame.GameTime);
-            }
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-            }
+
+            OnGameTimeChanged?.Invoke(CurrentGame.GameTime);
+            OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             SettingsManager.UpdateStats(CurrentGame.GameTime, CurrentGame.GameScore);
             AudioManager.Play(SoundType.Win);
             /* Remove recovery file, if it exists */
@@ -880,10 +835,7 @@ namespace Solitaire.Classes.UI
             Undo.AddMove(CurrentGame);
             stack[stack.Count - 1].IsHidden = false;
             CurrentGame.GameScore += 5;
-            if (OnScoreChanged != null)
-            {
-                OnScoreChanged(CurrentGame.GameScore, CurrentGame.Moves);
-            }
+            OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
         }
         #endregion
         #endregion

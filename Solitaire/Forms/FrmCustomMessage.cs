@@ -16,8 +16,8 @@ namespace Solitaire.Forms
         private readonly Label _lblText;
         private readonly Button _btnYes;
 
-        public string MessageText { set { _lblText.Text = value; } }
-        public string CaptionText { set { Text = value; } } 
+        public string MessageText { set => _lblText.Text = value; }
+        public string CaptionText { set => Text = value; } 
 
         public FrmCustomMessage(Game game, CustomMessageBoxButtons buttons, CustomMessageBoxIcon icon)
         {

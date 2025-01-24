@@ -54,12 +54,11 @@ namespace Solitaire.Classes.Helpers.UI
             if (SettingsManager.Settings.Options.ShowHighlight)
             {
                 /* Draw a focus ring around destination card that the first dragging card is above */
-                HitTestData d;
                 var rect = new Rectangle(_gameCtl.DragLocation.X - (_gameCtl.CardSize.Width/2),
                     _gameCtl.DragLocation.Y - 5,
                     _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
 
-                switch (HitTest.CompareDrop(_gameCtl, rect, out d))
+                switch (HitTest.CompareDrop(_gameCtl, rect, out var d))
                 {
                     case HitTestType.Foundation:
                         if (_gameCtl.DraggingCards.Count == 1)

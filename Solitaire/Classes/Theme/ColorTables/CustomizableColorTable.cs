@@ -96,7 +96,10 @@ namespace Solitaire.Classes.Theme.ColorTables
                     continue;
                 }
                 var prop = colorTableType.GetProperty(p);
-                _colors[colorTableGroup] = (Color)prop.GetValue(colorTable, null);
+                if (prop != null)
+                {
+                    _colors[colorTableGroup] = (Color) prop.GetValue(colorTable, null);
+                }
             }
 
             if (makeColorsDefault)
@@ -119,7 +122,10 @@ namespace Solitaire.Classes.Theme.ColorTables
                     continue;
                 }
                 var prop = colorTableType.GetProperty(p);
-                _colors[colorTableGroup] = (Color)prop.GetValue(ProfessionalColorTable, null);
+                if (prop != null)
+                {
+                    _colors[colorTableGroup] = (Color) prop.GetValue(ProfessionalColorTable, null);
+                }
             }
 
             if (makeColorsDefault)
@@ -135,411 +141,115 @@ namespace Solitaire.Classes.Theme.ColorTables
 
         public Color this[ColorTableGroup colorGroup]
         {
-            get { return _colors[colorGroup]; }
-            set { _colors[colorGroup] = value; }
+            get => _colors[colorGroup];
+            set => _colors[colorGroup] = value;
         }
 
-        public override Color ButtonSelectedBorder
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ButtonSelectedBorder];
-            }
-        }
+        public override Color ButtonSelectedBorder => _colors[ColorTableGroup.ButtonSelectedBorder];
 
-        public override Color ButtonCheckedGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ButtonCheckedGradientBegin];
-            }
-        }
+        public override Color ButtonCheckedGradientBegin => _colors[ColorTableGroup.ButtonCheckedGradientBegin];
 
-        public override Color ButtonCheckedGradientMiddle
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ButtonCheckedGradientMiddle];
-            }
-        }
+        public override Color ButtonCheckedGradientMiddle => _colors[ColorTableGroup.ButtonCheckedGradientMiddle];
 
-        public override Color ButtonCheckedGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ButtonCheckedGradientEnd];
-            }
-        }
+        public override Color ButtonCheckedGradientEnd => _colors[ColorTableGroup.ButtonCheckedGradientEnd];
 
-        public override Color ButtonSelectedGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ButtonSelectedGradientBegin];
-            }
-        }
+        public override Color ButtonSelectedGradientBegin => _colors[ColorTableGroup.ButtonSelectedGradientBegin];
 
-        public override Color ButtonSelectedGradientMiddle
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ButtonSelectedGradientMiddle];
-            }
-        }
+        public override Color ButtonSelectedGradientMiddle => _colors[ColorTableGroup.ButtonSelectedGradientMiddle];
 
-        public override Color ButtonSelectedGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ButtonSelectedGradientEnd];
-            }
-        }
+        public override Color ButtonSelectedGradientEnd => _colors[ColorTableGroup.ButtonSelectedGradientEnd];
 
-        public override Color ButtonPressedGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ButtonPressedGradientBegin];
-            }
-        }
+        public override Color ButtonPressedGradientBegin => _colors[ColorTableGroup.ButtonPressedGradientBegin];
 
-        public override Color ButtonPressedGradientMiddle
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ButtonPressedGradientMiddle];
-            }
-        }
+        public override Color ButtonPressedGradientMiddle => _colors[ColorTableGroup.ButtonPressedGradientMiddle];
 
-        public override Color ButtonPressedGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ButtonPressedGradientEnd];
-            }
-        }
+        public override Color ButtonPressedGradientEnd => _colors[ColorTableGroup.ButtonPressedGradientEnd];
 
-        public override Color CheckBackground
-        {
-            get
-            {
-                return _colors[ColorTableGroup.CheckBackground];
-            }
-        }
+        public override Color CheckBackground => _colors[ColorTableGroup.CheckBackground];
 
-        public override Color CheckSelectedBackground
-        {
-            get
-            {
-                return _colors[ColorTableGroup.CheckSelectedBackground];
-            }
-        }
+        public override Color CheckSelectedBackground => _colors[ColorTableGroup.CheckSelectedBackground];
 
-        public override Color CheckPressedBackground
-        {
-            get
-            {
-                return _colors[ColorTableGroup.CheckPressedBackground];
-            }
-        }
+        public override Color CheckPressedBackground => _colors[ColorTableGroup.CheckPressedBackground];
 
-        public override Color GripDark
-        {
-            get
-            {
-                return _colors[ColorTableGroup.GripDark];
-            }
-        }
+        public override Color GripDark => _colors[ColorTableGroup.GripDark];
 
-        public override Color GripLight
-        {
-            get
-            {
-                return _colors[ColorTableGroup.GripLight];
-            }
-        }
+        public override Color GripLight => _colors[ColorTableGroup.GripLight];
 
-        public override Color ImageMarginGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ImageMarginGradientBegin];
-            }
-        }
+        public override Color ImageMarginGradientBegin => _colors[ColorTableGroup.ImageMarginGradientBegin];
 
-        public override Color ImageMarginGradientMiddle
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ImageMarginGradientMiddle];
-            }
-        }
+        public override Color ImageMarginGradientMiddle => _colors[ColorTableGroup.ImageMarginGradientMiddle];
 
-        public override Color ImageMarginGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ImageMarginGradientEnd];
-            }
-        }
+        public override Color ImageMarginGradientEnd => _colors[ColorTableGroup.ImageMarginGradientEnd];
 
-        public override Color ImageMarginRevealedGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ImageMarginRevealedGradientBegin];
-            }
-        }
+        public override Color ImageMarginRevealedGradientBegin => _colors[ColorTableGroup.ImageMarginRevealedGradientBegin];
 
-        public override Color ImageMarginRevealedGradientMiddle
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ImageMarginRevealedGradientMiddle];
-            }
-        }
+        public override Color ImageMarginRevealedGradientMiddle => _colors[ColorTableGroup.ImageMarginRevealedGradientMiddle];
 
-        public override Color ImageMarginRevealedGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ImageMarginRevealedGradientEnd];
-            }
-        }
+        public override Color ImageMarginRevealedGradientEnd => _colors[ColorTableGroup.ImageMarginRevealedGradientEnd];
 
-        public override Color MenuStripGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.MenuStripGradientBegin];
-            }
-        }
+        public override Color MenuStripGradientBegin => _colors[ColorTableGroup.MenuStripGradientBegin];
 
-        public override Color MenuStripGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.MenuStripGradientEnd];
-            }
-        }
+        public override Color MenuStripGradientEnd => _colors[ColorTableGroup.MenuStripGradientEnd];
 
-        public override Color MenuItemSelected
-        {
-            get
-            {
-                return _colors[ColorTableGroup.MenuItemSelected];
-            }
-        }
+        public override Color MenuItemSelected => _colors[ColorTableGroup.MenuItemSelected];
 
-        public override Color MenuItemBorder
-        {
-            get
-            {
-                return _colors[ColorTableGroup.MenuItemBorder];
-            }
-        }
+        public override Color MenuItemBorder => _colors[ColorTableGroup.MenuItemBorder];
 
-        public override Color MenuBorder
-        {
-            get
-            {
-                return _colors[ColorTableGroup.MenuBorder];
-            }
-        }
+        public override Color MenuBorder => _colors[ColorTableGroup.MenuBorder];
 
-        public override Color MenuItemSelectedGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.MenuItemSelectedGradientBegin];
-            }
-        }
+        public override Color MenuItemSelectedGradientBegin => _colors[ColorTableGroup.MenuItemSelectedGradientBegin];
 
-        public override Color MenuItemSelectedGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.MenuItemSelectedGradientEnd];
-            }
-        }
+        public override Color MenuItemSelectedGradientEnd => _colors[ColorTableGroup.MenuItemSelectedGradientEnd];
 
-        public override Color MenuItemPressedGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.MenuItemPressedGradientBegin];
-            }
-        }
+        public override Color MenuItemPressedGradientBegin => _colors[ColorTableGroup.MenuItemPressedGradientBegin];
 
-        public override Color MenuItemPressedGradientMiddle
-        {
-            get
-            {
-                return _colors[ColorTableGroup.MenuItemPressedGradientMiddle];
-            }
-        }
+        public override Color MenuItemPressedGradientMiddle => _colors[ColorTableGroup.MenuItemPressedGradientMiddle];
 
-        public override Color MenuItemPressedGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.MenuItemPressedGradientEnd];
-            }
-        }
+        public override Color MenuItemPressedGradientEnd => _colors[ColorTableGroup.MenuItemPressedGradientEnd];
 
-        public override Color RaftingContainerGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.RaftingContainerGradientBegin];
-            }
-        }
+        public override Color RaftingContainerGradientBegin => _colors[ColorTableGroup.RaftingContainerGradientBegin];
 
-        public override Color RaftingContainerGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.RaftingContainerGradientEnd];
-            }
-        }
+        public override Color RaftingContainerGradientEnd => _colors[ColorTableGroup.RaftingContainerGradientEnd];
 
-        public override Color SeparatorDark
-        {
-            get
-            {
-                return _colors[ColorTableGroup.SeparatorDark];
-            }
-        }
+        public override Color SeparatorDark => _colors[ColorTableGroup.SeparatorDark];
 
-        public override Color SeparatorLight
-        {
-            get
-            {
-                return _colors[ColorTableGroup.SeparatorLight];
-            }
-        }
+        public override Color SeparatorLight => _colors[ColorTableGroup.SeparatorLight];
 
-        public override Color StatusStripGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.StatusStripGradientBegin];
-            }
-        }
+        public override Color StatusStripGradientBegin => _colors[ColorTableGroup.StatusStripGradientBegin];
 
-        public override Color StatusStripGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.StatusStripGradientEnd];
-            }
-        }
+        public override Color StatusStripGradientEnd => _colors[ColorTableGroup.StatusStripGradientEnd];
 
-        public override Color ToolStripBorder
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ToolStripBorder];
-            }
-        }
+        public override Color ToolStripBorder => _colors[ColorTableGroup.ToolStripBorder];
 
-        public override Color ToolStripDropDownBackground
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ToolStripDropDownBackground];
-            }
-        }
+        public override Color ToolStripDropDownBackground => _colors[ColorTableGroup.ToolStripDropDownBackground];
 
-        public override Color ToolStripGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ToolStripGradientBegin];
-            }
-        }
+        public override Color ToolStripGradientBegin => _colors[ColorTableGroup.ToolStripGradientBegin];
 
-        public override Color ToolStripGradientMiddle
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ToolStripGradientMiddle];
-            }
-        }
+        public override Color ToolStripGradientMiddle => _colors[ColorTableGroup.ToolStripGradientMiddle];
 
-        public override Color ToolStripGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ToolStripGradientEnd];
-            }
-        }
+        public override Color ToolStripGradientEnd => _colors[ColorTableGroup.ToolStripGradientEnd];
 
-        public override Color ToolStripContentPanelGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ToolStripContentPanelGradientBegin];
-            }
-        }
+        public override Color ToolStripContentPanelGradientBegin => _colors[ColorTableGroup.ToolStripContentPanelGradientBegin];
 
-        public override Color ToolStripContentPanelGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ToolStripContentPanelGradientEnd];
-            }
-        }
+        public override Color ToolStripContentPanelGradientEnd => _colors[ColorTableGroup.ToolStripContentPanelGradientEnd];
 
-        public override Color ToolStripPanelGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ToolStripPanelGradientBegin];
-            }
-        }
+        public override Color ToolStripPanelGradientBegin => _colors[ColorTableGroup.ToolStripPanelGradientBegin];
 
-        public override Color ToolStripPanelGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.ToolStripPanelGradientEnd];
-            }
-        }
+        public override Color ToolStripPanelGradientEnd => _colors[ColorTableGroup.ToolStripPanelGradientEnd];
 
-        public override Color OverflowButtonGradientBegin
-        {
-            get
-            {
-                return _colors[ColorTableGroup.OverflowButtonGradientBegin];
-            }
-        }
+        public override Color OverflowButtonGradientBegin => _colors[ColorTableGroup.OverflowButtonGradientBegin];
 
-        public override Color OverflowButtonGradientMiddle
-        {
-            get
-            {
-                return _colors[ColorTableGroup.OverflowButtonGradientMiddle];
-            }
-        }
+        public override Color OverflowButtonGradientMiddle => _colors[ColorTableGroup.OverflowButtonGradientMiddle];
 
-        public override Color OverflowButtonGradientEnd
-        {
-            get
-            {
-                return _colors[ColorTableGroup.OverflowButtonGradientEnd];
-            }
-        }
+        public override Color OverflowButtonGradientEnd => _colors[ColorTableGroup.OverflowButtonGradientEnd];
 
         #region Implementation of ICloneable
-
         public object Clone()
         {
             var clone = (CustomizableColorTable)MemberwiseClone();
             clone._colors = new Dictionary<ColorTableGroup, Color>(clone._colors);
             return clone;
         }
-
         #endregion
     }
 }

@@ -27,10 +27,7 @@ namespace Solitaire.Classes.Theme
             ToolStripManager.Renderer = old;
         }
      
-        public new CustomizableColorTable ColorTable
-        {
-            get { return CustomColorTable; }
-        }
+        public new CustomizableColorTable ColorTable => CustomColorTable;
 
         #region Rendering Improvements (includes fixes for bugs occured when Windows Classic theme is on).
         /*

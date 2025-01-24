@@ -49,8 +49,8 @@ namespace Solitaire.Classes
                 : ParseMask(directoryMask);
             _recursive = recursive;
             /* Start background thread */
-            ThreadStart starter = () => ThreadSearch(_initialDirectory);
-            var t = new Thread(starter)
+            void Starter() => ThreadSearch(_initialDirectory);
+            var t = new Thread(Starter)
             {
                 IsBackground = true
             };
@@ -70,10 +70,7 @@ namespace Solitaire.Classes
                         _fileMasks.Select(baseDirectory.GetFiles)
                             .SelectMany(files => files.Where(f => OnFileFound != null)))
                 {
-                    if (OnFileFound != null)
-                    {
-                        OnFileFound(f.FullName);
-                    }
+                    OnFileFound?.Invoke(f.FullName);
                 }
             }
             catch (AccessViolationException)
@@ -122,10 +119,7 @@ namespace Solitaire.Classes
         private void ThreadSearch(DirectoryInfo directory)
         {
             BeginSearch(directory);
-            if (OnFileSearchCompleted != null)
-            {
-                OnFileSearchCompleted(this);
-            }
+            OnFileSearchCompleted?.Invoke(this);
         }
     }
 }

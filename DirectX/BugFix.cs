@@ -28,15 +28,13 @@ namespace DirectX
 
             public static object CreateDsInstance(ref Guid clsid, ref Guid riid)
             {
-                IntPtr ptrIf;
-                var hr = CoCreateInstance(ref clsid, IntPtr.Zero, Clsctx.Inproc, ref riid, out ptrIf);
+                var hr = CoCreateInstance(ref clsid, IntPtr.Zero, Clsctx.Inproc, ref riid, out var ptrIf);
                 if (hr != 0 || ptrIf == IntPtr.Zero)
                 {
                     Marshal.ThrowExceptionForHR(hr);
                 }                
                 var iu = new Guid("00000000-0000-0000-C000-000000000046");
-                IntPtr ptrXx;
-                Marshal.QueryInterface(ptrIf, ref iu, out ptrXx);
+                Marshal.QueryInterface(ptrIf, ref iu, out _);
 
                 var ooo = System.Runtime.Remoting.Services.EnterpriseServicesHelper.WrapIUnknownWithComObject(ptrIf);
                 Marshal.Release(ptrIf);

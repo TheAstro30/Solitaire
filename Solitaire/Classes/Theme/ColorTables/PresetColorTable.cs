@@ -12,48 +12,23 @@ namespace Solitaire.Classes.Theme.ColorTables
     {
         protected PresetColorTable(string name)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            Name = name;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
         public string Name { get; protected set; }
 
-        public override Color ButtonSelectedHighlight
-        {
-            get { return ButtonSelectedGradientMiddle; }
-        }
+        public override Color ButtonSelectedHighlight => ButtonSelectedGradientMiddle;
 
-        public override Color ButtonSelectedHighlightBorder
-        {
-            get { return ButtonSelectedBorder; }
-        }
+        public override Color ButtonSelectedHighlightBorder => ButtonSelectedBorder;
 
-        public override Color ButtonPressedHighlight
-        {
-            get { return ButtonPressedGradientMiddle; }
-        }
+        public override Color ButtonPressedHighlight => ButtonPressedGradientMiddle;
 
-        public override Color ButtonPressedHighlightBorder
-        {
-            get { return ButtonPressedBorder; }
-        }
+        public override Color ButtonPressedHighlightBorder => ButtonPressedBorder;
 
-        public override Color ButtonCheckedHighlight
-        {
-            get { return ButtonCheckedGradientMiddle; }
-        }
+        public override Color ButtonCheckedHighlight => ButtonCheckedGradientMiddle;
 
-        public override Color ButtonCheckedHighlightBorder
-        {
-            get { return ButtonSelectedBorder; }
-        }
+        public override Color ButtonCheckedHighlightBorder => ButtonSelectedBorder;
 
-        public override Color ButtonPressedBorder
-        {
-            get { return ButtonSelectedBorder; }
-        }
+        public override Color ButtonPressedBorder => ButtonSelectedBorder;
     }
 }

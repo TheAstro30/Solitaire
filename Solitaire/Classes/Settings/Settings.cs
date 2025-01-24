@@ -16,15 +16,15 @@ namespace Solitaire.Classes.Settings
         [XmlAttribute("location")]
         public string LocationString
         {
-            get { return XmlFormatting.WritePointFormat(Location); }
-            set { Location = XmlFormatting.ParsePointFormat(value); }
+            get => XmlFormatting.WritePointFormat(Location);
+            set => Location = XmlFormatting.ParsePointFormat(value);
         }
 
         [XmlAttribute("size")]
         public string SizeString
         {
-            get { return XmlFormatting.WriteSizeFormat(Size); }
-            set { Size = XmlFormatting.ParseSizeFormat(value); }
+            get => XmlFormatting.WriteSizeFormat(Size);
+            set => Size = XmlFormatting.ParseSizeFormat(value);
         }
 
         [XmlAttribute("max")]

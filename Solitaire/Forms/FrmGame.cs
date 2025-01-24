@@ -3,7 +3,6 @@
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Reflection;
@@ -71,7 +70,7 @@ namespace Solitaire.Forms
             MainMenuStrip = menuBar;            
 
             var version = Assembly.GetExecutingAssembly().GetName().Version;
-            Text = string.Format("Kanga's Solitaire - {0}.{1}.{2} (Build: {3})", version.Major, version.Minor, version.Build, version.MinorRevision);
+            Text = $@"Kanga's Solitaire - {version.Major}.{version.Minor}.{version.Build} (Build: {version.MinorRevision})";
             
             /* Build menubar */
             _menuGame = (ToolStripMenuItem)menuBar.Items.Add("Game");
@@ -241,8 +240,8 @@ namespace Solitaire.Forms
             {
                 return;
             }
-            _statusBar.Items[0].Text = string.Format("Game number: {0}", SettingsManager.Settings.Statistics.TotalGamesPlayed + 1);
-            _statusBar.Items[1].Text = string.Format("Elapsed time: {0}", Utils.FormatTime(seconds));
+            _statusBar.Items[0].Text = $@"Game number: {SettingsManager.Settings.Statistics.TotalGamesPlayed + 1}";
+            _statusBar.Items[1].Text = $@"Elapsed time: {Utils.FormatTime(seconds)}";
         }        
 
         private void ScoreChanged(int score, int moves)
@@ -251,8 +250,8 @@ namespace Solitaire.Forms
             {
                 return;
             }
-            _statusBar.Items[2].Text = string.Format("Total moves: {0}", moves);
-            _statusBar.Items[3].Text = string.Format("Score: {0}", score);
+            _statusBar.Items[2].Text = $@"Total moves: {moves}";
+            _statusBar.Items[3].Text = $@"Score: {score}";
             _statusBar.Items[3].ImageIndex = score < 0 ? 4 : 3;
             ((ToolStripProgressBar)_statusBar.Items[5]).Value = GameLogic.FoundationCount(this);
         }
@@ -377,8 +376,7 @@ namespace Solitaire.Forms
         private static void OnMenuOptionsStyleClick(object sender, EventArgs e)
         {
             var o = (ToolStripItem) sender;
-            int index;
-            if (!int.TryParse(o.Tag.ToString(), out index))
+            if (!int.TryParse(o.Tag.ToString(), out var index))
             {
                 return;
             }

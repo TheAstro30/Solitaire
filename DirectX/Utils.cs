@@ -178,8 +178,7 @@ namespace DirectX
             {
                 var pinArray = new IntPtr[num];
                 filter.EnumPins(out pinEnum);
-                int fetched;
-                pinEnum.Next(num, pinArray, out fetched);
+                pinEnum.Next(num, pinArray, out var fetched);
                 pins = new IPin[fetched];
                 for (int i = 0; i < fetched; i++)
                 {
@@ -204,8 +203,7 @@ namespace DirectX
             {
                 var pinArray = new IntPtr[num];
                 builder.EnumFilters(out baseFilters);
-                int fetched;
-                baseFilters.Next(num, pinArray, out fetched);
+                baseFilters.Next(num, pinArray, out var fetched);
                 getFilters = new IBaseFilter[fetched];
                 for (int i = 0; i < fetched; i++)
                 {
@@ -251,7 +249,7 @@ namespace DirectX
                 var iuPtr = Marshal.GetIUnknownForObject(graph);
                 var iuInt = (int)iuPtr;
                 Marshal.Release(iuPtr);
-                var item = string.Format("FilterGraph {0} pid {1}", iuInt.ToString("x8"), id.ToString("x8"));
+                var item = $"FilterGraph {iuInt:x8} pid {id:x8}";
                 hr = CreateItemMoniker("!", item, out mk);
                 if (hr < 0) { Marshal.ThrowExceptionForHR(hr); }
 

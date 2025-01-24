@@ -14,396 +14,102 @@ namespace Solitaire.Classes.Theme.Presets
             /* Empty by default */
         }
 
-        public override Color ButtonSelectedBorder
-        {
-            get
-            {
-                return Color.FromName("ButtonShadow");
-            }
-        }
+        public override Color ButtonSelectedBorder => Color.FromName("ButtonShadow");
 
-        public override Color ButtonCheckedGradientBegin
-        {
-            get
-            {
-                return Color.FromName("ButtonFace");
-            }
-        }
+        public override Color ButtonCheckedGradientBegin => Color.FromName("ButtonFace");
 
-        public override Color ButtonCheckedGradientMiddle
-        {
-            get
-            {
-                return Color.FromName("ButtonFace");
-            }
-        }
+        public override Color ButtonCheckedGradientMiddle => Color.FromName("ButtonFace");
 
-        public override Color ButtonCheckedGradientEnd
-        {
-            get
-            {
-                return Color.FromName("ButtonHighlight");
-            }
-        }
+        public override Color ButtonCheckedGradientEnd => Color.FromName("ButtonHighlight");
 
-        public override Color ButtonSelectedGradientBegin
-        {
-            get
-            {
-                return Color.FromName("ButtonHighlight");
-            }
-        }
+        public override Color ButtonSelectedGradientBegin => Color.FromName("ButtonHighlight");
 
-        public override Color ButtonSelectedGradientMiddle
-        {
-            get
-            {
-                return Color.FromName("ButtonHighlight");
-            }
-        }
+        public override Color ButtonSelectedGradientMiddle => Color.FromName("ButtonHighlight");
 
-        public override Color ButtonSelectedGradientEnd
-        {
-            get
-            {
-                return Color.FromName("ButtonFace");
-            }
-        }
+        public override Color ButtonSelectedGradientEnd => Color.FromName("ButtonFace");
 
-        public override Color ButtonPressedGradientBegin
-        {
-            get
-            {
-                return Color.FromName("ButtonFace");
-            }
-        }
+        public override Color ButtonPressedGradientBegin => Color.FromName("ButtonFace");
 
-        public override Color ButtonPressedGradientMiddle
-        {
-            get
-            {
-                return Color.FromName("ButtonFace");
-            }
-        }
+        public override Color ButtonPressedGradientMiddle => Color.FromName("ButtonFace");
 
-        public override Color ButtonPressedGradientEnd
-        {
-            get
-            {
-                return Color.FromName("ButtonHighlight");
-            }
-        }
+        public override Color ButtonPressedGradientEnd => Color.FromName("ButtonHighlight");
 
-        public override Color CheckBackground
-        {
-            get
-            {
-                return Color.FromName("Menu");
-            }
-        }
+        public override Color CheckBackground => Color.FromName("Menu");
 
-        public override Color CheckSelectedBackground
-        {
-            get
-            {
-                return Color.FromName("Menu");
-            }
-        }
+        public override Color CheckSelectedBackground => Color.FromName("Menu");
 
-        public override Color CheckPressedBackground
-        {
-            get
-            {
-                return Color.FromName("MenuHighlight");
-            }
-        }
+        public override Color CheckPressedBackground => Color.FromName("MenuHighlight");
 
-        public override Color GripDark
-        {
-            get
-            {
-                return Color.FromName("ControlDark");
-            }
-        }
+        public override Color GripDark => Color.FromName("ControlDark");
 
-        public override Color GripLight
-        {
-            get
-            {
-                return Color.FromName("ControlLight");
-            }
-        }
+        public override Color GripLight => Color.FromName("ControlLight");
 
-        public override Color ImageMarginGradientBegin
-        {
-            get
-            {
-                return Color.FromName("ControlLight");
-            }
-        }
+        public override Color ImageMarginGradientBegin => Color.FromName("ControlLight");
 
-        public override Color ImageMarginGradientMiddle
-        {
-            get
-            {
-                return Color.FromName("ControlLight");
-            }
-        }
+        public override Color ImageMarginGradientMiddle => Color.FromName("ControlLight");
 
-        public override Color ImageMarginGradientEnd
-        {
-            get
-            {
-                return Color.FromName("ControlLight");
-            }
-        }
+        public override Color ImageMarginGradientEnd => Color.FromName("ControlLight");
 
-        public override Color ImageMarginRevealedGradientBegin
-        {
-            get
-            {
-                return Color.FromName("ControlLightLight");
-            }
-        }
+        public override Color ImageMarginRevealedGradientBegin => Color.FromName("ControlLightLight");
 
-        public override Color ImageMarginRevealedGradientMiddle
-        {
-            get
-            {
-                return Color.FromName("ControlLightLight");
-            }
-        }
+        public override Color ImageMarginRevealedGradientMiddle => Color.FromName("ControlLightLight");
 
-        public override Color ImageMarginRevealedGradientEnd
-        {
-            get
-            {
-                return Color.FromName("Menu");
-            }
-        }
+        public override Color ImageMarginRevealedGradientEnd => Color.FromName("Menu");
 
-        public override Color MenuStripGradientBegin
-        {
-            get
-            {
-                return Color.FromName("ControlLight");
-            }
-        }
+        public override Color MenuStripGradientBegin => Color.FromName("ControlLight");
 
-        public override Color MenuStripGradientEnd
-        {
-            get
-            {
-                return Color.FromName("ControlLight");
-            }
-        }
+        public override Color MenuStripGradientEnd => Color.FromName("ControlLight");
 
-        public override Color MenuItemSelected
-        {
-            get
-            {
-                return Color.FromName("MenuHighlight");
-            }
-        }
+        public override Color MenuItemSelected => Color.FromName("MenuHighlight");
 
-        public override Color MenuItemBorder
-        {
-            get
-            {
-                return Color.FromArgb(0, 0, 0, 0);
-            }
-        }
+        public override Color MenuItemBorder => Color.FromArgb(0, 0, 0, 0);
 
-        public override Color MenuBorder
-        {
-            get
-            {
-                return Color.FromName("ControlDark");
-            }
-        }
+        public override Color MenuBorder => Color.FromName("ControlDark");
 
-        public override Color MenuItemSelectedGradientBegin
-        {
-            get
-            {
-                return Color.FromName("MenuHighlight");
-            }
-        }
+        public override Color MenuItemSelectedGradientBegin => Color.FromName("MenuHighlight");
 
-        public override Color MenuItemSelectedGradientEnd
-        {
-            get
-            {
-                return Color.FromName("MenuHighlight");
-            }
-        }
+        public override Color MenuItemSelectedGradientEnd => Color.FromName("MenuHighlight");
 
-        public override Color MenuItemPressedGradientBegin
-        {
-            get
-            {
-                return Color.FromName("Menu");
-            }
-        }
+        public override Color MenuItemPressedGradientBegin => Color.FromName("Menu");
 
-        public override Color MenuItemPressedGradientMiddle
-        {
-            get
-            {
-                return Color.FromName("Menu");
-            }
-        }
+        public override Color MenuItemPressedGradientMiddle => Color.FromName("Menu");
 
-        public override Color MenuItemPressedGradientEnd
-        {
-            get
-            {
-                return Color.FromName("Menu");
-            }
-        }
+        public override Color MenuItemPressedGradientEnd => Color.FromName("Menu");
 
-        public override Color RaftingContainerGradientBegin
-        {
-            get
-            {
-                return Color.FromName("Control");
-            }
-        }
+        public override Color RaftingContainerGradientBegin => Color.FromName("Control");
 
-        public override Color RaftingContainerGradientEnd
-        {
-            get
-            {
-                return Color.FromName("Control");
-            }
-        }
+        public override Color RaftingContainerGradientEnd => Color.FromName("Control");
 
-        public override Color SeparatorDark
-        {
-            get
-            {
-                return Color.FromName("ActiveBorder");
-            }
-        }
+        public override Color SeparatorDark => Color.FromName("ActiveBorder");
 
-        public override Color SeparatorLight
-        {
-            get
-            {
-                return Color.FromName("Control");
-            }
-        }
+        public override Color SeparatorLight => Color.FromName("Control");
 
-        public override Color StatusStripGradientBegin
-        {
-            get
-            {
-                return Color.FromName("ControlLight");
-            }
-        }
+        public override Color StatusStripGradientBegin => Color.FromName("ControlLight");
 
-        public override Color StatusStripGradientEnd
-        {
-            get
-            {
-                return Color.FromName("Control");
-            }
-        }
+        public override Color StatusStripGradientEnd => Color.FromName("Control");
 
-        public override Color ToolStripBorder
-        {
-            get
-            {
-                return Color.FromName("ControlDark");
-            }
-        }
+        public override Color ToolStripBorder => Color.FromName("ControlDark");
 
-        public override Color ToolStripDropDownBackground
-        {
-            get
-            {
-                return Color.FromName("Menu");
-            }
-        }
+        public override Color ToolStripDropDownBackground => Color.FromName("Menu");
 
-        public override Color ToolStripGradientBegin
-        {
-            get
-            {
-                return Color.FromName("MenuBar");
-            }
-        }
+        public override Color ToolStripGradientBegin => Color.FromName("MenuBar");
 
-        public override Color ToolStripGradientMiddle
-        {
-            get
-            {
-                return Color.FromName("MenuBar");
-            }
-        }
+        public override Color ToolStripGradientMiddle => Color.FromName("MenuBar");
 
-        public override Color ToolStripGradientEnd
-        {
-            get
-            {
-                return Color.FromName("MenuBar");
-            }
-        }
+        public override Color ToolStripGradientEnd => Color.FromName("MenuBar");
 
-        public override Color ToolStripContentPanelGradientBegin
-        {
-            get
-            {
-                return Color.FromName("AppWorkspace");
-            }
-        }
+        public override Color ToolStripContentPanelGradientBegin => Color.FromName("AppWorkspace");
 
-        public override Color ToolStripContentPanelGradientEnd
-        {
-            get
-            {
-                return Color.FromName("AppWorkspace");
-            }
-        }
+        public override Color ToolStripContentPanelGradientEnd => Color.FromName("AppWorkspace");
 
-        public override Color ToolStripPanelGradientBegin
-        {
-            get
-            {
-                return Color.FromName("ControlLight");
-            }
-        }
+        public override Color ToolStripPanelGradientBegin => Color.FromName("ControlLight");
 
-        public override Color ToolStripPanelGradientEnd
-        {
-            get
-            {
-                return Color.FromName("Control");
-            }
-        }
+        public override Color ToolStripPanelGradientEnd => Color.FromName("Control");
 
-        public override Color OverflowButtonGradientBegin
-        {
-            get
-            {
-                return Color.FromName("ControlLightLight");
-            }
-        }
+        public override Color OverflowButtonGradientBegin => Color.FromName("ControlLightLight");
 
-        public override Color OverflowButtonGradientMiddle
-        {
-            get
-            {
-                return Color.FromName("ControlLight");
-            }
-        }
+        public override Color OverflowButtonGradientMiddle => Color.FromName("ControlLight");
 
-        public override Color OverflowButtonGradientEnd
-        {
-            get
-            {
-                return Color.FromName("Control");
-            }
-        }
+        public override Color OverflowButtonGradientEnd => Color.FromName("Control");
     }
 }

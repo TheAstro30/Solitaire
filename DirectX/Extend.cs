@@ -274,7 +274,7 @@ namespace DirectX
     public interface IAMTunerNotification
     {
         [PreserveSig]
-        int OnEvent(AmTunerEventType Event);
+        int OnEvent(AmTunerEventType amEvent);
     }
 
     [Flags, ComVisible(false)]
