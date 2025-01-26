@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace DirectX
+namespace libdx
 {
     [ComVisible(true)]
     [ComImport]
@@ -333,7 +333,7 @@ namespace DirectX
     [ComImport]
         [Guid("56a868b2-0ad4-11ce-b03a-0020af0ba770")]
         [InterfaceType(ComInterfaceType.InterfaceIsDual)]
-    public interface IMediaPosition
+    public interface IMediaPosition : IGraphBuilder /* Casting issue with Resharper 2020 fix */
     {
         [PreserveSig]
         int GetDuration(out double pLength);
@@ -373,7 +373,7 @@ namespace DirectX
     [ComImport]
         [Guid("56a868b3-0ad4-11ce-b03a-0020af0ba770")]
         [InterfaceType(ComInterfaceType.InterfaceIsDual)]
-    public interface IBasicAudio
+    public interface IBasicAudio : IGraphBuilder /* Casting issue with Resharper 2020 fix */
     {
         [PreserveSig]
         int SetVolume(int lVolume);

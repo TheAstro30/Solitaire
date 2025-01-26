@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace DirectX
+namespace libdx
 {
     [ComVisible(true), ComImport,
         Guid("93E5A4E0-2D50-11d2-ABFA-00A0C9C6E38D"),
@@ -72,7 +72,7 @@ namespace DirectX
     [ComVisible(true), ComImport,
         Guid("56a868a9-0ad4-11ce-b03a-0020af0ba770"), 
         InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    public interface IGraphBuilder
+    public interface IGraphBuilder : IMediaControl /* Casting issue with Resharper 2020 fix */
     {
         #region IFilterGraph Methods
         [PreserveSig]

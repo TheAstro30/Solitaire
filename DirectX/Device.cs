@@ -3,7 +3,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 
-namespace DirectX
+namespace libdx
 {
     [ComVisible(false)]
     public class DsDev

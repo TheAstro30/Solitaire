@@ -2,8 +2,8 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
-
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.UI;
@@ -23,6 +23,7 @@ namespace Solitaire.Forms
 
             btnOk.BackgroundImage = ctl.ObjectData.ButtonOk;
             btnOk.BackgroundImageLayout = ImageLayout.Tile;
+            btnOk.BackColor = Color.White;
 
             chkMusic.CheckedChanged += MusicCheckChanged;
 

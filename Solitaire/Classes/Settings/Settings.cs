@@ -44,6 +44,10 @@ namespace Solitaire.Classes.Settings
         [XmlElement("stats")]
         public StatisticsData Statistics = new StatisticsData();
 
+        /* Saved games */
+        [XmlElement("savedGames")]
+        public GameSaveLoadData SavedGames = new GameSaveLoadData();
+
         /* Constructor */
         public Settings()
         {

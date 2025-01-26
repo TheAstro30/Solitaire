@@ -24,7 +24,10 @@ namespace Solitaire.Classes.Serialization
         public static bool Load(string fileName, ref TType classObject)
         {
             var fi = new FileInfo(fileName);
-            if (!fi.Exists || fi.Length == 0) { return false; }
+            if (!fi.Exists || fi.Length == 0)
+            {
+                return false;
+            }
             try
             {
                 //var xml = new XmlSerializer(typeof (TType));

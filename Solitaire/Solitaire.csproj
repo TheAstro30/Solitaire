@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -84,6 +84,7 @@
     <Compile Include="Classes\Helpers\UI\HitTest.cs" />
     <Compile Include="Classes\Helpers\Utils.cs" />
     <Compile Include="Classes\Settings\SettingsData\GameOptionData.cs" />
+    <Compile Include="Classes\Settings\SettingsData\GameSaveLoadData.cs" />
     <Compile Include="Classes\Settings\SettingsData\SoundData.cs" />
     <Compile Include="Classes\Settings\SettingsData\StatisticsData.cs" />
     <Compile Include="Classes\Theme\BaseRenderer.cs" />
@@ -131,6 +132,12 @@
     <Compile Include="Forms\FrmGame.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FrmInput.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmInput.Designer.cs">
+      <DependentUpon>FrmInput.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FrmNew.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -143,16 +150,28 @@
     <Compile Include="Forms\FrmOptions.Designer.cs">
       <DependentUpon>FrmOptions.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FrmSaveLoad.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmSaveLoad.Designer.cs">
+      <DependentUpon>FrmSaveLoad.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FrmStatistics.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Forms\FrmInput.resx">
+      <DependentUpon>FrmInput.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmNew.resx">
       <DependentUpon>FrmNew.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmOptions.resx">
       <DependentUpon>FrmOptions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FrmSaveLoad.resx">
+      <DependentUpon>FrmSaveLoad.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -225,9 +244,13 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DirectX\DirectX.csproj">
-      <Project>{902cc476-5a7a-40e1-876b-8abf265307aa}</Project>
-      <Name>DirectX</Name>
+    <ProjectReference Include="..\DirectX\libdx.csproj">
+      <Project>{61c90664-ae1e-4517-b4b6-613b70ed49d6}</Project>
+      <Name>libdx</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ObjectListView\libolv.csproj">
+      <Project>{18feda0c-d147-4286-b39a-01204808106a}</Project>
+      <Name>libolv</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

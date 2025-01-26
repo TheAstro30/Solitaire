@@ -80,7 +80,7 @@ namespace Solitaire.Classes.Helpers
                 }
             }
             /* Build the deck backs list */
-            for (var i = 0; i <= 6; i++)
+            for (var i = 0; i <= 7; i++)
             {
                 cardImage = new Bitmap(CardSize.Width, CardSize.Height);
                 src = new Rectangle(i * CardSize.Width, 0, CardSize.Width, CardSize.Height);

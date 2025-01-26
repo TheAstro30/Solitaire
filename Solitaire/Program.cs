@@ -12,14 +12,14 @@ namespace Solitaire
 {
     /* Yoshi Satoshi - if anyone is wondering about some of my comments on this source?
      * I'm just being silly. */
-    static class Program
+    internal static class Program
     {        
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         /// 
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             //DeckBuilder.BuildDeck();
             /* Check that the graphics data files exist - include DeckBuilder.cs call here before this check if you're experiencing problems.

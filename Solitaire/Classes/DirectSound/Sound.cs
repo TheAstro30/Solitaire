@@ -7,14 +7,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using DirectX;
+using libdx;
 
 namespace Solitaire.Classes.DirectSound
 {
     public class Sound
     {
-        // ReSharper disable SuspiciousTypeConversion.Global
-
         private Timer _play;
         private IBasicAudio _audio;
         private IGraphBuilder _graph;

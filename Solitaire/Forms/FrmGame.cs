@@ -126,6 +126,17 @@ namespace Solitaire.Forms
 
             OnGameTimeChanged += TimeChanged;
             OnScoreChanged += ScoreChanged;
+
+            //test code
+            //using (var f = new FrmInput(this))
+            //{
+            //    f.TitleText = "Test";
+            //    f.CaptionText = "Enter a name of game to save:";
+            //    if (f.ShowDialog(this) == DialogResult.OK)
+            //    {
+            //        System.Diagnostics.Debug.Print("data: " + f.InputText);
+            //    }
+            //}
         }
 
         protected override void OnLoad(EventArgs e)
@@ -370,6 +381,13 @@ namespace Solitaire.Forms
                         about.ShowDialog(this);
                     }
                     break;
+
+                case "TEST":
+                    using (var test = new FrmSaveLoad())
+                    {
+                        test.ShowDialog(this);
+                    }
+                    break;
             }
         }
 
@@ -402,6 +420,7 @@ namespace Solitaire.Forms
                     MenuHelper.AddMenuItem("Auto complete...", "AUTO", Keys.Control | Keys.A, !GameCompleted && IsGameRunning, false, Resources.auto.ToBitmap(), OnMenuClick),
                     new ToolStripSeparator(),
                     MenuHelper.AddMenuItem("Statistics", "STATS", Keys.None, true, false, Resources.stats.ToBitmap(), OnMenuClick),
+                    MenuHelper.AddMenuItem("Test", "TEST", OnMenuClick),
                     new ToolStripSeparator(),
                     MenuHelper.AddMenuItem("Exit", "EXIT", Keys.Alt | Keys.F4, true, false, Resources.close.ToBitmap(), OnMenuClick)
                 });
