@@ -251,6 +251,9 @@ namespace Solitaire.Classes.UI
             OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             _timerFireWorks.Enabled = false;
             _timerGame.Enabled = true;
+
+            GameCompleted = false; /* Forgot to change this until now, other menu items like save, etc, are greyed out */
+
             Invalidate();
             return true;
         }
@@ -298,6 +301,8 @@ namespace Solitaire.Classes.UI
             {
                 /* If it's a loaded game, we don't want to reset time or score */
                 CurrentGame = keepTimeAndScore ? new GameData(d) {GameTime = _time, GameScore = _score, DeckRedeals = 0} : new GameData(d);
+                /* Make sure to set the Restart point */
+                CurrentGame.RestartPoint = new GameData(CurrentGame);
             }
             /* Reset time and score */
             OnGameTimeChanged?.Invoke(CurrentGame.GameTime);

@@ -136,44 +136,20 @@
     <Compile Include="Forms\FrmInput.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmInput.Designer.cs">
-      <DependentUpon>FrmInput.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\FrmNew.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FrmNew.Designer.cs">
-      <DependentUpon>FrmNew.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FrmOptions.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmOptions.Designer.cs">
-      <DependentUpon>FrmOptions.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\FrmSaveLoad.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FrmSaveLoad.Designer.cs">
-      <DependentUpon>FrmSaveLoad.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FrmStatistics.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Forms\FrmInput.resx">
-      <DependentUpon>FrmInput.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FrmNew.resx">
-      <DependentUpon>FrmNew.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FrmOptions.resx">
-      <DependentUpon>FrmOptions.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FrmSaveLoad.resx">
-      <DependentUpon>FrmSaveLoad.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

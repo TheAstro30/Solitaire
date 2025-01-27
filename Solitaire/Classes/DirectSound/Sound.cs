@@ -201,7 +201,7 @@ namespace Solitaire.Classes.DirectSound
                 {
                     return false;
                 }
-                _media = (IMediaControl) _graph;
+                _media = _graph;
                 _position = (IMediaPosition) _graph;
                 _audio = _graph as IBasicAudio;                   
                 flag = true;

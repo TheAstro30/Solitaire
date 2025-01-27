@@ -323,6 +323,23 @@ namespace Solitaire.Forms
                     Invalidate();
                     break;
 
+                case "SOUND":
+                    SettingsManager.Settings.Options.Sound.EnableEffects = !SettingsManager.Settings.Options.Sound.EnableEffects;
+                    break;
+
+                case "MUSIC":
+                    var enable = !SettingsManager.Settings.Options.Sound.EnableMusic;
+                    SettingsManager.Settings.Options.Sound.EnableMusic = enable;
+                    if (enable)
+                    {
+                        AudioManager.PlayMusic(true);
+                    }
+                    else
+                    {
+                        AudioManager.StopMusic();
+                    }
+                    break;
+
                 case "OPTIONS":
                     using (var opt = new FrmOptions())
                     {
@@ -445,8 +462,11 @@ namespace Solitaire.Forms
             }
             m.DropDownItems.AddRange(new ToolStripItem[]
             {
-                style, new ToolStripSeparator(), diff, new ToolStripSeparator(), 
-                MenuHelper.AddMenuItem("Choose deck image","DECK", Keys.None, true, false, Resources.deckBack.ToBitmap(), OnMenuClick),
+                style, new ToolStripSeparator(), diff, new ToolStripSeparator(),
+                MenuHelper.AddMenuItem("Enable sound effects", "SOUND", Keys.Alt | Keys.S, true, SettingsManager.Settings.Options.Sound.EnableEffects, null, OnMenuClick),
+                MenuHelper.AddMenuItem("Enable music", "MUSIC", Keys.Alt | Keys.M, true, SettingsManager.Settings.Options.Sound.EnableMusic, null, OnMenuClick),
+                new ToolStripSeparator(), 
+                MenuHelper.AddMenuItem("Choose deck image","DECK", Keys.Control | Keys.D, true, false, Resources.deckBack.ToBitmap(), OnMenuClick),
                 MenuHelper.AddMenuItem("Game options", "OPTIONS", Keys.Control | Keys.O, true, false, Resources.options.ToBitmap(), OnMenuClick)
             });
         }

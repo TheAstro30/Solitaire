@@ -25,32 +25,32 @@ namespace Solitaire.Forms
         SaveGame = 1
     }
 
-    public sealed partial class FrmSaveLoad : FormEx
+    public sealed class FrmSaveLoad : FormEx
     {
         private readonly SaveLoadType _type;
 
         private readonly ObjectListView _lvFiles;
+
+        private Button btnSaveLoad;
+        private Button btnSaveAs;
+        private Button btnDelete;
+        private Button btnClear;
+        private Button btnClose;
 
         public SaveLoadData SelectedFile { get; private set; }
 
         public FrmSaveLoad(SaveLoadType type)
         {
             _type = type;
-            InitializeComponent();
 
-            switch (type)
-            {
-                case SaveLoadType.LoadGame:
-                    Text = @"Load Saved Game";
-                    btnDelete.Location = new Point(382, 46);
-                    break;
-
-                case SaveLoadType.SaveGame:
-                    Text = @"Save Current Game";
-                    btnSaveLoad.Text = @"Save";
-                    btnSaveAs.Visible = true;
-                    break;
-            }
+            ClientSize = new Size(469, 387);
+            Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            StartPosition = FormStartPosition.CenterParent;
 
             var image = new ImageList {ColorDepth = ColorDepth.Depth32Bit, ImageSize = new Size(64, 64)};
             image.Images.Add(Resources.savedGame);
@@ -84,45 +84,109 @@ namespace Solitaire.Forms
             _lvFiles.AllColumns.Add(lvColumn);
             _lvFiles.Columns.Add(lvColumn);
 
+            btnSaveLoad = new Button
+            {
+                DialogResult = DialogResult.OK,
+                Enabled = false,
+                Location = new Point(382, 12),
+                Size = new Size(75, 28),
+                TabIndex = 1,
+                Text = @"Load",
+                UseVisualStyleBackColor = false,
+                BackgroundImage = Resources.button_ok,
+                BackgroundImageLayout = ImageLayout.Tile,
+                ForeColor = Color.White
+            };
+
+            btnSaveAs = new Button
+            {
+                Location = new Point(382, 46),
+                Size = new Size(75, 28),
+                TabIndex = 2,
+                Tag = "SAVEAS",
+                Text = @"Save As",
+                UseVisualStyleBackColor = false,
+                Visible = false,
+                BackgroundImage = Resources.button_other,
+                BackgroundImageLayout = ImageLayout.Tile
+            };
+
+            btnDelete = new Button
+            {
+                Enabled = false,
+                Location = new Point(382, 80),
+                Size = new Size(75, 28),
+                TabIndex = 3,
+                Tag = "DELETE",
+                Text = @"Delete",
+                UseVisualStyleBackColor = false,
+                BackgroundImage = Resources.button_other,
+                BackgroundImageLayout = ImageLayout.Tile
+            };
+
+            btnClear = new Button
+            {
+                Enabled = false,
+                Location = new Point(382, 309),
+                Size = new Size(75, 28),
+                TabIndex = 4,
+                Tag = "CLEAR",
+                Text = @"Clear",
+                UseVisualStyleBackColor = false,
+                BackgroundImage = Resources.button_other,
+                BackgroundImageLayout = ImageLayout.Tile
+            };
+
+            btnClose = new Button
+            {
+                DialogResult = DialogResult.Cancel,
+                Location = new Point(382, 353),
+                Size = new Size(75, 28),
+                TabIndex = 5,
+                Text = @"Close",
+                UseVisualStyleBackColor = false,
+                BackgroundImage = Resources.button_cancel,
+                BackgroundImageLayout = ImageLayout.Tile,
+                ForeColor = Color.White
+            };
+
+            switch (type)
+            {
+                case SaveLoadType.LoadGame:
+                    Text = @"Load Saved Game";
+                    btnDelete.Location = new Point(382, 46);
+                    break;
+
+                case SaveLoadType.SaveGame:
+                    Text = @"Save Current Game";
+                    btnSaveLoad.Text = @"Save";
+                    btnSaveAs.Visible = true;
+                    break;
+            }
+
+            Controls.AddRange(new Control[]
+            {
+                _lvFiles, btnSaveLoad, btnSaveAs, btnDelete, btnClear, btnClose
+            });
+
             _lvFiles.SelectionChanged += OnSelectionChanged;
             _lvFiles.MouseDoubleClick += OnDoubleClick;
-
-            btnSaveLoad.BackgroundImage = Resources.button_ok;
-            btnSaveLoad.BackgroundImageLayout = ImageLayout.Tile;
-            btnSaveLoad.BackColor = Color.White;
-
-            btnSaveAs.BackgroundImage = Resources.button_other;
-            btnSaveAs.BackgroundImageLayout = ImageLayout.Tile;
-            btnSaveAs.BackColor = Color.White;
-
-            btnDelete.BackgroundImage = Resources.button_other;
-            btnDelete.BackgroundImageLayout = ImageLayout.Tile;
-            btnDelete.BackColor = Color.White;
-
-            btnClear.BackgroundImage = Resources.button_other;
-            btnClear.BackgroundImageLayout = ImageLayout.Tile;
-            btnClear.BackColor = Color.White;
-
-            btnClose.BackgroundImage = Resources.button_cancel;
-            btnClose.BackgroundImageLayout = ImageLayout.Tile;
-            btnClose.BackColor = Color.White;
 
             btnSaveLoad.Click += OnButtonClick;
             btnSaveAs.Click += OnButtonClick;
             btnDelete.Click += OnButtonClick;
             btnClear.Click += OnButtonClick;
 
-            Controls.Add(_lvFiles);
-
             _lvFiles.AddObjects(SettingsManager.Settings.SavedGames.Data);
 
-            if (_lvFiles.Items.Count > 0)
+            if (_lvFiles.Items.Count == 0)
             {
-                /* Enable clear button */
-                btnClear.Enabled = true;
-                /* Scroll to bottom of list */
-                _lvFiles.EnsureVisible(_lvFiles.Items.Count - 1);
+                return;
             }
+            /* Enable clear button */
+            btnClear.Enabled = true;
+            /* Scroll to bottom of list */
+            _lvFiles.EnsureVisible(_lvFiles.Items.Count - 1);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -200,7 +264,7 @@ namespace Solitaire.Forms
 
                 case "CLEAR":
                     if (CustomMessageBox.Show(this,
-                        $"Are you sure you want to delete all saved games?",
+                        "Are you sure you want to delete all saved games?",
                         "Delete Saved Games") == DialogResult.No)
                     {
                         return;
