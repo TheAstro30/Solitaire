@@ -15,6 +15,7 @@ using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.Serialization;
 using Solitaire.Classes.UI.Internal;
+using Solitaire.Forms;
 
 namespace Solitaire.Classes.UI
 {
@@ -161,6 +162,7 @@ namespace Solitaire.Classes.UI
                 {
                     return;
                 }
+
                 switch (ng.NewGameDialogResult)
                 {
                     case NewGameDialogResult.DrawThree:
@@ -168,11 +170,18 @@ namespace Solitaire.Classes.UI
                         break;
 
                     case NewGameDialogResult.LoadGame:
-                        if (LoadSavedGame())
+                        using (var load = new FrmSaveLoad(SaveLoadType.LoadGame))
                         {
-                            return;
+                            if (load.ShowDialog(this) == DialogResult.OK && load.SelectedFile != null)
+                            {
+                                /* Serialize out current game */
+                                if (LoadSavedGame(load.SelectedFile.FileName))
+                                {
+                                    return;
+                                }
+                                CustomMessageBox.Show(this, $"Unable to load game '{load.SelectedFile.FriendlyName}'.", "Error", CustomMessageBoxButtons.Ok, CustomMessageBoxIcon.Error);
+                            }
                         }
-                        CustomMessageBox.Show(this, "No game was loaded.\r\n\r\nSave a game to be recalled later first.", "Error", CustomMessageBoxButtons.Ok, CustomMessageBoxIcon.Error);
                         NewGame(false);
                         return;
                 }
@@ -214,11 +223,11 @@ namespace Solitaire.Classes.UI
         #endregion
 
         #region Load/save game
-        public bool LoadSavedGame(bool saveRecover = false)
+        public bool LoadSavedGame(string fileName, bool saveRecover = false)
         {
             /* Load a saved game */
             var d = new GameData();
-            var file = $@"\KangaSoft\Solitaire\{(saveRecover ? "recovery.dat" : "saved.dat")}";
+            var file = $@"\KangaSoft\Solitaire\{(saveRecover ? "recovery.dat" : $@"saved\{fileName}")}";
             if (!BinarySerialize<GameData>.Load(Utils.MainDir(file, true), ref d))
             {
                 return false;
@@ -246,10 +255,10 @@ namespace Solitaire.Classes.UI
             return true;
         }
 
-        public bool SaveCurrentGame(bool saveRecover = false)
+        public bool SaveCurrentGame(string fileName, bool saveRecover = false)
         {
             /* Save current game - if it's a completed game, don't save it */
-            var file = Utils.MainDir($@"\KangaSoft\Solitaire\{(saveRecover ? "recovery.dat" : "saved.dat")}", true);
+            var file = Utils.MainDir($@"\KangaSoft\Solitaire\{(saveRecover ? "recovery.dat" : $@"saved\{fileName}")}", true);
             if (!GameCompleted)
             {
                 return BinarySerialize<GameData>.Save(file, CurrentGame);
@@ -714,7 +723,7 @@ namespace Solitaire.Classes.UI
         private void OnGameStart(object sender, EventArgs e)
         {
             _timerStart.Enabled = false;
-            if (SettingsManager.Settings.Options.SaveRecover && LoadSavedGame(true))
+            if (SettingsManager.Settings.Options.SaveRecover && LoadSavedGame(string.Empty, true))
             {
                 return;
             }

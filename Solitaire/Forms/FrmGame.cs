@@ -5,6 +5,7 @@
 using System;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers;
@@ -34,7 +35,7 @@ namespace Solitaire.Forms
             ClientSize = new Size(720, 470);
             Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             BackColor = Color.Black;
-                       
+
             MinimumSize = new Size(720, 470);
             StartPosition = FormStartPosition.Manual;
 
@@ -56,7 +57,7 @@ namespace Solitaire.Forms
             {
                 Font = new Font("Segoe UI Semibold", 9.0F, FontStyle.Bold, GraphicsUnit.Point, 0),
                 Location = new Point(0, 409),
-                Padding = new Padding(1, 0, 16, 0),                
+                Padding = new Padding(1, 0, 16, 0),
                 RenderMode = ToolStripRenderMode.ManagerRenderMode,
                 LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow,
                 ImageList = statusImages
@@ -67,13 +68,14 @@ namespace Solitaire.Forms
 
             Controls.AddRange(new Control[] {menuBar, _statusBar});
 
-            MainMenuStrip = menuBar;            
+            MainMenuStrip = menuBar;
 
             var version = Assembly.GetExecutingAssembly().GetName().Version;
-            Text = $@"Kanga's Solitaire - {version.Major}.{version.Minor}.{version.Build} (Build: {version.MinorRevision})";
-            
+            Text =
+                $@"Kanga's Solitaire - {version.Major}.{version.Minor}.{version.Build} (Build: {version.MinorRevision})";
+
             /* Build menubar */
-            _menuGame = (ToolStripMenuItem)menuBar.Items.Add("Game");
+            _menuGame = (ToolStripMenuItem) menuBar.Items.Add("Game");
             _menuGame.DropDownOpening += OnMenuGameOpening;
 
             BuildMenuGame(_menuGame);
@@ -86,37 +88,44 @@ namespace Solitaire.Forms
             menuBar.Items.Add(_menuOptions);
 
             var m = (ToolStripMenuItem) menuBar.Items.Add("Help");
-            m.DropDownItems.Add(MenuHelper.AddMenuItem("About", "ABOUT", Keys.None, true, false, Resources.about.ToBitmap(), OnMenuClick));
+            m.DropDownItems.Add(MenuHelper.AddMenuItem("About", "ABOUT", Keys.None, true, false,
+                Resources.about.ToBitmap(), OnMenuClick));
 
             /* Status bar */
             _statusBar.Items.AddRange(new ToolStripItem[]
             {
                 new ToolStripStatusLabel("Game number: 0")
                 {
-                    AutoSize = false, Size = new Size(140, 16), TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control, ImageIndex = 0
+                    AutoSize = false, Size = new Size(140, 16), TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = SystemColors.Control, ImageIndex = 0
                 },
                 new ToolStripStatusLabel("Elapsed time: 0s")
                 {
-                    AutoSize = false, Size = new Size(180, 16), TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control, ImageIndex = 1
+                    AutoSize = false, Size = new Size(180, 16), TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = SystemColors.Control, ImageIndex = 1
                 },
                 new ToolStripStatusLabel("Total moves: 0")
                 {
-                    AutoSize = false, Size = new Size(120, 16), TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control, ImageIndex = 2
+                    AutoSize = false, Size = new Size(120, 16), TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = SystemColors.Control, ImageIndex = 2
                 },
                 new ToolStripStatusLabel("Score: 0")
-                {        
-                    AutoSize = false, Size = new Size(105, 16), TextAlign = ContentAlignment.MiddleLeft, BackColor = SystemColors.Control, ImageIndex = 3
+                {
+                    AutoSize = false, Size = new Size(105, 16), TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = SystemColors.Control, ImageIndex = 3
                 },
                 new ToolStripStatusLabel("Welcome to Kanga's Solitaire. Are you ready for a challenge?")
                 {
-                    AutoSize = true, TextAlign = ContentAlignment.TopLeft, BackColor = SystemColors.Control, ImageIndex = 5,
+                    AutoSize = true, TextAlign = ContentAlignment.TopLeft, BackColor = SystemColors.Control,
+                    ImageIndex = 5,
                     Spring = true, Visible = SettingsManager.Settings.Options.ShowTips
                 },
                 new ToolStripProgressBar
                 {
-                    Width = 120, Minimum = 0, Maximum = 52, Alignment = ToolStripItemAlignment.Right, Visible = SettingsManager.Settings.Options.ShowProgress
+                    Width = 120, Minimum = 0, Maximum = 52, Alignment = ToolStripItemAlignment.Right,
+                    Visible = SettingsManager.Settings.Options.ShowProgress
                 }
-            });            
+            });
 
             ToolStripManager.Renderer = ThemeManager.Renderer;
             ThemeManager.SetTheme(SettingsManager.Settings.Options.AppearanceStyle);
@@ -126,17 +135,6 @@ namespace Solitaire.Forms
 
             OnGameTimeChanged += TimeChanged;
             OnScoreChanged += ScoreChanged;
-
-            //test code
-            //using (var f = new FrmInput(this))
-            //{
-            //    f.TitleText = "Test";
-            //    f.CaptionText = "Enter a name of game to save:";
-            //    if (f.ShowDialog(this) == DialogResult.OK)
-            //    {
-            //        System.Diagnostics.Debug.Print("data: " + f.InputText);
-            //    }
-            //}
         }
 
         protected override void OnLoad(EventArgs e)
@@ -186,7 +184,7 @@ namespace Solitaire.Forms
             SettingsManager.Settings.Maximized = WindowState == FormWindowState.Maximized;
             if (SettingsManager.Settings.Options.SaveRecover && IsGameRunning)
             {
-                SaveCurrentGame(true);
+                SaveCurrentGame(string.Empty, true);
             }
             /* Through the cockpit window, we can now piss off :) */
             base.OnFormClosing(e);
@@ -326,7 +324,7 @@ namespace Solitaire.Forms
                     break;
 
                 case "OPTIONS":
-                    using (var opt = new FrmOptions(this))
+                    using (var opt = new FrmOptions())
                     {
                         opt.ShowDialog(this);
                     }
@@ -336,9 +334,17 @@ namespace Solitaire.Forms
                     break;
 
                 case "SAVE":
-                    if (SaveCurrentGame())
+                    using (var save = new FrmSaveLoad(SaveLoadType.SaveGame))
                     {
-                        CustomMessageBox.Show(this, "Current game was saved.", "Game Saved", CustomMessageBoxButtons.Ok, CustomMessageBoxIcon.Information);
+                        if (save.ShowDialog(this) == DialogResult.OK && save.SelectedFile != null)
+                        {
+                            /* Serialize out current game */
+                            if (SaveCurrentGame(save.SelectedFile.FileName))
+                            {
+                                SettingsManager.Settings.SavedGames.Add(save.SelectedFile);
+                                CustomMessageBox.Show(this, $"Current game was saved as '{save.SelectedFile.FriendlyName}'.", "Game Saved", CustomMessageBoxButtons.Ok, CustomMessageBoxIcon.Information);
+                            }
+                        }
                     }
                     break;
 
@@ -365,7 +371,7 @@ namespace Solitaire.Forms
                     break;
 
                 case "STATS":
-                    using (var stats = new FrmStatistics(this))
+                    using (var stats = new FrmStatistics())
                     {
                         stats.ShowDialog(this);
                     }
@@ -376,16 +382,9 @@ namespace Solitaire.Forms
                     break;
 
                 case "ABOUT":
-                    using (var about = new FrmAbout(this))
+                    using (var about = new FrmAbout())
                     {
                         about.ShowDialog(this);
-                    }
-                    break;
-
-                case "TEST":
-                    using (var test = new FrmSaveLoad())
-                    {
-                        test.ShowDialog(this);
                     }
                     break;
             }
@@ -420,7 +419,6 @@ namespace Solitaire.Forms
                     MenuHelper.AddMenuItem("Auto complete...", "AUTO", Keys.Control | Keys.A, !GameCompleted && IsGameRunning, false, Resources.auto.ToBitmap(), OnMenuClick),
                     new ToolStripSeparator(),
                     MenuHelper.AddMenuItem("Statistics", "STATS", Keys.None, true, false, Resources.stats.ToBitmap(), OnMenuClick),
-                    MenuHelper.AddMenuItem("Test", "TEST", OnMenuClick),
                     new ToolStripSeparator(),
                     MenuHelper.AddMenuItem("Exit", "EXIT", Keys.Alt | Keys.F4, true, false, Resources.close.ToBitmap(), OnMenuClick)
                 });
@@ -432,13 +430,12 @@ namespace Solitaire.Forms
             var style = MenuHelper.AddMenuItem("Appearance", Resources.appearance.ToBitmap());
             var index = 0;
             var themeIndex = SettingsManager.Settings.Options.AppearanceStyle;
-            foreach (var preset in ThemeManager.Presets)
+            foreach (var d in ThemeManager.Presets.Select(preset => MenuHelper.AddMenuItem(preset.Name, index.ToString(CultureInfo.InvariantCulture), Keys.None, true, index == themeIndex, null, OnMenuOptionsStyleClick)))
             {
-                var d = MenuHelper.AddMenuItem(preset.Name, index.ToString(CultureInfo.InvariantCulture), Keys.None, true, index == themeIndex, null, OnMenuOptionsStyleClick);
                 style.DropDownItems.Add(d);
                 index++;
             }
-            var diff = MenuHelper.AddMenuItem("Difficulty");
+            var diff = MenuHelper.AddMenuItem("Difficulty", Resources.difficulty.ToBitmap());
             index = 0;
             foreach (var d in (DifficultyLevel[]) Enum.GetValues(typeof (DifficultyLevel)))
             {

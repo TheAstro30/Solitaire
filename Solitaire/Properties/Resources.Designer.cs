@@ -101,6 +101,36 @@ namespace Solitaire.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap button_cancel {
+            get {
+                object obj = ResourceManager.GetObject("button_cancel", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap button_ok {
+            get {
+                object obj = ResourceManager.GetObject("button_ok", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap button_other {
+            get {
+                object obj = ResourceManager.GetObject("button_other", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon close {
@@ -116,6 +146,16 @@ namespace Solitaire.Properties {
         internal static System.Drawing.Icon deckBack {
             get {
                 object obj = ResourceManager.GetObject("deckBack", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon difficulty {
+            get {
+                object obj = ResourceManager.GetObject("difficulty", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
@@ -151,12 +191,32 @@ namespace Solitaire.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap logo {
+            get {
+                object obj = ResourceManager.GetObject("logo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon moves {
             get {
                 object obj = ResourceManager.GetObject("moves", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap new_game_bg {
+            get {
+                object obj = ResourceManager.GetObject("new_game_bg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -196,6 +256,16 @@ namespace Solitaire.Properties {
         internal static System.Drawing.Icon save {
             get {
                 object obj = ResourceManager.GetObject("save", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon savedGame {
+            get {
+                object obj = ResourceManager.GetObject("savedGame", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }

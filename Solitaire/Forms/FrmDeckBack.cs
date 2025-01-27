@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Solitaire.Classes.UI;
 using Solitaire.Controls;
+using Solitaire.Properties;
 
 namespace Solitaire.Forms
 {
@@ -21,7 +22,7 @@ namespace Solitaire.Forms
         {
             ClientSize = new Size(444, 324);
             Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
             ShowIcon = false;
@@ -61,7 +62,7 @@ namespace Solitaire.Forms
                 Size = new Size(110, 28),
                 TabIndex = 1,
                 Text = @"Ok",
-                BackgroundImage = game.ObjectData.ButtonOk,
+                BackgroundImage = Resources.button_ok,
                 BackgroundImageLayout = ImageLayout.Tile,
                 ForeColor = Color.White
             };
@@ -73,7 +74,7 @@ namespace Solitaire.Forms
                 Size = new Size(110, 28),
                 TabIndex = 2,
                 Text = @"Cancel",
-                BackgroundImage = game.ObjectData.ButtonCancel,
+                BackgroundImage = Resources.button_cancel,
                 BackgroundImageLayout = ImageLayout.Tile,
                 ForeColor = Color.White
             };                    

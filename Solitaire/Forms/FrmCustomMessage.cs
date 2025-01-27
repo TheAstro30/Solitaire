@@ -19,12 +19,12 @@ namespace Solitaire.Forms
         public string MessageText { set => _lblText.Text = value; }
         public string CaptionText { set => Text = value; } 
 
-        public FrmCustomMessage(Game game, CustomMessageBoxButtons buttons, CustomMessageBoxIcon icon)
+        public FrmCustomMessage(CustomMessageBoxButtons buttons, CustomMessageBoxIcon icon)
         {
             AcceptButton = _btnYes;
             ClientSize = new Size(365, 131);
             Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
             ShowIcon = false;
@@ -72,7 +72,7 @@ namespace Solitaire.Forms
                 Size = new Size(110, 28),
                 TabIndex = 0,
                 Text = @"Yes",
-                BackgroundImage = game.ObjectData.ButtonOk,
+                BackgroundImage = Resources.button_ok,
                 BackgroundImageLayout = ImageLayout.Tile,
                 ForeColor = Color.White
             };
@@ -85,7 +85,7 @@ namespace Solitaire.Forms
                 Size = new Size(110, 28),
                 TabIndex = 1,
                 Text = @"No",
-                BackgroundImage = game.ObjectData.ButtonCancel,
+                BackgroundImage = Resources.button_cancel,
                 BackgroundImageLayout = ImageLayout.Tile,
                 ForeColor = Color.White
             };
@@ -95,7 +95,7 @@ namespace Solitaire.Forms
                 case CustomMessageBoxButtons.Ok:
                     btnNo.Text = @"Ok";
                     btnNo.DialogResult = DialogResult.OK;
-                    btnNo.BackgroundImage = game.ObjectData.ButtonOk;
+                    btnNo.BackgroundImage = Resources.button_ok;
                     _btnYes.Visible = false;
                     break;
             }

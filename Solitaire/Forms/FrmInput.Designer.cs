@@ -57,7 +57,7 @@
             this.btnOk.BackColor = System.Drawing.Color.White;
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnOk.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOk.Location = new System.Drawing.Point(219, 77);
+            this.btnOk.Location = new System.Drawing.Point(103, 77);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(110, 28);
             this.btnOk.TabIndex = 7;
@@ -69,7 +69,7 @@
             this.btnCancel.BackColor = System.Drawing.Color.White;
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCancel.Location = new System.Drawing.Point(103, 77);
+            this.btnCancel.Location = new System.Drawing.Point(219, 77);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(110, 28);
             this.btnCancel.TabIndex = 8;
@@ -86,7 +86,7 @@
             this.Controls.Add(this.lblCaption);
             this.Controls.Add(this.txtInput);
             this.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FrmInput";

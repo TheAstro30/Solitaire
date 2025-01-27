@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.UI;
+using Solitaire.Properties;
 
 namespace Solitaire.Forms
 {
@@ -14,30 +15,30 @@ namespace Solitaire.Forms
     {
         public NewGameDialogResult NewGameDialogResult { get; private set; }
 
-        public FrmNew(Game game)
+        public FrmNew()
         {
             InitializeComponent();
 
-            var image = game.ObjectData.NewGameBackground;
+            var image = Resources.new_game_bg;
 
             ClientSize = image.Size;
 
             BackgroundImage = image;
             BackgroundImageLayout = ImageLayout.None;
 
-            btnOne.BackgroundImage = game.ObjectData.ButtonOk;
+            btnOne.BackgroundImage = Resources.button_ok;
             btnOne.BackgroundImageLayout = ImageLayout.Tile;
             btnOne.ForeColor = Color.White;
 
-            btnThree.BackgroundImage = game.ObjectData.ButtonOk;
+            btnThree.BackgroundImage = Resources.button_ok;
             btnThree.BackgroundImageLayout = ImageLayout.Tile;
             btnThree.ForeColor = Color.White;
 
-            btnLoad.BackgroundImage = game.ObjectData.ButtonOk;
+            btnLoad.BackgroundImage = Resources.button_ok;
             btnLoad.BackgroundImageLayout = ImageLayout.Tile;
             btnLoad.ForeColor = Color.White;
 
-            btnCancel.BackgroundImage = game.ObjectData.ButtonCancel;
+            btnCancel.BackgroundImage = Resources.button_cancel;
             btnCancel.BackgroundImageLayout = ImageLayout.Tile;
             btnCancel.ForeColor = Color.White;
 

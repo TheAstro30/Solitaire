@@ -49,7 +49,7 @@ namespace Solitaire.Classes.Helpers.UI
 
         public static DialogResult Show(IWin32Window parent, string text, string caption, CustomMessageBoxButtons buttons, CustomMessageBoxIcon icon)
         {
-            using (var f = new FrmCustomMessage((Game)parent, buttons, icon))
+            using (var f = new FrmCustomMessage(buttons, icon))
             {
                 f.MessageText = text;
                 f.CaptionText = caption;
@@ -63,7 +63,7 @@ namespace Solitaire.Classes.Helpers.UI
     {
         public static FrmNew Show(IWin32Window owner)
         {
-            using (var ng = new FrmNew((Game)owner))
+            using (var ng = new FrmNew())
             {
                 ng.ShowDialog(owner);
                 return ng;

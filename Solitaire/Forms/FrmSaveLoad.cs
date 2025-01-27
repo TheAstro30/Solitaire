@@ -3,37 +3,256 @@
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
+using libolv;
+using libolv.Rendering.Styles;
+using Solitaire.Classes.Helpers;
+using Solitaire.Classes.Helpers.Management;
+using Solitaire.Classes.Helpers.UI;
+using Solitaire.Classes.Settings.SettingsData;
 using Solitaire.Controls;
+using Solitaire.Properties;
 
 namespace Solitaire.Forms
 {
-    public partial class FrmSaveLoad : FormEx
+    /* Load/save game files manager dialog */
+    public enum SaveLoadType
     {
-        private readonly libolv.ObjectListView _lvFiles;
+        LoadGame = 0,
+        SaveGame = 1
+    }
 
-        public FrmSaveLoad()
+    public sealed partial class FrmSaveLoad : FormEx
+    {
+        private readonly SaveLoadType _type;
+
+        private readonly ObjectListView _lvFiles;
+
+        public SaveLoadData SelectedFile { get; private set; }
+
+        public FrmSaveLoad(SaveLoadType type)
         {
+            _type = type;
             InitializeComponent();
 
-            _lvFiles = new libolv.ObjectListView
+            switch (type)
+            {
+                case SaveLoadType.LoadGame:
+                    Text = @"Load Saved Game";
+                    btnDelete.Location = new Point(382, 46);
+                    break;
+
+                case SaveLoadType.SaveGame:
+                    Text = @"Save Current Game";
+                    btnSaveLoad.Text = @"Save";
+                    btnSaveAs.Visible = true;
+                    break;
+            }
+
+            var image = new ImageList {ColorDepth = ColorDepth.Depth32Bit, ImageSize = new Size(64, 64)};
+            image.Images.Add(Resources.savedGame);
+
+            /* Object list view - large icon type Windows Explorer feel */
+            var lvHeader = new HeaderFormatStyle();
+            _lvFiles = new ObjectListView
             {
                 HeaderStyle = ColumnHeaderStyle.None,
-                HideSelection = false,
+                HideSelection = true,
+                MultiSelect = false,
                 Location = new Point(12, 12),
-                Name = "lvFiles",
                 Size = new Size(359, 324),
                 TabIndex = 0,
-                UseCompatibleStateImageBehavior = false
+                LargeImageList = image,
+                UseCompatibleStateImageBehavior = false,
+                HeaderFormatStyle = lvHeader,
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                View = View.LargeIcon
             };
+            var lvColumn = new OlvColumn(@"Saved games:", "ToString")
+            {
+                Groupable = false,
+                Hideable = false,
+                IsEditable = false,
+                Searchable = false,
+                TextAlign = HorizontalAlignment.Center,
+                Width = 359,
+                ImageIndex = 0
+            };
+            _lvFiles.AllColumns.Add(lvColumn);
+            _lvFiles.Columns.Add(lvColumn);
+
+            _lvFiles.SelectionChanged += OnSelectionChanged;
+            _lvFiles.MouseDoubleClick += OnDoubleClick;
+
+            btnSaveLoad.BackgroundImage = Resources.button_ok;
+            btnSaveLoad.BackgroundImageLayout = ImageLayout.Tile;
+            btnSaveLoad.BackColor = Color.White;
+
+            btnSaveAs.BackgroundImage = Resources.button_other;
+            btnSaveAs.BackgroundImageLayout = ImageLayout.Tile;
+            btnSaveAs.BackColor = Color.White;
+
+            btnDelete.BackgroundImage = Resources.button_other;
+            btnDelete.BackgroundImageLayout = ImageLayout.Tile;
+            btnDelete.BackColor = Color.White;
+
+            btnClear.BackgroundImage = Resources.button_other;
+            btnClear.BackgroundImageLayout = ImageLayout.Tile;
+            btnClear.BackColor = Color.White;
+
+            btnClose.BackgroundImage = Resources.button_cancel;
+            btnClose.BackgroundImageLayout = ImageLayout.Tile;
+            btnClose.BackColor = Color.White;
+
+            btnSaveLoad.Click += OnButtonClick;
+            btnSaveAs.Click += OnButtonClick;
+            btnDelete.Click += OnButtonClick;
+            btnClear.Click += OnButtonClick;
 
             Controls.Add(_lvFiles);
+
+            _lvFiles.AddObjects(SettingsManager.Settings.SavedGames.Data);
+
+            if (_lvFiles.Items.Count > 0)
+            {
+                /* Enable clear button */
+                btnClear.Enabled = true;
+                /* Scroll to bottom of list */
+                _lvFiles.EnsureVisible(_lvFiles.Items.Count - 1);
+            }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            /* Verify the selected file name doesn't already exist, if it does ask user if they want to overwrite */
+            if (DialogResult == DialogResult.OK && _type == SaveLoadType.SaveGame)
+            {
+                if (SettingsManager.Settings.SavedGames.Data
+                    .Where(f => f.FriendlyName.ToLower().Equals(SelectedFile.FriendlyName.ToLower())).Any(f =>
+                        CustomMessageBox.Show(this,
+                            $"A file name: '{SelectedFile.FriendlyName}' already exists.\r\n\r\nOverwrite?",
+                            "Save As") == DialogResult.No))
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+            base.OnFormClosing(e);
+        }
+
+        private void OnButtonClick(object sender, EventArgs e)
+        {
+            var o = (Button) sender;
+            if (o == null)
+            {
+                return;
+            }
+
+            var path = Utils.MainDir(@"\KangaSoft\Solitaire\saved", true);
+            switch (o.Tag)
+            {
+                case "SAVEAS":
+                    using (var f = new FrmInput {TitleText = "Save As", CaptionText = "Choose a name for your saved game:"})
+                    {
+                        if (f.ShowDialog(this) == DialogResult.OK)
+                        {
+                            var file = SanitizeFileName(f.InputText);
+                            var data = new SaveLoadData
+                            {
+                                DateTime = DateTime.Now.ToString("MMM dd, yyyy"),
+                                FriendlyName = file
+                            };
+                            SelectedFile = data;
+                            DialogResult = DialogResult.OK;
+                            Close();
+                        }
+                    }
+                    break;
+
+                case "DELETE":
+                    try
+                    {
+                        if (CustomMessageBox.Show(this,
+                            $"Are you sure you want to delete '{SelectedFile.FriendlyName}'?",
+                            "Delete File") == DialogResult.No)
+                        {
+                            return;
+                        }
+                        var file = $@"{path}\{SelectedFile.FileName}";
+                        if (File.Exists(file))
+                        {
+                            File.Delete(file);
+                        }
+                        /* Remove it from list */
+                        SettingsManager.Settings.SavedGames.Data.Remove(SelectedFile);
+                        _lvFiles.RemoveObject(SelectedFile);
+                        SelectedFile = null;
+                    }
+                    catch
+                    {
+                        /* Ignore IO exceptions */
+                    }
+                    btnDelete.Enabled = false;
+                    break;
+
+                case "CLEAR":
+                    if (CustomMessageBox.Show(this,
+                        $"Are you sure you want to delete all saved games?",
+                        "Delete Saved Games") == DialogResult.No)
+                    {
+                        return;
+                    }
+
+                    try
+                    {
+                        foreach (var f in SettingsManager.Settings.SavedGames.Data)
+                        {
+                            var file = $@"{path}\{f.FileName}";
+                            if (File.Exists(file))
+                            {
+                                File.Delete(file);
+                            }
+                        }
+                        _lvFiles.ClearObjects();
+                        SettingsManager.Settings.SavedGames.Data.Clear();
+                    }
+                    catch
+                    {
+                        /* Ignore IO exceptions */
+                    }
+                    btnClear.Enabled = false;
+                    break;
+            }
+        }
+
+        private void OnSelectionChanged(object sender, EventArgs e)
+        {
+            var o = (ObjectListView) sender;
+            if (o == null)
+            {
+                return;
+            }
+            var selected = o.SelectedObject != null;
+
+            btnSaveLoad.Enabled = selected;
+            btnDelete.Enabled = selected;
+
+            SelectedFile = (SaveLoadData) o.SelectedObject;
+        }
+
+        private void OnDoubleClick(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+
+        private static string SanitizeFileName(string name)
+        {
+            var c = Path.GetInvalidFileNameChars();
+            return string.Join("_", name.Split(c, StringSplitOptions.RemoveEmptyEntries));
         }
     }
 }

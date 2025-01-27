@@ -130,11 +130,23 @@
   <data name="auto" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\auto.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="button_cancel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Images\PermanentResource\button-cancel.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_ok" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Images\PermanentResource\button-ok.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_other" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Images\PermanentResource\button-other.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="close" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\close.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="deckBack" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\deckBack.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="difficulty" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\Menus\difficulty.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="errorIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\errorIcon.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -145,11 +157,17 @@
   <data name="infoIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\infoIcon.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Images\PermanentResource\logo.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="moves" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Status\moves.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="newGame" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\newGame.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="new_game_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Images\PermanentResource\new-game-bg.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="options" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\options.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -159,6 +177,9 @@
   </data>
   <data name="save" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\save.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="savedGame" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\savedGame.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="scoreNegative" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Status\scoreNegative.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

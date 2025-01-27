@@ -6,9 +6,9 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Solitaire.Classes.Helpers.Management;
-using Solitaire.Classes.UI;
 using Solitaire.Controls;
 using Solitaire.Controls.TrackBar;
+using Solitaire.Properties;
 
 namespace Solitaire.Forms
 {
@@ -16,12 +16,12 @@ namespace Solitaire.Forms
     {
         private bool _init;
 
-        public FrmOptions(Game ctl)
+        public FrmOptions()
         {
             _init = true;
             InitializeComponent();
 
-            btnOk.BackgroundImage = ctl.ObjectData.ButtonOk;
+            btnOk.BackgroundImage = Resources.button_ok;
             btnOk.BackgroundImageLayout = ImageLayout.Tile;
             btnOk.BackColor = Color.White;
 

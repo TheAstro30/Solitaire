@@ -36,6 +36,7 @@ namespace Solitaire.Forms
             this.chkNew = new System.Windows.Forms.CheckBox();
             this.gbConfirm = new System.Windows.Forms.GroupBox();
             this.gbGeneral = new System.Windows.Forms.GroupBox();
+            this.chkAutoTurn = new System.Windows.Forms.CheckBox();
             this.chkHighlight = new System.Windows.Forms.CheckBox();
             this.chkTips = new System.Windows.Forms.CheckBox();
             this.chkProgress = new System.Windows.Forms.CheckBox();
@@ -46,7 +47,6 @@ namespace Solitaire.Forms
             this.lblFxVol = new System.Windows.Forms.Label();
             this.tbEffects = new Solitaire.Controls.TrackBar.TrackBarEx();
             this.chkMusic = new System.Windows.Forms.CheckBox();
-            this.chkAutoTurn = new System.Windows.Forms.CheckBox();
             this.gbConfirm.SuspendLayout();
             this.gbGeneral.SuspendLayout();
             this.gbSound.SuspendLayout();
@@ -124,6 +124,17 @@ namespace Solitaire.Forms
             this.gbGeneral.TabIndex = 5;
             this.gbGeneral.TabStop = false;
             this.gbGeneral.Text = "General:";
+            // 
+            // chkAutoTurn
+            // 
+            this.chkAutoTurn.AutoSize = true;
+            this.chkAutoTurn.BackColor = System.Drawing.Color.Transparent;
+            this.chkAutoTurn.Location = new System.Drawing.Point(6, 21);
+            this.chkAutoTurn.Name = "chkAutoTurn";
+            this.chkAutoTurn.Size = new System.Drawing.Size(187, 17);
+            this.chkAutoTurn.TabIndex = 6;
+            this.chkAutoTurn.Text = "Automatically turn hidden cards";
+            this.chkAutoTurn.UseVisualStyleBackColor = false;
             // 
             // chkHighlight
             // 
@@ -234,17 +245,6 @@ namespace Solitaire.Forms
             this.chkMusic.Text = "Play music";
             this.chkMusic.UseVisualStyleBackColor = false;
             // 
-            // chkAutoTurn
-            // 
-            this.chkAutoTurn.AutoSize = true;
-            this.chkAutoTurn.BackColor = System.Drawing.Color.Transparent;
-            this.chkAutoTurn.Location = new System.Drawing.Point(6, 21);
-            this.chkAutoTurn.Name = "chkAutoTurn";
-            this.chkAutoTurn.Size = new System.Drawing.Size(187, 17);
-            this.chkAutoTurn.TabIndex = 6;
-            this.chkAutoTurn.Text = "Automatically turn hidden cards";
-            this.chkAutoTurn.UseVisualStyleBackColor = false;
-            // 
             // FrmOptions
             // 
             this.AcceptButton = this.btnOk;
@@ -256,7 +256,7 @@ namespace Solitaire.Forms
             this.Controls.Add(this.gbGeneral);
             this.Controls.Add(this.gbConfirm);
             this.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FrmOptions";

@@ -9,6 +9,7 @@ using System.Linq;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.Settings.SettingsData;
 using Solitaire.Classes.UI;
+using Solitaire.Properties;
 
 namespace Solitaire.Classes.Helpers.UI
 {
@@ -29,7 +30,7 @@ namespace Solitaire.Classes.Helpers.UI
             e.DrawImageTiled(_gameCtl.ObjectData.Background, _gameCtl.ClientSize);
 
             /* Draw logo image in bottom right (with 50% opacity) */
-            var img = _gameCtl.ObjectData.Logo;
+            var img = Resources.logo;
             var rect = new Rectangle(_gameCtl.ClientSize.Width - img.Width - 10, _gameCtl.ClientSize.Height - img.Height - 20, img.Width, img.Height);
             e.DrawImageOpaque(img, rect, 0.5F);
 

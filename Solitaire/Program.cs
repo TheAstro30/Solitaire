@@ -21,7 +21,7 @@ namespace Solitaire
         [STAThread]
         private static void Main()
         {
-            //DeckBuilder.BuildDeck();
+            //Images.Build(); /* Only call this to rebuild the gfx folder's graphics files */
             /* Check that the graphics data files exist - include DeckBuilder.cs call here before this check if you're experiencing problems.
              * Refer to README.MD */
             if (!File.Exists(Utils.MainDir(@"\data\gfx\cards.dat")) ||
@@ -31,6 +31,21 @@ namespace Solitaire
                     @"Load Error", MessageBoxButtons.OK);
                 return;
             }
+
+            /* Check that saved games folder exists in the appdata folder */
+            var saved = Utils.MainDir(@"\KangaSoft\Solitaire\saved", true);
+            try
+            {
+                if (!Directory.Exists(saved))
+                {
+                    Directory.CreateDirectory(saved);
+                }
+            }
+            catch 
+            {
+                /* Ignore */
+            }
+
             /* Vee-one; rotate */
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
