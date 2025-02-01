@@ -88,8 +88,12 @@ namespace Solitaire.Forms
             menuBar.Items.Add(_menuOptions);
 
             var m = (ToolStripMenuItem) menuBar.Items.Add("Help");
-            m.DropDownItems.Add(MenuHelper.AddMenuItem("About", "ABOUT", Keys.None, true, false,
-                Resources.about.ToBitmap(), OnMenuClick));
+            m.DropDownItems.AddRange(new ToolStripItem[]
+            {
+                MenuHelper.AddMenuItem("Show help", "HELP", Keys.F1, OnMenuClick),
+                new ToolStripSeparator(),
+                MenuHelper.AddMenuItem("About", "ABOUT", Keys.None, true, false, Resources.about.ToBitmap(), OnMenuClick)
+            });
 
             /* Status bar */
             _statusBar.Items.AddRange(new ToolStripItem[]
@@ -221,6 +225,12 @@ namespace Solitaire.Forms
                     /* This gets around the issue of undo being disabled in the menu, and not re-enabled until menu is opened again -
                      * What I don't want to do is clear the menu list and re-add every single call of Ctrl+Z... */
                     UndoMove();
+                    break;
+
+                case Keys.Control | Keys.Y:
+                    /* This gets around the issue of undo being disabled in the menu, and not re-enabled until menu is opened again -
+                     * What I don't want to do is clear the menu list and re-add every single call of Ctrl+Z... */
+                    RedoMove();
                     break;
 
                 case Keys.Control | Keys.H:
@@ -370,7 +380,13 @@ namespace Solitaire.Forms
                      * What I don't want to do is clear the menu list and re-add every single call of Ctrl+Z... */
                     OnKeyDown(new KeyEventArgs(Keys.Control | Keys.Z));
                     break;
-                    
+
+                case "REDO":
+                    /* This gets around the issue of undo being disabled in the menu, and not re-enabled until menu is opened again -
+                     * What I don't want to do is clear the menu list and re-add every single call of Ctrl+Z... */
+                    OnKeyDown(new KeyEventArgs(Keys.Control | Keys.Y));
+                    break;
+
                 case "RESTART":
                     if (CustomMessageBox.Show(this, "Are you sure you want to restart the current game?", "Restart Current Game") == DialogResult.No)
                     {
@@ -396,6 +412,10 @@ namespace Solitaire.Forms
 
                 case "EXIT":
                     Close();
+                    break;
+
+                case "HELP":
+                    Help.ShowHelp(this, @"Kanga's Solitaire.chm");
                     break;
 
                 case "ABOUT":
@@ -429,8 +449,10 @@ namespace Solitaire.Forms
                     MenuHelper.AddMenuItem("New game", "NEW", Keys.Control | Keys.N, true, false, Resources.newGame.ToBitmap(), OnMenuClick),
                     new ToolStripSeparator(),
                     MenuHelper.AddMenuItem("Save current game", "SAVE", Keys.Control | Keys.S, !GameCompleted && IsGameRunning, false, Resources.save.ToBitmap(), OnMenuClick),
-                    MenuHelper.AddMenuItem("Undo last move", "UNDO", Keys.Control | Keys.Z, Undo.Count > 0 && !GameCompleted, false, Resources.undo.ToBitmap(), OnMenuClick),
                     MenuHelper.AddMenuItem("Restart game", "RESTART", Keys.None, !GameCompleted && IsGameRunning, false, Resources.restart.ToBitmap(), OnMenuClick),
+                    new ToolStripSeparator(),
+                    MenuHelper.AddMenuItem("Undo last move", "UNDO", Keys.Control | Keys.Z, Undo.UndoCount > 0 && !GameCompleted, false, Resources.undo.ToBitmap(), OnMenuClick),
+                    MenuHelper.AddMenuItem("Redo move", "REDO", Keys.Control | Keys.Y, Undo.RedoCount > 0 && !GameCompleted, false, Resources.redo.ToBitmap(), OnMenuClick),
                     new ToolStripSeparator(),
                     MenuHelper.AddMenuItem("Hint...", "HINT", Keys.Control | Keys.H, IsGameRunning, false, Resources.hint.ToBitmap(), OnMenuClick),
                     MenuHelper.AddMenuItem("Auto complete...", "AUTO", Keys.Control | Keys.A, !GameCompleted && IsGameRunning, false, Resources.auto.ToBitmap(), OnMenuClick),

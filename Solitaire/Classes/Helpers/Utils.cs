@@ -146,50 +146,66 @@ namespace Solitaire.Classes.Helpers
          * I re-wrote the Card.cs class and separated the card images to a new class CardData.
          * This GREATLY reduces the memory footprint (I was over 500MB!!), but we still want to
          * keep the amount we store conservitive. 1000 should be enough! */
-        private static readonly List<GameData> Data = new List<GameData>(); 
+        private static readonly List<GameData> UndoData = new List<GameData>();
 
-        public static int Count => Data.Count;
+        private static readonly List<GameData> RedoData = new List<GameData>();
+
+        public static int UndoCount => UndoData.Count;
+
+        public static int RedoCount => RedoData.Count;
 
         public static void AddMove(GameData data)
         {
+            /* Clear redo history */
+            RedoData.Clear();
             /* Add a move to undo history */
-            var d = new GameData(data);
-            Data.Add(d);
-            /* Keep a list of only 1000 moves (should be more than enough for most games) */
-            if (Data.Count <= 1000)
-            {
-                return;
-            }
-            Data.RemoveAt(0);
+            var d = new GameData(data) {RestartPoint = new GameData(data.RestartPoint)}; /* Forgot to renew restart point */
+            UndoData.Add(d);
         }
 
         public static void RemoveLastEntry()
         {
             /* A card was moved nowhere, and returned to where it came from - no point keeping the last move
              * recorded on MouseDown of Game.cs */
-            if (Data.Count == 0)
+            if (UndoData.Count == 0)
             {
                 return;
             }
-            Data.RemoveAt(Data.Count - 1);
+            UndoData.RemoveAt(UndoData.Count - 1);
         }
 
-        public static GameData UndoLastMove()
+        public static GameData UndoLastMove(GameData data)
         {
             /* Get last entry, remove it from undo list and return result */
-            if (Data.Count == 0)
+            if (UndoData.Count == 0)
             {
                 return null;
             }
-            var d = Data[Data.Count - 1];
-            Data.Remove(d);
+            var d = UndoData[UndoData.Count - 1];
+            /* Push this to RedoData */
+            RedoData.Add(new GameData(data));
+            UndoData.Remove(d);
+            return d;
+        }
+
+        public static GameData RedoMove()
+        {
+            if (RedoCount == 0)
+            {
+                return null;
+            }
+            var d = RedoData[RedoData.Count - 1];
+            /* Push back to undo */
+            UndoData.Add(d);
+            RedoData.Remove(d);
             return d;
         }
 
         public static void Clear()
         {
             /* Obvious */
-            Data.Clear();
+            UndoData.Clear();
+            RedoData.Clear();
         }
     }
 }

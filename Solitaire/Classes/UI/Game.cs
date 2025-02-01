@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Solitaire.Classes.Data;
@@ -96,9 +97,6 @@ namespace Solitaire.Classes.UI
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
 
-            _timerStart = new Timer {Interval = 500, Enabled = true};
-            _timerStart.Tick += OnGameStart;
-
             _timerGame = new Timer {Interval = 1000};
             _timerGame.Tick += OnGameTimer;
 
@@ -112,19 +110,21 @@ namespace Solitaire.Classes.UI
             _hintTimer = new Timer {Interval = 500};
             _hintTimer.Tick += OnHintTimer;
 
-            /* Setup game data */
+            /* Setup game data, checking graphics data exists */
             CurrentGame = new GameData();
             var d = new List<CardData>();
-            if (!BinarySerialize<List<CardData>>.Load(Utils.MainDir(@"\data\gfx\cards.dat"), ref d))
+            if (!File.Exists(Utils.MainDir(@"\data\gfx\cards.dat")) || !BinarySerialize<List<CardData>>.Load(Utils.MainDir(@"\data\gfx\cards.dat"), ref d))
             {
                 /* Complete error */
-                return;
+                MessageBox.Show(@"Graphics files are missing, or corrupted. Please re-install Kanga's Solitaire.", @"Load Error", MessageBoxButtons.OK);
+                Environment.Exit(0);
             }
             var g = new GraphicsObjectData();
-            if (!BinarySerialize<GraphicsObjectData>.Load(Utils.MainDir(@"\data\gfx\obj.dat"), ref g))
+            if (!File.Exists(Utils.MainDir(@"\data\gfx\obj.dat")) || !BinarySerialize<GraphicsObjectData>.Load(Utils.MainDir(@"\data\gfx\obj.dat"), ref g))
             {
                 /* Complete error */
-                return;
+                MessageBox.Show(@"Graphics files are missing, or corrupted. Please re-install Kanga's Solitaire.", @"Load Error", MessageBoxButtons.OK);
+                Environment.Exit(0);
             }
             ObjectData = g;
             /* Build master deck */
@@ -140,6 +140,10 @@ namespace Solitaire.Classes.UI
             }
             _gfx = new GraphicsRenderer(this);
             DraggingCards = new List<Card>();
+
+            /* Start a new game, or show dialog */
+            _timerStart = new Timer { Interval = 500, Enabled = true };
+            _timerStart.Tick += OnGameStart;
         }
         #endregion
 
@@ -274,21 +278,32 @@ namespace Solitaire.Classes.UI
         }
         #endregion
 
-        #region Undo
+        #region Undo/Redo
         public void UndoMove()
         {
-            var d = Undo.UndoLastMove();
+            var d = Undo.UndoLastMove(CurrentGame);
             if (d == null)
             {
                 return;
             }
             var t = CurrentGame.GameTime;
             var s = CurrentGame.GameScore;
-            CurrentGame = new GameData(d) { GameTime = t, GameScore = s };
+            CurrentGame = new GameData(d) {GameTime = t, GameScore = s, RestartPoint = new GameData(d.RestartPoint)}; /* Forgot to renew restart point */
             AudioManager.Play(SoundType.Drop);
-            /* Penalize by 5 points on the score for using undo */
-            CurrentGame.GameScore -= 5;
-            OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
+            Invalidate();
+        }
+
+        public void RedoMove()
+        {
+            var d = Undo.RedoMove();
+            if (d == null)
+            {
+                return;
+            }
+            var t = CurrentGame.GameTime;
+            var s = CurrentGame.GameScore;
+            CurrentGame = new GameData(d) {GameTime = t, GameScore = s, RestartPoint = new GameData(d.RestartPoint)};
+            AudioManager.Play(SoundType.Drop);
             Invalidate();
         }
         #endregion
