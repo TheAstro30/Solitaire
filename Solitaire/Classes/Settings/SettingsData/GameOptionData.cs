@@ -58,6 +58,9 @@ namespace Solitaire.Classes.Settings.SettingsData
         [XmlAttribute("difficulty")]
         public DifficultyLevel Difficulty { get; set; }
 
+        [XmlElement("cardSet")]
+        public CardSetData CardSet = new CardSetData();
+
         [XmlElement("sound")]
         public SoundData Sound = new SoundData();
 

@@ -8,10 +8,12 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers;
 using Solitaire.Classes.Helpers.Logic;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.Helpers.UI;
+using Solitaire.Classes.Serialization;
 using Solitaire.Classes.Settings.SettingsData;
 using Solitaire.Classes.UI;
 using Solitaire.Properties;
@@ -410,6 +412,25 @@ namespace Solitaire.Forms
                     }
                     break;
 
+                case "CARDS":
+                    //test code
+                    using (var cards = new FrmCards())
+                    {
+                        if (cards.ShowDialog(this) == DialogResult.OK && cards.Cards != null)
+                        {
+                            if (SettingsManager.Settings.Options.CardSet.Name.Equals(cards.Cards.Name,
+                                    StringComparison.InvariantCultureIgnoreCase) ||
+                                !BinarySerialize<Cards>.Load(
+                                    Utils.MainDir($@"\data\gfx\cards\{cards.Cards.FilePath}", false), ref Cards))
+                            {
+                                return;
+                            }
+                            SettingsManager.Settings.Options.CardSet = cards.Cards;
+                            Invalidate();
+                        }
+                    }
+                    break;
+
                 case "EXIT":
                     Close();
                     break;
@@ -487,7 +508,8 @@ namespace Solitaire.Forms
                 style, new ToolStripSeparator(), diff, new ToolStripSeparator(),
                 MenuHelper.AddMenuItem("Enable sound effects", "SOUND", Keys.Alt | Keys.S, true, SettingsManager.Settings.Options.Sound.EnableEffects, null, OnMenuClick),
                 MenuHelper.AddMenuItem("Enable music", "MUSIC", Keys.Alt | Keys.M, true, SettingsManager.Settings.Options.Sound.EnableMusic, null, OnMenuClick),
-                new ToolStripSeparator(), 
+                new ToolStripSeparator(),
+                MenuHelper.AddMenuItem("Choose card set", "CARDS", Keys.Control | Keys.C, true, false, Resources.cardSet.ToBitmap(), OnMenuClick),
                 MenuHelper.AddMenuItem("Choose deck image","DECK", Keys.Control | Keys.D, true, false, Resources.deckBack.ToBitmap(), OnMenuClick),
                 MenuHelper.AddMenuItem("Game options", "OPTIONS", Keys.Control | Keys.O, true, false, Resources.options.ToBitmap(), OnMenuClick)
             });

@@ -2,10 +2,13 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
+
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.Settings.SettingsData;
 using Solitaire.Classes.UI;
@@ -95,7 +98,7 @@ namespace Solitaire.Classes.Helpers.UI
             var visibleOffset = _gameCtl.CardSize.Height/8;
             var offsetY = 0;
             var x = _gameCtl.CardSize.Width/2;
-            foreach (var img in _gameCtl.DraggingCards.Select(card => _gameCtl.Cards[card.Suit][card.Value].Image))
+            foreach (var img in _gameCtl.DraggingCards.Select(card => _gameCtl.Cards.Images[new KeyValuePair<Suit, int>(card.Suit, card.Value)].Image))
             {
                 e.DrawImage(img, _gameCtl.DragLocation.X - x, (_gameCtl.DragLocation.Y - 5) + offsetY,
                     _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
@@ -211,7 +214,7 @@ namespace Solitaire.Classes.Helpers.UI
                 }
                 /* Set card region where it is drawn on screen */
                 var rect = new Rectangle(stackOffset + xOffset, 40 + yOffset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
-                var img = _gameCtl.Cards[c.Suit][c.Value].Image;
+                var img = _gameCtl.Cards.Images[new KeyValuePair<Suit, int>(c.Suit, c.Value)].Image;
                 e.DrawImage(img, rect);
                 c.Region = rect;     
                 /* Increase our draw three mode index */
@@ -242,7 +245,7 @@ namespace Solitaire.Classes.Helpers.UI
                 if (stack.Cards.Count > 0)
                 {
                     var card = stack.Cards[stack.Cards.Count - 1];
-                    var img = _gameCtl.Cards[card.Suit][card.Value].Image;
+                    var img = _gameCtl.Cards.Images[new KeyValuePair<Suit, int>(card.Suit, card.Value)].Image;
                     e.DrawImage(img, rect);
                     card.Region = rect;
                 }
@@ -267,7 +270,9 @@ namespace Solitaire.Classes.Helpers.UI
                 /* Draw each card in the tableau */
                 foreach (var card in stack.Cards)
                 {
-                    var img = card.IsHidden ? _gameCtl.ObjectData.CardBacks[back] : _gameCtl.Cards[card.Suit][card.Value].Image;
+                    var img = card.IsHidden
+                        ? _gameCtl.ObjectData.CardBacks[back]
+                        : _gameCtl.Cards.Images[new KeyValuePair<Suit, int>(card.Suit, card.Value)].Image;
                     var rect = new Rectangle(stackOffset, yOffset + offset, _gameCtl.CardSize.Width, _gameCtl.CardSize.Height);
                     e.DrawImage(img, rect);
                     card.Region = rect;

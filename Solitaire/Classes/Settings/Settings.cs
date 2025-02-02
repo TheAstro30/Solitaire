@@ -64,6 +64,12 @@ namespace Solitaire.Classes.Settings
             Options.ShowHighlight = true;
             Options.Confirm.OnExit = true;
             Options.Confirm.OnNewLoad = true;
+
+            Options.CardSet = new CardSetData
+            {
+                Name = "Default",
+                FilePath = "default.dat"
+            };
         }
     }
 }

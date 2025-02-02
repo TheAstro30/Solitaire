@@ -24,8 +24,8 @@ namespace Solitaire.Classes.UI
     {
         #region Member variables/Events
         /* Main graphics objects */
-        public MultiKeyDictionary<Suit, int, CardData> Cards = new MultiKeyDictionary<Suit, int, CardData>(); /* Main look-up table for card images */
-        
+        public Cards Cards = new Cards(); /* Main look-up table for card images */
+
         public Deck MasterDeck = new Deck();
         public GraphicsObjectData ObjectData = new GraphicsObjectData();
 
@@ -112,13 +112,17 @@ namespace Solitaire.Classes.UI
 
             /* Setup game data, checking graphics data exists */
             CurrentGame = new GameData();
-            var d = new List<CardData>();
-            if (!File.Exists(Utils.MainDir(@"\data\gfx\cards.dat")) || !BinarySerialize<List<CardData>>.Load(Utils.MainDir(@"\data\gfx\cards.dat"), ref d))
+
+            var cd = new Cards();
+            var cardFile = Utils.MainDir($@"\data\gfx\cards\{SettingsManager.Settings.Options.CardSet.FilePath}");
+            if (!File.Exists(cardFile) || !BinarySerialize<Cards>.Load(cardFile, ref cd))
             {
                 /* Complete error */
                 MessageBox.Show(@"Graphics files are missing, or corrupted. Please re-install Kanga's Solitaire.", @"Load Error", MessageBoxButtons.OK);
                 Environment.Exit(0);
             }
+            Cards = cd;
+
             var g = new GraphicsObjectData();
             if (!File.Exists(Utils.MainDir(@"\data\gfx\obj.dat")) || !BinarySerialize<GraphicsObjectData>.Load(Utils.MainDir(@"\data\gfx\obj.dat"), ref g))
             {
@@ -127,17 +131,18 @@ namespace Solitaire.Classes.UI
                 Environment.Exit(0);
             }
             ObjectData = g;
-            /* Build master deck */
-            foreach (var c in d)
+
+            /* Build master deck - when using different card packs, this doesn't have to be done each time; as the Suit and Value data never changes,
+             * only the card images */
+            foreach (var card in cd.Images.Select(c => new Card
             {
-                var card = new Card
-                {
-                    Suit = c.Suit,
-                    Value = c.Value
-                };
-                Cards.Add(card.Suit, card.Value, c);
+                Suit = c.Value.Suit,
+                Value = c.Value.Value
+            }))
+            {
                 MasterDeck.Add(card);
             }
+
             _gfx = new GraphicsRenderer(this);
             DraggingCards = new List<Card>();
 

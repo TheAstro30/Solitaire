@@ -73,17 +73,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Data\BackgroundImageData.cs" />
+    <Compile Include="Classes\Data\CardData.cs" />
     <Compile Include="Classes\Data\GraphicsObjectData.cs" />
     <Compile Include="Classes\Data\StackData.cs" />
     <Compile Include="Classes\DirectSound\Sound.cs" />
     <Compile Include="Classes\FolderSearch.cs" />
     <Compile Include="Classes\Helpers\Images.cs" />
     <Compile Include="Classes\Helpers\Logic\GameLogic.cs" />
-    <Compile Include="Classes\Data\MutliKeyDictionary.cs" />
     <Compile Include="Classes\Helpers\UI\Dialogs.cs" />
     <Compile Include="Classes\Helpers\UI\GraphicsRenderer.cs" />
     <Compile Include="Classes\Helpers\UI\HitTest.cs" />
+    <Compile Include="Classes\Helpers\UI\UiSynchronize.cs" />
     <Compile Include="Classes\Helpers\Utils.cs" />
+    <Compile Include="Classes\Settings\SettingsData\CardSetData.cs" />
     <Compile Include="Classes\Settings\SettingsData\GameOptionData.cs" />
     <Compile Include="Classes\Settings\SettingsData\GameSaveLoadData.cs" />
     <Compile Include="Classes\Settings\SettingsData\SoundData.cs" />
@@ -101,7 +104,6 @@
     <Compile Include="Classes\Helpers\Management\AudioManager.cs" />
     <Compile Include="Classes\Serialization\XmlFormatting.cs" />
     <Compile Include="Classes\Serialization\BinarySerialize.cs" />
-    <Compile Include="Classes\Data\Card.cs" />
     <Compile Include="Classes\Data\Deck.cs" />
     <Compile Include="Classes\Settings\Settings.cs" />
     <Compile Include="Classes\Helpers\Management\SettingsManager.cs" />
@@ -122,6 +124,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Forms\FrmAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmCards.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FrmCustomMessage.cs">
@@ -245,6 +250,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Icons\Menus\redo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\Menus\cardSet.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\dialog\picture.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

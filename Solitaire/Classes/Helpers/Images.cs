@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using libolv.SubControls;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Serialization;
 
@@ -17,8 +18,6 @@ namespace Solitaire.Classes.Helpers
     public static class Images
     {
         private static readonly Size CardSize = new Size(146, 198); /* Hard programmed for now */
-
-        private static readonly List<CardData> Deck = new List<CardData>(); 
 
         private static readonly GraphicsObjectData ObjData = new GraphicsObjectData();
 
@@ -38,29 +37,8 @@ namespace Solitaire.Classes.Helpers
             Bitmap cardImage;
             Rectangle src;
 
-            using (var cards = (Bitmap) Image.FromFile($"{path}{@"card-set.png"}"))
-            {
-                for (var y = 0; y <= 3; y++)
-                {
-                    var startY = CardSize.Height * y;
-                    for (var x = 0; x <= 12; x++)
-                    {
-                        /* Set each card image */
-                        System.Diagnostics.Debug.Print(" > Set card Suit: {0} Value: {1}", y, x + 1);
-                        cardImage = new Bitmap(CardSize.Width, CardSize.Height);
-                        src = new Rectangle(x * CardSize.Width, startY, CardSize.Width, CardSize.Height);
-                        GetImage(cardImage, src, cards);
-                        var card = new CardData
-                        {
-                            Suit = (Suit) y,
-                            Value = x + 1,
-                            Image = cardImage
-                        };
-                        /* Push new image to the deck */
-                        Deck.Add(card);
-                    }
-                }
-            }
+            BuildCardSet($"{path}{@"card-set.png"}", "Default", "default.dat");
+            BuildCardSet($"{path}{@"card-set2.png"}", "Classic Bicycle", "bicycle.dat");
 
             /* Build assets */
             using (var assets = (Bitmap) Image.FromFile($"{path}{@"assets.png"}"))
@@ -112,13 +90,46 @@ namespace Solitaire.Classes.Helpers
             }
 
             /* Serialize the output */
-            if (BinarySerialize<List<CardData>>.Save(Utils.MainDir(@"\data\gfx\cards.dat"), Deck))
-            {
-                System.Diagnostics.Debug.Print(">>>> Sucessfully wrote cards.dat!");
-            }
             if (BinarySerialize<GraphicsObjectData>.Save(Utils.MainDir(@"\data\gfx\obj.dat"), ObjData))
             {
                 System.Diagnostics.Debug.Print(">>>> Sucessfully wrote obj.dat!");
+            }
+        }
+
+        private static void BuildCardSet(string fileName, string cardSetName, string outputFileName)
+        {
+            var data = new Cards {Name = cardSetName};
+
+            using (var cards = (Bitmap)Image.FromFile(fileName))
+            {
+                for (var y = 0; y <= 3; y++)
+                {
+                    var startY = CardSize.Height * y;
+                    for (var x = 0; x <= 12; x++)
+                    {
+                        /* Set each card image */
+                        System.Diagnostics.Debug.Print(" > Set card Suit: {0} Value: {1}", y, x + 1);
+                        var cardImage = new Bitmap(CardSize.Width, CardSize.Height);
+                        var src = new Rectangle(x * CardSize.Width, startY, CardSize.Width, CardSize.Height);
+                        GetImage(cardImage, src, cards);
+                        var card = new CardData
+                        {
+                            Suit = (Suit)y,
+                            Value = x + 1,
+                            Image = cardImage
+                        };
+                        /* Push new image to the deck */
+                        data.Images.Add(new KeyValuePair<Suit, int>(card.Suit, card.Value), card);
+                    }
+                }
+            }
+            /* Set preview image */
+            data.PreviewImage = GenerateCardSetPreview(data);
+
+            /* Serialize the output */
+            if (BinarySerialize<Cards>.Save(Utils.MainDir($@"\data\gfx\cards\{outputFileName}"), data))
+            {
+                System.Diagnostics.Debug.Print($" >>>> Sucessfully wrote {outputFileName}!");
             }
         }
 
@@ -128,6 +139,30 @@ namespace Solitaire.Classes.Helpers
             {
                 gfx.DrawImage(srcBitmap, new Rectangle(0, 0, cardBmp.Width, cardBmp.Height), srcRegion, GraphicsUnit.Pixel);
             }
+        }
+
+        private static Image GenerateCardSetPreview(Cards cards)
+        {
+            /* We build an image of various cards on top of each other */
+            var b = cards.Images[new KeyValuePair<Suit, int>(Suit.Clubs, 13)].Image;
+            /* Get card size and make it 0.5 times smaller */
+            var s = b.Size;
+            var width = (int)(s.Width / 1.5);
+            var height = (int)(s.Height / 1.5);
+            System.Diagnostics.Debug.Print(width + " " + height);
+            var bmp = new Bitmap(width + 60, height + 30);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.DrawImage(b, 0, 0, width, height);
+                b = cards.Images[new KeyValuePair<Suit, int>(Suit.Hearts, 12)].Image;
+                g.DrawImage(b, 20, 10, width, height);
+                b = cards.Images[new KeyValuePair<Suit, int>(Suit.Diamonds, 11)].Image;
+                g.DrawImage(b, 40, 20, width, height);
+                b = cards.Images[new KeyValuePair<Suit, int>(Suit.Spades, 1)].Image;
+                g.DrawImage(b, 60, 30, width, height);
+            }
+
+            return bmp;
         }
     }
 }
