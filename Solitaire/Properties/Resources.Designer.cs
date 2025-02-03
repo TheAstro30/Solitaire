@@ -103,6 +103,16 @@ namespace Solitaire.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap bg_default {
+            get {
+                object obj = ResourceManager.GetObject("bg_default", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap button_cancel {
             get {
                 object obj = ResourceManager.GetObject("button_cancel", resourceCulture);
@@ -146,6 +156,16 @@ namespace Solitaire.Properties {
         internal static System.Drawing.Icon close {
             get {
                 object obj = ResourceManager.GetObject("close", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon color {
+            get {
+                object obj = ResourceManager.GetObject("color", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }

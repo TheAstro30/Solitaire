@@ -5,7 +5,6 @@
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
-using Solitaire.Classes.UI;
 using Solitaire.Controls;
 using Solitaire.Properties;
 

@@ -306,6 +306,22 @@ namespace Solitaire.Forms
                     NewGame(IsGameRunning);
                     break;
 
+                case "BACKGROUND":
+                    using (var back = new FrmBackground(this))
+                    {
+                        if (back.ShowDialog(this) == DialogResult.OK && back.SelectedBackground != null)
+                        {
+                            var index = ObjectData.Backgrounds.IndexOf(back.SelectedBackground);
+                            if (index == -1)
+                            {
+                                index = 0;
+                            }
+                            SettingsManager.Settings.Options.Background = index;
+                            Invalidate();
+                        }
+                    }
+                    break;
+
                 case "DECK":
                     using (var back = new FrmDeckBack(this, SettingsManager.Settings.Options.DeckBack))
                     {
@@ -315,6 +331,24 @@ namespace Solitaire.Forms
                             Invalidate();
                         }
                     }                    
+                    break;
+
+                case "CARDS":
+                    using (var cards = new FrmCards())
+                    {
+                        if (cards.ShowDialog(this) == DialogResult.OK && cards.Cards != null)
+                        {
+                            if (SettingsManager.Settings.Options.CardSet.Name.Equals(cards.Cards.Name,
+                                    StringComparison.InvariantCultureIgnoreCase) ||
+                                !BinarySerialize<Cards>.Load(
+                                    Utils.MainDir($@"\data\gfx\cards\{cards.Cards.FilePath}", false), ref Cards))
+                            {
+                                return;
+                            }
+                            SettingsManager.Settings.Options.CardSet = cards.Cards;
+                            Invalidate();
+                        }
+                    }
                     break;
 
                 case "EASY":
@@ -412,25 +446,6 @@ namespace Solitaire.Forms
                     }
                     break;
 
-                case "CARDS":
-                    //test code
-                    using (var cards = new FrmCards())
-                    {
-                        if (cards.ShowDialog(this) == DialogResult.OK && cards.Cards != null)
-                        {
-                            if (SettingsManager.Settings.Options.CardSet.Name.Equals(cards.Cards.Name,
-                                    StringComparison.InvariantCultureIgnoreCase) ||
-                                !BinarySerialize<Cards>.Load(
-                                    Utils.MainDir($@"\data\gfx\cards\{cards.Cards.FilePath}", false), ref Cards))
-                            {
-                                return;
-                            }
-                            SettingsManager.Settings.Options.CardSet = cards.Cards;
-                            Invalidate();
-                        }
-                    }
-                    break;
-
                 case "EXIT":
                     Close();
                     break;
@@ -509,8 +524,10 @@ namespace Solitaire.Forms
                 MenuHelper.AddMenuItem("Enable sound effects", "SOUND", Keys.Alt | Keys.S, true, SettingsManager.Settings.Options.Sound.EnableEffects, null, OnMenuClick),
                 MenuHelper.AddMenuItem("Enable music", "MUSIC", Keys.Alt | Keys.M, true, SettingsManager.Settings.Options.Sound.EnableMusic, null, OnMenuClick),
                 new ToolStripSeparator(),
+                MenuHelper.AddMenuItem("Choose background","BACKGROUND", Keys.Control | Keys.B, true, false, Resources.picture.ToBitmap(), OnMenuClick),
                 MenuHelper.AddMenuItem("Choose card set", "CARDS", Keys.Control | Keys.C, true, false, Resources.cardSet.ToBitmap(), OnMenuClick),
                 MenuHelper.AddMenuItem("Choose deck image","DECK", Keys.Control | Keys.D, true, false, Resources.deckBack.ToBitmap(), OnMenuClick),
+                new ToolStripSeparator(), 
                 MenuHelper.AddMenuItem("Game options", "OPTIONS", Keys.Control | Keys.O, true, false, Resources.options.ToBitmap(), OnMenuClick)
             });
         }

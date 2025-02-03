@@ -37,6 +37,9 @@ namespace Solitaire.Classes.Settings.SettingsData
         [XmlAttribute("style")]
         public int AppearanceStyle { get; set; }
 
+        [XmlAttribute("background")]
+        public int Background { get; set; }
+
         [XmlAttribute("deckBack")]
         public int DeckBack { get; set; }
 

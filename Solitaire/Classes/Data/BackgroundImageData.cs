@@ -9,7 +9,6 @@ using libolv.Implementation;
 
 namespace Solitaire.Classes.Data
 {
-    /* Not implemented yet */
     public enum BackgroundImageDataLayout
     {
         Tile = 0,

@@ -11,7 +11,7 @@ namespace Solitaire.Classes.Data
     [Serializable]
     public sealed class GraphicsObjectData
     {
-        public Image Background { get; set; }
+        public List<BackgroundImageData> Backgrounds { get; set; }
 
         public Image EmptyStock { get; set; }
 
@@ -25,6 +25,7 @@ namespace Solitaire.Classes.Data
 
         public GraphicsObjectData()
         {
+            Backgrounds = new List<BackgroundImageData>();
             CardBacks = new List<Image>();
         }
     }

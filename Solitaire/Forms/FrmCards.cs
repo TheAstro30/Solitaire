@@ -38,7 +38,7 @@ namespace Solitaire.Forms
             _sync = new UiSynchronize(this);
 
             ClientSize = new Size(443, 318);
-            Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(0)));
+            Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
@@ -121,6 +121,8 @@ namespace Solitaire.Forms
             };
 
             Controls.AddRange(new Control[] {_lvCards, _pbPreview, btnCancel, btnOk});
+
+            AcceptButton = btnOk;
         }
 
         protected override void OnLoad(EventArgs e)

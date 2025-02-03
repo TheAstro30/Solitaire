@@ -19,12 +19,8 @@ namespace Solitaire.Classes.Helpers.UI
 
         public void Execute(Action action)
         {
-            if (_sync == null)
-            {
-                /* It shouldn't be null, as the constructor forces us to use a synchronous object */
-                return;
-            }
-            _sync.BeginInvoke(action, null);
+            /* It shouldn't be null, as the constructor forces us to use a synchronous object */
+            _sync?.BeginInvoke(action, null);
         }
     }
 }

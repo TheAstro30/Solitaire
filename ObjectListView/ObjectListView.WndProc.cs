@@ -536,27 +536,34 @@ namespace libolv
 
         protected virtual int FindMatchInRange(string text, int first, int last, OlvColumn column)
         {
-            if (first <= last)
+            try
             {
-                for (var i = first; i <= last; i++)
+                if (first <= last)
                 {
-                    var data = column.GetStringValue(GetNthItemInDisplayOrder(i).RowObject);
-                    if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
+                    for (var i = first; i <= last; i++)
                     {
-                        return i;
+                        var data = column.GetStringValue(GetNthItemInDisplayOrder(i).RowObject);
+                        if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            return i;
+                        }
+                    }
+                }
+                else
+                {
+                    for (var i = first; i >= last; i--)
+                    {
+                        var data = column.GetStringValue(GetNthItemInDisplayOrder(i).RowObject);
+                        if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            return i;
+                        }
                     }
                 }
             }
-            else
+            catch
             {
-                for (var i = first; i >= last; i--)
-                {
-                    var data = column.GetStringValue(GetNthItemInDisplayOrder(i).RowObject);
-                    if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        return i;
-                    }
-                }
+                /* Ignore */
             }
             return -1;
         }

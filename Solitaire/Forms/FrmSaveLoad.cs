@@ -31,11 +31,9 @@ namespace Solitaire.Forms
 
         private readonly ObjectListView _lvFiles;
 
-        private Button btnSaveLoad;
-        private Button btnSaveAs;
-        private Button btnDelete;
-        private Button btnClear;
-        private Button btnClose;
+        private readonly Button _btnSaveLoad;
+        private readonly Button _btnDelete;
+        private readonly Button _btnClear;
 
         public SaveLoadData SelectedFile { get; private set; }
 
@@ -84,7 +82,7 @@ namespace Solitaire.Forms
             _lvFiles.AllColumns.Add(lvColumn);
             _lvFiles.Columns.Add(lvColumn);
 
-            btnSaveLoad = new Button
+            _btnSaveLoad = new Button
             {
                 DialogResult = DialogResult.OK,
                 Enabled = false,
@@ -98,7 +96,7 @@ namespace Solitaire.Forms
                 ForeColor = Color.White
             };
 
-            btnSaveAs = new Button
+            var btnSaveAs = new Button
             {
                 Location = new Point(382, 46),
                 Size = new Size(75, 28),
@@ -111,7 +109,7 @@ namespace Solitaire.Forms
                 BackgroundImageLayout = ImageLayout.Tile
             };
 
-            btnDelete = new Button
+            _btnDelete = new Button
             {
                 Enabled = false,
                 Location = new Point(382, 80),
@@ -124,7 +122,7 @@ namespace Solitaire.Forms
                 BackgroundImageLayout = ImageLayout.Tile
             };
 
-            btnClear = new Button
+            _btnClear = new Button
             {
                 Enabled = false,
                 Location = new Point(382, 309),
@@ -137,7 +135,7 @@ namespace Solitaire.Forms
                 BackgroundImageLayout = ImageLayout.Tile
             };
 
-            btnClose = new Button
+            var btnClose = new Button
             {
                 DialogResult = DialogResult.Cancel,
                 Location = new Point(382, 353),
@@ -154,28 +152,28 @@ namespace Solitaire.Forms
             {
                 case SaveLoadType.LoadGame:
                     Text = @"Load Saved Game";
-                    btnDelete.Location = new Point(382, 46);
+                    _btnDelete.Location = new Point(382, 46);
                     break;
 
                 case SaveLoadType.SaveGame:
                     Text = @"Save Current Game";
-                    btnSaveLoad.Text = @"Save";
+                    _btnSaveLoad.Text = @"Save";
                     btnSaveAs.Visible = true;
                     break;
             }
 
             Controls.AddRange(new Control[]
             {
-                _lvFiles, btnSaveLoad, btnSaveAs, btnDelete, btnClear, btnClose
+                _lvFiles, _btnSaveLoad, btnSaveAs, _btnDelete, _btnClear, btnClose
             });
 
             _lvFiles.SelectionChanged += OnSelectionChanged;
             _lvFiles.MouseDoubleClick += OnDoubleClick;
 
-            btnSaveLoad.Click += OnButtonClick;
+            _btnSaveLoad.Click += OnButtonClick;
             btnSaveAs.Click += OnButtonClick;
-            btnDelete.Click += OnButtonClick;
-            btnClear.Click += OnButtonClick;
+            _btnDelete.Click += OnButtonClick;
+            _btnClear.Click += OnButtonClick;
 
             _lvFiles.AddObjects(SettingsManager.Settings.SavedGames.Data);
 
@@ -184,7 +182,7 @@ namespace Solitaire.Forms
                 return;
             }
             /* Enable clear button */
-            btnClear.Enabled = true;
+            _btnClear.Enabled = true;
             /* Scroll to bottom of list */
             _lvFiles.EnsureVisible(_lvFiles.Items.Count - 1);
         }
@@ -259,7 +257,7 @@ namespace Solitaire.Forms
                     {
                         /* Ignore IO exceptions */
                     }
-                    btnDelete.Enabled = false;
+                    _btnDelete.Enabled = false;
                     break;
 
                 case "CLEAR":
@@ -287,7 +285,7 @@ namespace Solitaire.Forms
                     {
                         /* Ignore IO exceptions */
                     }
-                    btnClear.Enabled = false;
+                    _btnClear.Enabled = false;
                     break;
             }
         }
@@ -301,8 +299,8 @@ namespace Solitaire.Forms
             }
             var selected = o.SelectedObject != null;
 
-            btnSaveLoad.Enabled = selected;
-            btnDelete.Enabled = selected;
+            _btnSaveLoad.Enabled = selected;
+            _btnDelete.Enabled = selected;
 
             SelectedFile = (SaveLoadData) o.SelectedObject;
         }

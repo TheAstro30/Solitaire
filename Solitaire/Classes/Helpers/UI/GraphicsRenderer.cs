@@ -28,10 +28,32 @@ namespace Solitaire.Classes.Helpers.UI
 
         public Rectangle Draw(Graphics e)
         {
-            /* Now, the fun part - drawing all the data... draw background tiled; 
-             * yes, we could set the forms background image property... */
-            e.DrawImageTiled(_gameCtl.ObjectData.Background, _gameCtl.ClientSize);
+            /* Now, the fun part - drawing all the data... */
+            var bg = _gameCtl.ObjectData.Backgrounds[SettingsManager.Settings.Options.Background];
+            if (bg != null)
+            {
+                /* Draw background */
+                switch (bg.ImageLayout)
+                {
+                    /* I know we can just set the form's background property, however, stretching especially is slooooow */
+                    case BackgroundImageDataLayout.Tile:
+                        e.DrawImageTiled(bg.Image, _gameCtl.ClientSize);
+                        break;
 
+                    case BackgroundImageDataLayout.Stretch:
+                        e.DrawImageStretched(bg.Image, _gameCtl.ClientSize);
+                        break;
+
+                    case BackgroundImageDataLayout.Color:
+                        /* Not implemented yet */
+                        break;
+                }
+            }
+            else
+            {
+                /* This should never happen; but it's here incase we have a graphics error and don't end up with a black screen */
+                e.DrawImageTiled(Resources.bg_default, _gameCtl.ClientSize);
+            }
             /* Draw logo image in bottom right (with 50% opacity) */
             var img = Resources.logo;
             var rect = new Rectangle(_gameCtl.ClientSize.Width - img.Width - 10, _gameCtl.ClientSize.Height - img.Height - 20, img.Width, img.Height);
@@ -294,6 +316,11 @@ namespace Solitaire.Classes.Helpers.UI
             {
                 graphics.FillRectangle(brush, 0, 0, size.Width, size.Height);
             }
+        }
+
+        internal static void DrawImageStretched(this Graphics graphics, Image image, Size destSize)
+        {
+            graphics.DrawImage(image, 0, 0, destSize.Width, destSize.Height);
         }
 
         internal static void DrawImageOpaque(this Graphics graphics, Image image, Rectangle destRect, float opacity)

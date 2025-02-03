@@ -23,6 +23,7 @@ namespace Solitaire.Classes.UI
     public class Game : Form
     {
         #region Member variables/Events
+
         /* Main graphics objects */
         public Cards Cards = new Cards(); /* Main look-up table for card images */
 
@@ -53,7 +54,7 @@ namespace Solitaire.Classes.UI
         public List<Card> DraggingCards { get; set; }
         public int DragStackIndex { get; set; }
         public Point DragLocation { get; set; }
-       
+
         /* Loaded game score and time */
         private int _time;
         private int _score;
@@ -69,7 +70,7 @@ namespace Solitaire.Classes.UI
         /* Current game being played */
         public bool IsLoadedGame { get; private set; }
         public GameData CurrentGame { get; set; }
-        
+
         /* Game is won */
         public bool GameCompleted { get; set; }
 
@@ -81,15 +82,18 @@ namespace Solitaire.Classes.UI
         /* Events raised back to form */
         public event Action<int> OnGameTimeChanged;
         public event Action<int, int> OnScoreChanged;
+
         #endregion
 
         #region Constructor
+
         public Game()
         {
             if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime)
             {
                 return;
             }
+
             /* Settings - this class is called first, before FrmGame, so load settings here */
             SettingsManager.Load();
             _firstRun = SettingsManager.Settings.Statistics.TotalGamesPlayed == 0;
@@ -118,18 +122,23 @@ namespace Solitaire.Classes.UI
             if (!File.Exists(cardFile) || !BinarySerialize<Cards>.Load(cardFile, ref cd))
             {
                 /* Complete error */
-                MessageBox.Show(@"Graphics files are missing, or corrupted. Please re-install Kanga's Solitaire.", @"Load Error", MessageBoxButtons.OK);
+                MessageBox.Show(@"Graphics files are missing, or corrupted. Please re-install Kanga's Solitaire.",
+                    @"Load Error", MessageBoxButtons.OK);
                 Environment.Exit(0);
             }
+
             Cards = cd;
 
             var g = new GraphicsObjectData();
-            if (!File.Exists(Utils.MainDir(@"\data\gfx\obj.dat")) || !BinarySerialize<GraphicsObjectData>.Load(Utils.MainDir(@"\data\gfx\obj.dat"), ref g))
+            if (!File.Exists(Utils.MainDir(@"\data\gfx\obj.dat")) ||
+                !BinarySerialize<GraphicsObjectData>.Load(Utils.MainDir(@"\data\gfx\obj.dat"), ref g))
             {
                 /* Complete error */
-                MessageBox.Show(@"Graphics files are missing, or corrupted. Please re-install Kanga's Solitaire.", @"Load Error", MessageBoxButtons.OK);
+                MessageBox.Show(@"Graphics files are missing, or corrupted. Please re-install Kanga's Solitaire.",
+                    @"Load Error", MessageBoxButtons.OK);
                 Environment.Exit(0);
             }
+
             ObjectData = g;
 
             /* Build master deck - when using different card packs, this doesn't have to be done each time; as the Suit and Value data never changes,
@@ -147,23 +156,28 @@ namespace Solitaire.Classes.UI
             DraggingCards = new List<Card>();
 
             /* Start a new game, or show dialog */
-            _timerStart = new Timer { Interval = 500, Enabled = true };
+            _timerStart = new Timer {Interval = 500, Enabled = true};
             _timerStart.Tick += OnGameStart;
         }
+
         #endregion
 
         #region Public methods
+
         #region New game
+
         public void NewGame(bool ask = true)
         {
             if (SettingsManager.Settings.Options.Confirm.OnNewLoad && ask && !GameCompleted)
             {
                 /* Ask user if they want to start a new game */
-                if (CustomMessageBox.Show(this, "Are you sure you want to quit the current game?", "Quit Current Game") == DialogResult.No)
+                if (CustomMessageBox.Show(this, "Are you sure you want to quit the current game?",
+                    "Quit Current Game") == DialogResult.No)
                 {
                     return;
                 }
             }
+
             var draw3 = false;
             using (var ng = NewGameDialog.Show(this))
             {
@@ -188,13 +202,17 @@ namespace Solitaire.Classes.UI
                                 {
                                     return;
                                 }
-                                CustomMessageBox.Show(this, $"Unable to load game '{load.SelectedFile.FriendlyName}'.", "Error", CustomMessageBoxButtons.Ok, CustomMessageBoxIcon.Error);
+
+                                CustomMessageBox.Show(this, $"Unable to load game '{load.SelectedFile.FriendlyName}'.",
+                                    "Error", CustomMessageBoxButtons.Ok, CustomMessageBoxIcon.Error);
                             }
                         }
+
                         NewGame(false);
                         return;
                 }
             }
+
             if (!_firstRun)
             {
                 SettingsManager.Settings.Statistics.TotalGamesPlayed++;
@@ -208,6 +226,7 @@ namespace Solitaire.Classes.UI
                 /* Game count is 0, so we don't increment until NewGame is called again on new game, win/loss */
                 _firstRun = false;
             }
+
             Undo.Clear(); /* Clear undo history */
             GameLogic.ClearHints();
             GameCompleted = false;
@@ -229,9 +248,11 @@ namespace Solitaire.Classes.UI
             OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             Invalidate();
         }
+
         #endregion
 
         #region Load/save game
+
         public bool LoadSavedGame(string fileName, bool saveRecover = false)
         {
             /* Load a saved game */
@@ -241,6 +262,7 @@ namespace Solitaire.Classes.UI
             {
                 return false;
             }
+
             Undo.Clear(); /* Clear undo history */
             GameLogic.ClearHints();
             CurrentGame = d;
@@ -255,13 +277,15 @@ namespace Solitaire.Classes.UI
                 SettingsManager.Settings.Statistics.TotalGamesPlayed++;
                 SettingsManager.Settings.Statistics.GamesLost++;
             }
+
             AudioManager.Play(SoundType.Shuffle);
             OnGameTimeChanged?.Invoke(CurrentGame.GameTime);
             OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             _timerFireWorks.Enabled = false;
             _timerGame.Enabled = true;
 
-            GameCompleted = false; /* Forgot to change this until now, other menu items like save, etc, are greyed out */
+            GameCompleted =
+                false; /* Forgot to change this until now, other menu items like save, etc, are greyed out */
 
             Invalidate();
             return true;
@@ -270,20 +294,25 @@ namespace Solitaire.Classes.UI
         public bool SaveCurrentGame(string fileName, bool saveRecover = false)
         {
             /* Save current game - if it's a completed game, don't save it */
-            var file = Utils.MainDir($@"\KangaSoft\Solitaire\{(saveRecover ? "recovery.dat" : $@"saved\{fileName}")}", true);
+            var file = Utils.MainDir($@"\KangaSoft\Solitaire\{(saveRecover ? "recovery.dat" : $@"saved\{fileName}")}",
+                true);
             if (!GameCompleted)
             {
                 return BinarySerialize<GameData>.Save(file, CurrentGame);
             }
+
             if (saveRecover)
             {
                 Utils.DeleteFile(file);
             }
+
             return false;
         }
+
         #endregion
 
         #region Undo/Redo
+
         public void UndoMove()
         {
             var d = Undo.UndoLastMove(CurrentGame);
@@ -291,9 +320,13 @@ namespace Solitaire.Classes.UI
             {
                 return;
             }
+
             var t = CurrentGame.GameTime;
             var s = CurrentGame.GameScore;
-            CurrentGame = new GameData(d) {GameTime = t, GameScore = s, RestartPoint = new GameData(d.RestartPoint)}; /* Forgot to renew restart point */
+            CurrentGame = new GameData(d)
+            {
+                GameTime = t, GameScore = s, RestartPoint = new GameData(d.RestartPoint)
+            }; /* Forgot to renew restart point */
             AudioManager.Play(SoundType.Drop);
             Invalidate();
         }
@@ -305,34 +338,42 @@ namespace Solitaire.Classes.UI
             {
                 return;
             }
+
             var t = CurrentGame.GameTime;
             var s = CurrentGame.GameScore;
             CurrentGame = new GameData(d) {GameTime = t, GameScore = s, RestartPoint = new GameData(d.RestartPoint)};
             AudioManager.Play(SoundType.Drop);
             Invalidate();
         }
+
         #endregion
 
         #region Restart
+
         public void RestartGame(bool keepTimeAndScore)
         {
             var d = CurrentGame.RestartPoint;
             if (d != null)
             {
                 /* If it's a loaded game, we don't want to reset time or score */
-                CurrentGame = keepTimeAndScore ? new GameData(d) {GameTime = _time, GameScore = _score, DeckRedeals = 0} : new GameData(d);
+                CurrentGame = keepTimeAndScore
+                    ? new GameData(d) {GameTime = _time, GameScore = _score, DeckRedeals = 0}
+                    : new GameData(d);
                 /* Make sure to set the Restart point */
                 CurrentGame.RestartPoint = new GameData(CurrentGame);
             }
+
             /* Reset time and score */
             OnGameTimeChanged?.Invoke(CurrentGame.GameTime);
             OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             AudioManager.Play(SoundType.Shuffle);
             Invalidate();
         }
+
         #endregion
 
         #region Auto complete
+
         public void AutoComplete()
         {
             /* Iterate through any drawn cards and play stacks moving them to each ace home stack */
@@ -356,6 +397,7 @@ namespace Solitaire.Classes.UI
                         CurrentGame.GameScore += 10;
                     }
                 }
+
                 /* Each stack */
                 for (var stack = 0; stack <= 6; stack++)
                 {
@@ -364,17 +406,21 @@ namespace Solitaire.Classes.UI
                     {
                         continue;
                     }
+
                     card = s.Cards[s.Cards.Count - 1];
                     /* Is it an ace ? - Find free home slot; if not see if it can be completed */
                     if (card.IsHidden)
                     {
                         AutoTurnCard(stack);
-                        continue;         
+                        continue;
                     }
-                    if (!GameLogic.IsCompleted(this, card) && (card.Value != 1 || !GameLogic.AddAceToFreeSlot(this, card)))
+
+                    if (!GameLogic.IsCompleted(this, card) &&
+                        (card.Value != 1 || !GameLogic.AddAceToFreeSlot(this, card)))
                     {
                         continue;
                     }
+
                     success = true;
                     s.Cards.Remove(card);
                     movedCards++;
@@ -382,19 +428,24 @@ namespace Solitaire.Classes.UI
                     CurrentGame.GameScore += 10;
                     AutoTurnCard(stack);
                 }
+
                 complete = movedCards != 0;
             }
+
             if (!success)
             {
                 return;
             }
+
             Invalidate();
             AudioManager.Play(SoundType.Complete);
             OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
         }
+
         #endregion
 
         #region Show hint
+
         public void Hint()
         {
             var h = GameLogic.GetHint(this);
@@ -404,6 +455,7 @@ namespace Solitaire.Classes.UI
                 {
                     _hintIndex = 0;
                 }
+
                 _gfx.DrawFocusRing(h[_hintIndex].SourceRegion, h[_hintIndex].SourceCardCount);
                 _hintTimer.Tag = h[_hintIndex].DestinationRegion;
                 _hintTimer.Enabled = true;
@@ -412,22 +464,27 @@ namespace Solitaire.Classes.UI
             else
             {
                 /* Tell user to draw */
-                _hintIndex = 0;                
+                _hintIndex = 0;
                 if (CurrentGame.StockCards.Count == 0)
                 {
                     AudioManager.Play(SoundType.NoHint);
                     return;
                 }
+
                 _hintTimer.Tag = null;
                 _hintTimer.Enabled = true;
                 _gfx.DrawFocusRing(_stockRegion, 0);
             }
         }
+
         #endregion
+
         #endregion
 
         #region Overrides
+
         #region Form
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             /* Update stats */
@@ -435,6 +492,7 @@ namespace Solitaire.Classes.UI
             {
                 SettingsManager.Settings.Statistics.GamesLost++;
             }
+
             /* Dump settings */
             SettingsManager.Save();
             /* Stop all running timers */
@@ -442,9 +500,11 @@ namespace Solitaire.Classes.UI
             _timerGame.Enabled = false;
             base.OnFormClosing(e);
         }
+
         #endregion
 
         #region Mouse
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
             switch (e.Button)
@@ -461,12 +521,14 @@ namespace Solitaire.Classes.UI
                                 base.OnMouseDown(e);
                                 return;
                             }
+
                             if (IsDeckReDealt)
                             {
                                 IsDeckReDealt = false;
                                 CurrentGame.GameScore -= 5;
                                 OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
                             }
+
                             Invalidate();
                             break;
 
@@ -489,6 +551,7 @@ namespace Solitaire.Classes.UI
                             {
                                 return;
                             }
+
                             card = stack.Cards[stack.Cards.Count - 1];
                             DragStackIndex = data.StackIndex;
                             DraggingCards.Add(card);
@@ -497,6 +560,7 @@ namespace Solitaire.Classes.UI
                             {
                                 stack.Suit = Suit.None;
                             }
+
                             _isFoundationDrag = true;
                             IsDragging = true;
                             Invalidate();
@@ -513,6 +577,7 @@ namespace Solitaire.Classes.UI
                                         /* Invalid drag */
                                         return;
                                     }
+
                                     /* Turn card over */
                                     Undo.AddMove(CurrentGame);
                                     data.Cards[data.CardIndex].IsHidden = false;
@@ -522,6 +587,7 @@ namespace Solitaire.Classes.UI
                                     OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
                                     return;
                                 }
+
                                 if (data.CardIndex < data.Cards.Count - 1)
                                 {
                                     /* Valid cards on top of this card */
@@ -532,9 +598,11 @@ namespace Solitaire.Classes.UI
                                         {
                                             return;
                                         }
+
                                         /* Add card to list */
                                         DraggingCards.Add(card);
                                     }
+
                                     Undo.AddMove(CurrentGame);
                                     DragStackIndex = data.StackIndex;
                                     /* Remove dragging cards from stack - I can't do it in above loop as it modifies the list it's comparing */
@@ -552,17 +620,21 @@ namespace Solitaire.Classes.UI
                                     DraggingCards.Add(card);
                                     CurrentGame.Tableau[data.StackIndex].Cards.Remove(card);
                                 }
+
                                 IsDragging = true;
                                 Invalidate();
                             }
+
                             break;
                     }
+
                     break;
 
                 case MouseButtons.Right:
                     AutoComplete();
                     break;
             }
+
             base.OnMouseDown(e);
         }
 
@@ -572,6 +644,7 @@ namespace Solitaire.Classes.UI
             {
                 return;
             }
+
             DragLocation = e.Location;
             Invalidate();
             base.OnMouseMove(e);
@@ -586,8 +659,10 @@ namespace Solitaire.Classes.UI
                 {
                     return;
                 }
+
                 /* This rectangle intersect code does work better than using the HitTest.CompareClick method */
-                var src = new Rectangle(e.Location.X - (CardSize.Width / 2), e.Location.Y + 5, CardSize.Width, CardSize.Height);
+                var src = new Rectangle(e.Location.X - (CardSize.Width / 2), e.Location.Y + 5, CardSize.Width,
+                    CardSize.Height);
                 switch (HitTest.CompareDrop(this, src, out var data))
                 {
                     case HitTestType.Foundation:
@@ -599,6 +674,7 @@ namespace Solitaire.Classes.UI
                             /* It's an ace, drop it here */
                             stack.Suit = c.Suit;
                         }
+
                         stack.Cards.Add(c);
                         CurrentGame.GameScore += 10;
                         CurrentGame.Moves++;
@@ -615,6 +691,7 @@ namespace Solitaire.Classes.UI
                             {
                                 card.IsHidden = false;
                             }
+
                             CurrentGame.GameScore += 5;
                             CurrentGame.Moves++;
                             AutoTurnCard();
@@ -632,6 +709,7 @@ namespace Solitaire.Classes.UI
                             /* Put it back where it came from */
                             GameLogic.ReturnCardsToSource(this, _isFoundationDrag);
                         }
+
                         break;
 
                     default:
@@ -639,6 +717,7 @@ namespace Solitaire.Classes.UI
                         GameLogic.ReturnCardsToSource(this, _isFoundationDrag);
                         break;
                 }
+
                 IsDragging = false;
                 _isFoundationDrag = false;
                 DraggingCards = new List<Card>();
@@ -647,32 +726,38 @@ namespace Solitaire.Classes.UI
                     _dragBitmap.Dispose();
                     _dragBitmap = null;
                 }
+
                 Invalidate();
                 AudioManager.Play(SoundType.Drop);
                 OnScoreChanged?.Invoke(CurrentGame.GameScore, CurrentGame.Moves);
             }
+
             GameLogic.ClearHints();
             base.OnMouseUp(e);
         }
+
         #endregion
 
         #region Resize override
+
         protected override void OnResize(EventArgs e)
         {
             if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime)
             {
                 return;
             }
+
             /* Calculate what the size of the images should be based on clientsize */
             var img = ObjectData.CardBacks[0];
-            var ratioX = (double)ClientSize.Width / img.Width;
-            var ratioY = (double)ClientSize.Height / img.Height;
+            var ratioX = (double) ClientSize.Width / img.Width;
+            var ratioY = (double) ClientSize.Height / img.Height;
             /* Use whichever multiplier is smaller */
             var ratio = ratioX < ratioY ? ratioX : ratioY;
             /* Now we can get the new height and width - only to the actual card size */
             var newWidth = Convert.ToInt32(img.Width * ratio) / 5;
             var newHeight = Convert.ToInt32(img.Height * ratio) / 5;
-            CardSize = new Size(newWidth > img.Width ? img.Width : newWidth, newHeight > img.Height ? img.Height : newHeight);
+            CardSize = new Size(newWidth > img.Width ? img.Width : newWidth,
+                newHeight > img.Height ? img.Height : newHeight);
             /* This is used for centering drawing of images on X axis and for mouse hit test */
             GameCenter = (ClientSize.Width / 2) - (CardSize.Width / 2);
             GameLogic.ClearHints();
@@ -683,9 +768,10 @@ namespace Solitaire.Classes.UI
         #endregion
 
         #region Paint override
+
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+            if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime || !Visible)
             {
                 /* Steve Jobs was here */
                 return;
@@ -698,7 +784,7 @@ namespace Solitaire.Classes.UI
                     var rect = _gfx.Draw(e.Graphics);
                     /* It shouldn't be empty... */
                     if (rect != Rectangle.Empty)
-                    {                        
+                    {
                         _stockRegion = rect;
                     }
                 }
@@ -732,6 +818,7 @@ namespace Solitaire.Classes.UI
                     _cleared = true;
                     e.Graphics.Clear(Color.Black);
                 }
+
                 /* On my machine (which the specs aren't that great), I get about 6-7% CPU usage with this drawing loop, which is acceptable */
                 foreach (var fw in _fireWorks.Where(fw => fw != null))
                 {
@@ -740,6 +827,7 @@ namespace Solitaire.Classes.UI
             }
             base.OnPaint(e);
         }
+
         #endregion
         #endregion
 

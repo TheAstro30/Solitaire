@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using libolv.SubControls;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Serialization;
 
@@ -33,63 +32,19 @@ namespace Solitaire.Classes.Helpers
             }
 
             var path = $@"{parent.FullName}\Images\";
-            ObjData.Background = Image.FromFile($"{path}{@"bg.png"}");
-            Bitmap cardImage;
-            Rectangle src;
 
             BuildCardSet($"{path}{@"card-set.png"}", "Default", "default.dat");
             BuildCardSet($"{path}{@"card-set2.png"}", "Classic Bicycle", "bicycle.dat");
 
+            /* Build deck backs */
+            BuildDeckBacks($"{path}{@"deck-backs.png"}");
+
             /* Build assets */
-            using (var assets = (Bitmap) Image.FromFile($"{path}{@"assets.png"}"))
-            {
-                for (var asset = 0; asset <= 3; asset++)
-                {
-                    cardImage = new Bitmap(CardSize.Width, CardSize.Height);
-                    src = new Rectangle(asset * CardSize.Width, 0, CardSize.Width, CardSize.Height);
-                    GetImage(cardImage, src, assets);
-                    switch (asset)
-                    {
-                        case 0:
-                            /* Set empty stock image */
-                            System.Diagnostics.Debug.Print(" >> Set empty stock");
-                            ObjData.EmptyStock = cardImage;
-                            break;
+            BuildAssets($"{path}{@"assets.png"}");
 
-                        case 1:
-                            System.Diagnostics.Debug.Print(">> Set no redeal");
-                            ObjData.NoRedeal = cardImage;
-                            break;
-
-                        case 2:
-                            /* Set empty foundation image */
-                            System.Diagnostics.Debug.Print(">> Set empty foundation");
-                            ObjData.EmptyFoundation = cardImage;
-                            break;
-
-                        case 3:
-                            /* Set empty tableau image */
-                            System.Diagnostics.Debug.Print(">> Set empty taleau");
-                            ObjData.EmptyTableau = cardImage;
-                            break;
-                    }
-                }
-            }
-
-            /* Build the deck backs list */
-            using (var decks = (Bitmap) Image.FromFile($"{path}{@"deck-backs.png"}"))
-            {
-                for (var i = 0; i <= 7; i++)
-                {
-                    cardImage = new Bitmap(CardSize.Width, CardSize.Height);
-                    src = new Rectangle(i * CardSize.Width, 0, CardSize.Width, CardSize.Height);
-                    GetImage(cardImage, src, decks);
-                    System.Diagnostics.Debug.Print(" >>> Adding deck back image " + (i + 1));
-                    ObjData.CardBacks.Add(cardImage);
-                }
-            }
-
-            /* Serialize the output */
+            BuildBackgrounds(path);
+            
+            /* Serialize assets output */
             if (BinarySerialize<GraphicsObjectData>.Save(Utils.MainDir(@"\data\gfx\obj.dat"), ObjData))
             {
                 System.Diagnostics.Debug.Print(">>>> Sucessfully wrote obj.dat!");
@@ -126,11 +81,97 @@ namespace Solitaire.Classes.Helpers
             /* Set preview image */
             data.PreviewImage = GenerateCardSetPreview(data);
 
-            /* Serialize the output */
+            /* Serialize cards output */
             if (BinarySerialize<Cards>.Save(Utils.MainDir($@"\data\gfx\cards\{outputFileName}"), data))
             {
                 System.Diagnostics.Debug.Print($" >>>> Sucessfully wrote {outputFileName}!");
             }
+        }
+
+        private static void BuildDeckBacks(string fileName)
+        {
+            using (var decks = (Bitmap)Image.FromFile(fileName))
+            {
+                for (var i = 0; i <= 7; i++)
+                {
+                    var cardImage = new Bitmap(CardSize.Width, CardSize.Height);
+                    var src = new Rectangle(i * CardSize.Width, 0, CardSize.Width, CardSize.Height);
+                    GetImage(cardImage, src, decks);
+                    System.Diagnostics.Debug.Print(" >>> Adding deck back image " + (i + 1));
+                    ObjData.CardBacks.Add(cardImage);
+                }
+            }
+        }
+
+        private static void BuildAssets(string fileName)
+        {
+            using (var assets = (Bitmap)Image.FromFile(fileName))
+            {
+                for (var asset = 0; asset <= 3; asset++)
+                {
+                    var cardImage = new Bitmap(CardSize.Width, CardSize.Height);
+                    var src = new Rectangle(asset * CardSize.Width, 0, CardSize.Width, CardSize.Height);
+                    GetImage(cardImage, src, assets);
+                    switch (asset)
+                    {
+                        case 0:
+                            /* Set empty stock image */
+                            System.Diagnostics.Debug.Print(" >> Set empty stock");
+                            ObjData.EmptyStock = cardImage;
+                            break;
+
+                        case 1:
+                            System.Diagnostics.Debug.Print(">> Set no redeal");
+                            ObjData.NoRedeal = cardImage;
+                            break;
+
+                        case 2:
+                            /* Set empty foundation image */
+                            System.Diagnostics.Debug.Print(">> Set empty foundation");
+                            ObjData.EmptyFoundation = cardImage;
+                            break;
+
+                        case 3:
+                            /* Set empty tableau image */
+                            System.Diagnostics.Debug.Print(">> Set empty taleau");
+                            ObjData.EmptyTableau = cardImage;
+                            break;
+                    }
+                }
+            }
+        }
+
+        private static void BuildBackgrounds(string path)
+        {
+            /* Build data in order, images first, then colors */
+            ObjData.Backgrounds.AddRange(
+                new[]
+                {
+                    new BackgroundImageData
+                    {
+                        Name = "Green felt",
+                        Image = Image.FromFile($@"{path}\bg_green_felt.jpg"),
+                        ImageLayout = BackgroundImageDataLayout.Stretch
+                    },
+                    new BackgroundImageData
+                    {
+                        Name = "Red felt",
+                        Image = Image.FromFile($@"{path}\bg_red_felt.jpg"),
+                        ImageLayout = BackgroundImageDataLayout.Stretch
+                    },
+                    new BackgroundImageData
+                    {
+                        Name = "Blue felt",
+                        Image = Image.FromFile($@"{path}\bg_blue_felt.jpg"),
+                        ImageLayout = BackgroundImageDataLayout.Stretch
+                    },
+                    new BackgroundImageData
+                    {
+                        Name = "City scape",
+                        Image = Image.FromFile($@"{path}\bg_city_scape.jpg"),
+                        ImageLayout = BackgroundImageDataLayout.Stretch
+                    }
+                });
         }
 
         private static void GetImage(Image cardBmp, Rectangle srcRegion, Bitmap srcBitmap)
