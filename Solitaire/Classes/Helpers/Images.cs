@@ -33,8 +33,10 @@ namespace Solitaire.Classes.Helpers
 
             var path = $@"{parent.FullName}\Images\";
 
+            /* Build card sets */
             BuildCardSet($"{path}{@"card-set.png"}", "Default", "default.dat");
             BuildCardSet($"{path}{@"card-set2.png"}", "Classic Bicycle", "bicycle.dat");
+            BuildCardSet($"{path}{@"card-set3.png"}", "Flat Large", "flat.dat");
 
             /* Build deck backs */
             BuildDeckBacks($"{path}{@"deck-backs.png"}");
@@ -133,7 +135,7 @@ namespace Solitaire.Classes.Helpers
 
                         case 3:
                             /* Set empty tableau image */
-                            System.Diagnostics.Debug.Print(">> Set empty taleau");
+                            System.Diagnostics.Debug.Print(">> Set empty tableau");
                             ObjData.EmptyTableau = cardImage;
                             break;
                     }
@@ -170,7 +172,75 @@ namespace Solitaire.Classes.Helpers
                         Name = "City scape",
                         Image = Image.FromFile($@"{path}\bg_city_scape.jpg"),
                         ImageLayout = BackgroundImageDataLayout.Stretch
-                    }
+                    },
+                    new BackgroundImageData
+                    {
+                        Name = "Mountain Range",
+                        Image = Image.FromFile($@"{path}\bg_mountain_range.jpg"),
+                        ImageLayout = BackgroundImageDataLayout.Stretch
+                    },
+                    new BackgroundImageData
+                    {
+                        Name = "Wooden Floor Tiled",
+                        Image = Image.FromFile($@"{path}\bg_wood_floor.png"),
+                        ImageLayout = BackgroundImageDataLayout.Tile
+                    },
+                    new BackgroundImageData
+                    {
+                        Name = "Carpet Tiled",
+                        Image = Image.FromFile($@"{path}\bg_carpet_tile.jpg"),
+                        ImageLayout = BackgroundImageDataLayout.Tile
+                    },
+                    /* Colors */
+                    new BackgroundImageData
+                    {
+                        Name = "Solitaire Green",
+                        ImageLayout = BackgroundImageDataLayout.Color,
+                        BackgroundColor = new List<Color>(new[]
+                        {
+                            Color.DarkGreen
+                        })
+                    },
+                    new BackgroundImageData
+                    {
+                        Name = "Solitaire Dark Green Gradient",
+                        ImageLayout = BackgroundImageDataLayout.Color,
+                        BackgroundColor = new List<Color>(new[]
+                        {
+                            Color.Black,
+                            Color.DarkGreen
+                        })
+                    },
+                    new BackgroundImageData
+                    {
+                        Name = "Solitaire Dark Red Gradient",
+                        ImageLayout = BackgroundImageDataLayout.Color,
+                        BackgroundColor = new List<Color>(new[]
+                        {
+                            Color.Black,
+                            Color.DarkRed
+                        })
+                    },
+                    new BackgroundImageData
+                    {
+                        Name = "Solitaire Dark Blue Gradient",
+                        ImageLayout = BackgroundImageDataLayout.Color,
+                        BackgroundColor = new List<Color>(new[]
+                        {
+                            Color.Black,
+                            Color.DarkBlue
+                        })
+                    },
+                    new BackgroundImageData
+                    {
+                        Name = "Sky Blue Gradient",
+                        ImageLayout = BackgroundImageDataLayout.Color,
+                        BackgroundColor = new List<Color>(new[]
+                        {
+                            Color.DeepSkyBlue,
+                            Color.SkyBlue
+                        })
+                    },
                 });
         }
 
@@ -190,7 +260,6 @@ namespace Solitaire.Classes.Helpers
             var s = b.Size;
             var width = (int)(s.Width / 1.5);
             var height = (int)(s.Height / 1.5);
-            System.Diagnostics.Debug.Print(width + " " + height);
             var bmp = new Bitmap(width + 60, height + 30);
             using (var g = Graphics.FromImage(bmp))
             {

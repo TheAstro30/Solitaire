@@ -68,7 +68,8 @@ namespace Solitaire.Forms
                 HeaderFormatStyle = lvHeader,
                 HeaderStyle = ColumnHeaderStyle.None,
                 View = View.Details,
-                SmallImageList = smallImages
+                SmallImageList = smallImages,
+                ShowItemToolTips = true
             };
 
             var lvColumn = new OlvColumn(@"Installed card sets:", "Name")
@@ -123,6 +124,7 @@ namespace Solitaire.Forms
             Controls.AddRange(new Control[] {_lvCards, _pbPreview, btnCancel, btnOk});
 
             AcceptButton = btnOk;
+            _lvCards.Focus();
         }
 
         protected override void OnLoad(EventArgs e)

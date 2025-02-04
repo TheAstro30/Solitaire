@@ -67,7 +67,8 @@ namespace Solitaire.Forms
                 UseCompatibleStateImageBehavior = false,
                 HeaderFormatStyle = lvHeader,
                 Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0),
-                View = View.LargeIcon
+                View = View.LargeIcon,
+                ShowItemToolTips = true
             };
             var lvColumn = new OlvColumn(@"Saved games:", "ToString")
             {
@@ -185,6 +186,7 @@ namespace Solitaire.Forms
             _btnClear.Enabled = true;
             /* Scroll to bottom of list */
             _lvFiles.EnsureVisible(_lvFiles.Items.Count - 1);
+            _lvFiles.Focus();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

@@ -33,6 +33,7 @@ namespace libolv
 {
     public partial class ObjectListView
     {
+        /* Hello! My name is Nino! */
         private int _timeLastCharEvent;
         private string _lastSearchString;
         private readonly IntPtr _minusOne = new IntPtr(-1);
@@ -446,7 +447,7 @@ namespace libolv
                         OnDrawSubItem(args);
                         /* If the event handler wants to do the default processing (i.e. DrawDefault = true), we are stuck.
                          * There is no way we can force the default drawing because of the
-                         * bug in .NET we are trying to get around. */
+                         * bug in .NET we are trying to get around. (Are you sure it's a bug? - Jason) */
                         System.Diagnostics.Trace.Assert(!args.DrawDefault, "Default drawing is impossible in this situation");
                     }
                     m.Result = (IntPtr)4;
@@ -466,7 +467,6 @@ namespace libolv
                                                _headerControl = null;
                                                HeaderControl.WordWrap = HeaderWordWrap;
                                            });
-
             /* When the underlying control is destroyed, we need to recreate
              * and reconfigure its tooltip */
             if (_cellToolTip == null)
@@ -536,38 +536,41 @@ namespace libolv
 
         protected virtual int FindMatchInRange(string text, int first, int last, OlvColumn column)
         {
-            try
+            if (first <= last)
             {
-                if (first <= last)
+                for (var i = first; i <= last; i++)
                 {
-                    for (var i = first; i <= last; i++)
+                    var item = GetNthItemInDisplayOrder(i);
+                    if (item == null)
                     {
-                        var data = column.GetStringValue(GetNthItemInDisplayOrder(i).RowObject);
-                        if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            return i;
-                        }
+                        continue;
                     }
-                }
-                else
-                {
-                    for (var i = first; i >= last; i--)
+                    var data = column.GetStringValue(item.RowObject);
+                    if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        var data = column.GetStringValue(GetNthItemInDisplayOrder(i).RowObject);
-                        if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            return i;
-                        }
+                        return i;
                     }
                 }
             }
-            catch
+            else
             {
-                /* Ignore */
+                for (var i = first; i >= last; i--)
+                {
+                    var item = GetNthItemInDisplayOrder(i);
+                    if (item == null)
+                    {
+                        continue;
+                    }
+                    var data = column.GetStringValue(item.RowObject);
+                    if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        return i;
+                    }
+                }
             }
             return -1;
         }
-        
+
         protected virtual bool HandleGroupInfo(ref Message m)
         {
             var nmlvgroup = (NativeMethods.Nmlvgroup)m.GetLParam(typeof(NativeMethods.Nmlvgroup));
@@ -577,11 +580,7 @@ namespace libolv
             {
                 return false;
             }
-            foreach (GroupStateChangedEventArgs args in from @group in OlvGroups
-                                                        where @group.GroupId == nmlvgroup.iGroupId
-                                                        select new GroupStateChangedEventArgs(@group,
-                                                                                             (GroupState)nmlvgroup.uOldState,
-                                                                                             (GroupState)nmlvgroup.uNewState))
+            foreach (var args in from @group in OlvGroups where @group.GroupId == nmlvgroup.iGroupId select new GroupStateChangedEventArgs(@group, (GroupState) nmlvgroup.uOldState, (GroupState) nmlvgroup.uNewState))
             {
                 OnGroupStateChanged(args);
                 break;

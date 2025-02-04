@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Windows.Forms;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.Settings.SettingsData;
@@ -29,36 +30,79 @@ namespace Solitaire.Classes.Helpers.UI
         public Rectangle Draw(Graphics e)
         {
             /* Now, the fun part - drawing all the data... */
-            var bg = _gameCtl.ObjectData.Backgrounds[SettingsManager.Settings.Options.Background];
-            if (bg != null)
+            Rectangle rect;
+            if (SettingsManager.Settings.Options.Background > _gameCtl.ObjectData.Backgrounds.Count - 1)
             {
-                /* Draw background */
-                switch (bg.ImageLayout)
-                {
-                    /* I know we can just set the form's background property, however, stretching especially is slooooow */
-                    case BackgroundImageDataLayout.Tile:
-                        e.DrawImageTiled(bg.Image, _gameCtl.ClientSize);
-                        break;
-
-                    case BackgroundImageDataLayout.Stretch:
-                        e.DrawImageStretched(bg.Image, _gameCtl.ClientSize);
-                        break;
-
-                    case BackgroundImageDataLayout.Color:
-                        /* Not implemented yet */
-                        break;
-                }
+                /* This shouldn't happen... */
+                e.DrawImageTiled(Resources.bg_default, _gameCtl.ClientSize);
             }
             else
             {
-                /* This should never happen; but it's here incase we have a graphics error and don't end up with a black screen */
-                e.DrawImageTiled(Resources.bg_default, _gameCtl.ClientSize);
+                var bg = _gameCtl.ObjectData.Backgrounds[SettingsManager.Settings.Options.Background];
+                if (bg != null)
+                {
+                    /* Draw background */
+                    switch (bg.ImageLayout)
+                    {
+                        /* I know we can just set the form's background property, however, stretching especially is slooooow */
+                        case BackgroundImageDataLayout.Tile:
+                            e.DrawImageTiled(bg.Image, _gameCtl.ClientSize);
+                            break;
+
+                        case BackgroundImageDataLayout.Stretch:
+                            e.DrawImageStretched(bg.Image, _gameCtl.ClientSize);
+                            break;
+
+                        case BackgroundImageDataLayout.Color:
+                            /* Draw color */
+                            using (var pBmp = new Bitmap(_gameCtl.ClientSize.Width, _gameCtl.ClientSize.Height))
+                            {
+                                if (bg.BackgroundColor.Count != 0)
+                                {
+                                    using (var g = Graphics.FromImage(pBmp))
+                                    {
+                                        if (bg.BackgroundColor.Count < 2)
+                                        {
+                                            /* Single color */
+                                            using (var brush = new SolidBrush(bg.BackgroundColor[0]))
+                                            {
+                                                g.FillRectangle(brush, new Rectangle(0, 0, pBmp.Width, pBmp.Height));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            /* Gradient */
+                                            rect = new Rectangle(0, 0, pBmp.Width, pBmp.Height);
+                                            using (var gradient = new LinearGradientBrush(rect, Color.White,
+                                                Color.White,
+                                                LinearGradientMode.Vertical))
+                                            {
+                                                var cb = new ColorBlend();
+                                                var colors = bg.BackgroundColor.ToArray();
+                                                cb.Colors = colors;
+                                                cb.Positions = colors.Select((t, i) => (float) i / (colors.Length - 1))
+                                                    .ToArray();
+                                                gradient.InterpolationColors = cb;
+                                                g.FillRectangle(gradient, new Rectangle(0, 0, pBmp.Width, pBmp.Height));
+                                            }
+                                        }
+                                    }
+                                    e.DrawImage(pBmp, 0, 0);
+                                }
+                            }
+                            break;
+                    }
+                }
+                else
+                {
+                    /* This should never happen; but it's here incase we have a graphics error and don't end up with a black screen */
+                    e.DrawImageTiled(Resources.bg_default, _gameCtl.ClientSize);
+                }
             }
             /* Draw logo image in bottom right (with 50% opacity) */
             var img = Resources.logo;
-            var rect = new Rectangle(_gameCtl.ClientSize.Width - img.Width - 10, _gameCtl.ClientSize.Height - img.Height - 20, img.Width, img.Height);
+            rect = new Rectangle(_gameCtl.ClientSize.Width - img.Width - 10, _gameCtl.ClientSize.Height - img.Height - 20, img.Width, img.Height);
             e.DrawImageOpaque(img, rect, 0.5F);
-
             /* Draw deck */
             rect = DrawStock(e);
             /* Draw dealt hand */
