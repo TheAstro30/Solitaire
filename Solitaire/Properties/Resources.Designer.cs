@@ -151,6 +151,16 @@ namespace Solitaire.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap clear_filter {
+            get {
+                object obj = ResourceManager.GetObject("clear_filter", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon close {
@@ -167,6 +177,16 @@ namespace Solitaire.Properties {
             get {
                 object obj = ResourceManager.GetObject("color", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap column_filter_indicator {
+            get {
+                object obj = ResourceManager.GetObject("column_filter_indicator", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -197,6 +217,16 @@ namespace Solitaire.Properties {
             get {
                 object obj = ResourceManager.GetObject("errorIcon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap filtering {
+            get {
+                object obj = ResourceManager.GetObject("filtering", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -337,6 +367,26 @@ namespace Solitaire.Properties {
             get {
                 object obj = ResourceManager.GetObject("scorePositive", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap sort_ascending {
+            get {
+                object obj = ResourceManager.GetObject("sort_ascending", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap sort_descending {
+            get {
+                object obj = ResourceManager.GetObject("sort_descending", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using libolv.Implementation;
+using Solitaire.Controls.ObjectListView.Implementation;
 
 namespace Solitaire.Classes.Data
 {

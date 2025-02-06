@@ -7,14 +7,15 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using libolv;
-using libolv.Rendering.Styles;
 using Solitaire.Classes.Helpers;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.Settings.SettingsData;
 using Solitaire.Controls;
+using Solitaire.Controls.ObjectListView;
+using Solitaire.Controls.ObjectListView.Rendering.Styles;
 using Solitaire.Properties;
+using ObjectListView = Solitaire.Controls.ObjectListView.ObjectListView;
 
 namespace Solitaire.Forms
 {
@@ -55,7 +56,7 @@ namespace Solitaire.Forms
 
             /* Object list view - large icon type Windows Explorer feel */
             var lvHeader = new HeaderFormatStyle();
-            _lvFiles = new ObjectListView
+            _lvFiles = new FastObjectListView
             {
                 HeaderStyle = ColumnHeaderStyle.None,
                 HideSelection = true,
@@ -214,7 +215,7 @@ namespace Solitaire.Forms
             {
                 return;
             }
-
+            /* Bollocks */
             var path = Utils.MainDir(@"\KangaSoft\Solitaire\saved", true);
             switch (o.Tag)
             {
@@ -272,13 +273,9 @@ namespace Solitaire.Forms
 
                     try
                     {
-                        foreach (var f in SettingsManager.Settings.SavedGames.Data)
+                        foreach (var file in SettingsManager.Settings.SavedGames.Data.Select(f => $@"{path}\{f.FileName}").Where(File.Exists))
                         {
-                            var file = $@"{path}\{f.FileName}";
-                            if (File.Exists(file))
-                            {
-                                File.Delete(file);
-                            }
+                            File.Delete(file);
                         }
                         _lvFiles.ClearObjects();
                         SettingsManager.Settings.SavedGames.Data.Clear();

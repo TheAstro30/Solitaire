@@ -145,11 +145,17 @@
   <data name="cardSet" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\cardSet.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="clear_filter" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\ObjectListView\clear-filter.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="close" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\close.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="color" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\dialog\color.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="column_filter_indicator" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\ObjectListView\column-filter-indicator.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="deckBack" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\deckBack.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -159,6 +165,9 @@
   </data>
   <data name="errorIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\errorIcon.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="filtering" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\ObjectListView\filtering.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="hint" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\hint.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -201,6 +210,12 @@
   </data>
   <data name="scorePositive" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Status\scorePositive.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sort_ascending" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\ObjectListView\sort-ascending.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sort_descending" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\ObjectListView\sort-descending.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="stats" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\Menus\stats.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using libolv;
-using libolv.Rendering.Styles;
 using Solitaire.Classes;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers;
@@ -17,7 +15,10 @@ using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.Serialization;
 using Solitaire.Classes.Settings.SettingsData;
 using Solitaire.Controls;
+using Solitaire.Controls.ObjectListView;
+using Solitaire.Controls.ObjectListView.Rendering.Styles;
 using Solitaire.Properties;
+using ObjectListView = Solitaire.Controls.ObjectListView.ObjectListView;
 
 namespace Solitaire.Forms
 {
@@ -57,7 +58,7 @@ namespace Solitaire.Forms
 
             var lvHeader = new HeaderFormatStyle();
 
-            _lvCards = new ObjectListView
+            _lvCards = new FastObjectListView
             {
                 HideSelection = false,
                 Location = new Point(12, 12),

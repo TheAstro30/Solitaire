@@ -4,23 +4,22 @@
  * ©2025 Kangasoft Software */
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
 using System.Windows.Forms;
-using libolv;
-using libolv.Rendering.Styles;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers.Management;
+using Solitaire.Classes.Helpers.UI;
 using Solitaire.Classes.UI;
 using Solitaire.Controls;
+using Solitaire.Controls.ObjectListView;
+using Solitaire.Controls.ObjectListView.Rendering.Styles;
 using Solitaire.Properties;
+using ObjectListView = Solitaire.Controls.ObjectListView.ObjectListView;
 
 namespace Solitaire.Forms
 {
     public sealed class FrmBackground : FormEx
     {
         /* When was the last time this place was cleaned? - Gordon Ramsay */
-        private Bitmap _previewBitmap;
         private readonly PictureBox _pbPreview;
 
         public BackgroundImageData SelectedBackground { get; private set; }
@@ -37,7 +36,7 @@ namespace Solitaire.Forms
             StartPosition = FormStartPosition.CenterParent;
             Text = @"Choose Background";
 
-            var images = new ImageList {ColorDepth = ColorDepth.Depth32Bit};
+            var images = new ImageList {ColorDepth = ColorDepth.Depth32Bit, ImageSize = new Size(16, 16)};
             images.Images.AddRange(new Image[]
                 {
                     Resources.picture.ToBitmap(),
@@ -46,7 +45,7 @@ namespace Solitaire.Forms
             );
 
             var header = new HeaderFormatStyle();
-            var lvBackgrounds = new ObjectListView
+            var lvBackgrounds = new FastObjectListView
             {
                 HideSelection = false,
                 Location = new Point(12, 12),
@@ -67,7 +66,20 @@ namespace Solitaire.Forms
                 Hideable = false,
                 IsEditable = false,
                 Searchable = false,
-                Width = 161
+                Width = 161,
+                /* Used for setting individual icons against items */
+                ImageGetter = delegate(object row)
+                {
+                    switch (((BackgroundImageData) row).ImageLayout)
+                    {
+                        case BackgroundImageDataLayout.Stretch:
+                        case BackgroundImageDataLayout.Tile:
+                            return 0;
+
+                        default:
+                            return 1;
+                    }
+                }
             };
 
             lvBackgrounds.AllColumns.Add(colBackgrounds);
@@ -84,6 +96,7 @@ namespace Solitaire.Forms
                 Size = new Size(368, 267),
                 TabStop = false
             };
+            _pbPreview.Paint += OnPreviewPaint;
 
             var btnCancel = new Button
             {
@@ -116,22 +129,12 @@ namespace Solitaire.Forms
             {
                 var bg = ctl.ObjectData.Backgrounds[i];
                 lvBackgrounds.AddObject(bg);
-                switch (bg.ImageLayout)
-                {
-                    case BackgroundImageDataLayout.Tile:
-                    case BackgroundImageDataLayout.Stretch:
-                        lvBackgrounds.Items[i].ImageIndex = 0;
-                        break;
-
-                    case BackgroundImageDataLayout.Color:
-                        lvBackgrounds.Items[i].ImageIndex = 1;
-                        break;
-                }
                 if (i == SettingsManager.Settings.Options.Background)
                 {
                     lvBackgrounds.SelectedIndex = i;
                 }
             }
+
             /* Ensure the selected object (if any) is in view */
             if (lvBackgrounds.SelectedObject != null)
             {
@@ -142,79 +145,16 @@ namespace Solitaire.Forms
             lvBackgrounds.Focus();
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            _previewBitmap?.Dispose();
-            _previewBitmap = null;
-            base.OnFormClosing(e);
-        }
-
         private void OnListSelectedIndexChanged(object sender, EventArgs e)
         {
             var o = (ObjectListView) sender;
             if (o == null)
             {
+                SelectedBackground = null;
                 return;
             }
-            /* Generate the preview image */
-            SelectedBackground = (BackgroundImageData)o.SelectedObject;
-            if (SelectedBackground == null)
-            {
-                _pbPreview.BackgroundImage = null;
-            }
-            else
-            {
-                var bg = SelectedBackground;
-                switch (bg.ImageLayout)
-                {
-                    case BackgroundImageDataLayout.Tile:
-                        _pbPreview.BackgroundImage = bg.Image;
-                        _pbPreview.BackgroundImageLayout = ImageLayout.Tile;
-                        break;
-
-                    case BackgroundImageDataLayout.Stretch:
-                        _pbPreview.BackgroundImage = bg.Image;
-                        _pbPreview.BackgroundImageLayout = ImageLayout.Stretch;
-                        break;
-
-                    case BackgroundImageDataLayout.Color:
-                        /* Draw color to a bitmap and set it to pbPreview background image */
-                        _previewBitmap = new Bitmap(_pbPreview.Width, _pbPreview.Height);
-                        var bgColors = bg.BackgroundColor;
-                        if (bgColors.Count == 0)
-                        {
-                            return;
-                        }
-                        using (var g = Graphics.FromImage(_previewBitmap))
-                        {
-                            if (bgColors.Count < 2)
-                            {
-                                /* Single color */
-                                using (var brush = new SolidBrush(bgColors[0]))
-                                {
-                                    g.FillRectangle(brush, new Rectangle(0, 0, _previewBitmap.Width, _previewBitmap.Height));
-                                }
-                            }
-                            else
-                            {
-                                /* Gradient */
-                                var rect = new Rectangle(0, 0, _previewBitmap.Width, _previewBitmap.Height);
-                                using (var gradient = new LinearGradientBrush(rect, Color.White, Color.White, LinearGradientMode.Vertical))
-                                {
-                                    var cb = new ColorBlend();
-                                    var colors = bgColors.ToArray();
-                                    cb.Colors = colors;
-                                    cb.Positions = colors.Select((t, i) => (float) i / (colors.Length - 1)).ToArray();
-                                    gradient.InterpolationColors = cb;
-                                    g.FillRectangle(gradient, new Rectangle(0, 0, _previewBitmap.Width, _previewBitmap.Height));
-                                }
-                            }
-                        }
-                        _pbPreview.BackgroundImage = _previewBitmap;
-                        _pbPreview.BackgroundImageLayout = ImageLayout.Center;
-                        break;
-                }
-            }
+            SelectedBackground = (BackgroundImageData) o.SelectedObject;
+            _pbPreview.Invalidate();
         }
 
         private void OnListDoubleClick(object sender, MouseEventArgs e)
@@ -227,6 +167,46 @@ namespace Solitaire.Forms
             /* Penis */
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void OnPreviewPaint(object sender, PaintEventArgs e)
+        {
+            if (SelectedBackground == null)
+            {
+                e.Graphics.Clear(Color.White);
+                return;
+            }
+            /* Generate the preview image */
+            var bg = SelectedBackground;
+            switch (bg.ImageLayout)
+            {
+                case BackgroundImageDataLayout.Tile:
+                    e.Graphics.DrawImageTiled(bg.Image, _pbPreview.ClientSize);
+                    break;
+
+                case BackgroundImageDataLayout.Stretch:
+                    e.Graphics.DrawImageStretched(bg.Image, _pbPreview.ClientSize);
+                    break;
+
+                case BackgroundImageDataLayout.Color:
+                    /* Draw color to a bitmap and set it to pbPreview background image */
+                    var bgColors = bg.BackgroundColor;
+                    if (bgColors.Count < 2)
+                    {
+                        /* Single color */
+                        using (var brush = new SolidBrush(bgColors[0]))
+                        {
+                            var rect = new Rectangle(0, 0, _pbPreview.ClientSize.Width, _pbPreview.ClientSize.Height);
+                            e.Graphics.FillRectangle(brush, rect);
+                        }
+                    }
+                    else
+                    {
+                        /* Gradient */
+                        e.Graphics.DrawGradient(bgColors.ToArray(), _pbPreview.ClientSize);
+                    }
+                    break;
+            }
         }
     }
 }

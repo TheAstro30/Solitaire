@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using libdx;
+using Solitaire.Classes.DirectSound.Core;
 
 namespace Solitaire.Classes.DirectSound
 {

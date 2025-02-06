@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
-using libolv.Implementation;
+using Solitaire.Controls.ObjectListView.Implementation;
 
 namespace Solitaire.Classes.Settings.SettingsData
 {

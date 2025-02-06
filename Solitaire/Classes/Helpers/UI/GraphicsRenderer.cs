@@ -2,13 +2,11 @@
  * Version 1.0.0
  * Written by: Jason James Newland
  * ©2025 Kangasoft Software */
-
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
-using System.Windows.Forms;
 using Solitaire.Classes.Data;
 using Solitaire.Classes.Helpers.Management;
 using Solitaire.Classes.Settings.SettingsData;
@@ -55,39 +53,21 @@ namespace Solitaire.Classes.Helpers.UI
 
                         case BackgroundImageDataLayout.Color:
                             /* Draw color */
-                            using (var pBmp = new Bitmap(_gameCtl.ClientSize.Width, _gameCtl.ClientSize.Height))
+                            if (bg.BackgroundColor.Count != 0)
                             {
-                                if (bg.BackgroundColor.Count != 0)
+                                if (bg.BackgroundColor.Count < 2)
                                 {
-                                    using (var g = Graphics.FromImage(pBmp))
+                                    /* Single color */
+                                    using (var brush = new SolidBrush(bg.BackgroundColor[0]))
                                     {
-                                        if (bg.BackgroundColor.Count < 2)
-                                        {
-                                            /* Single color */
-                                            using (var brush = new SolidBrush(bg.BackgroundColor[0]))
-                                            {
-                                                g.FillRectangle(brush, new Rectangle(0, 0, pBmp.Width, pBmp.Height));
-                                            }
-                                        }
-                                        else
-                                        {
-                                            /* Gradient */
-                                            rect = new Rectangle(0, 0, pBmp.Width, pBmp.Height);
-                                            using (var gradient = new LinearGradientBrush(rect, Color.White,
-                                                Color.White,
-                                                LinearGradientMode.Vertical))
-                                            {
-                                                var cb = new ColorBlend();
-                                                var colors = bg.BackgroundColor.ToArray();
-                                                cb.Colors = colors;
-                                                cb.Positions = colors.Select((t, i) => (float) i / (colors.Length - 1))
-                                                    .ToArray();
-                                                gradient.InterpolationColors = cb;
-                                                g.FillRectangle(gradient, new Rectangle(0, 0, pBmp.Width, pBmp.Height));
-                                            }
-                                        }
+                                        rect = new Rectangle(0, 0, _gameCtl.ClientSize.Width, _gameCtl.ClientSize.Height);
+                                        e.FillRectangle(brush, rect);
                                     }
-                                    e.DrawImage(pBmp, 0, 0);
+                                }
+                                else
+                                {
+                                    /* Gradient */
+                                    e.DrawGradient(bg.BackgroundColor.ToArray(), _gameCtl.ClientSize);
                                 }
                             }
                             break;
@@ -374,6 +354,21 @@ namespace Solitaire.Classes.Helpers.UI
             {
                 imgAttribute.SetColorMatrix(colormatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
                 graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, imgAttribute);
+            }
+        }
+
+        internal static void DrawGradient(this Graphics graphics, Color[] colors, Size size)
+        {
+            var rect = new Rectangle(0, 0, size.Width, size.Height);
+            using (var gradient = new LinearGradientBrush(rect, Color.White, Color.White, LinearGradientMode.Vertical))
+            {
+                var cb = new ColorBlend
+                {
+                    Colors = colors,
+                    Positions = colors.Select((t, i) => (float) i / (colors.Length - 1)).ToArray()
+                };
+                gradient.InterpolationColors = cb;
+                graphics.FillRectangle(gradient, new Rectangle(0, 0, size.Width, size.Height));
             }
         }
 
