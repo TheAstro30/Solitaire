@@ -284,8 +284,7 @@ namespace Solitaire.Classes.UI
             _timerFireWorks.Enabled = false;
             _timerGame.Enabled = true;
 
-            GameCompleted =
-                false; /* Forgot to change this until now, other menu items like save, etc, are greyed out */
+            GameCompleted = false; /* Forgot to change this until now, other menu items like save, etc, are greyed out */
 
             Invalidate();
             return true;

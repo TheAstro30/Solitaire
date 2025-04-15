@@ -1,0 +1,10 @@
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\bin\Debug\Solitaire.exe.config
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\bin\Debug\Solitaire.exe
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\bin\Debug\Solitaire.pdb
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Debug\Solitaire.Properties.Resources.resources
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Debug\Solitaire.csproj.GenerateResource.Cache
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Debug\Solitaire.exe
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Debug\Solitaire.pdb
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Debug\Solitaire.csproj.CoreCompileInputs.cache
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Debug\Solitaire.Controls.ObjectListView.Utilities.ColumnSelectionForm.resources
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Debug\Solitaire.csprojAssemblyReference.cache

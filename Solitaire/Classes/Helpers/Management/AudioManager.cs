@@ -74,7 +74,7 @@ namespace Solitaire.Classes.Helpers.Management
             {
                 return;
             }
-            foreach (var s in Sounds)
+            foreach (var s in Sounds.Where(s => s.Player != null))
             {
                 s.Player.Volume = volume;
             }

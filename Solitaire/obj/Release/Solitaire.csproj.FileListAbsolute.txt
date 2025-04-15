@@ -1,0 +1,10 @@
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\bin\Release\Solitaire.exe.config
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\bin\Release\Solitaire.exe
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\bin\Release\Solitaire.pdb
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Release\Solitaire.csprojAssemblyReference.cache
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Release\Solitaire.Properties.Resources.resources
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Release\Solitaire.csproj.GenerateResource.cache
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Release\Solitaire.csproj.CoreCompileInputs.cache
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Release\Solitaire.exe
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Release\Solitaire.pdb
+D:\Data\CSharp\Solitaire\Solitaire\Solitaire\obj\Release\Solitaire.Controls.ObjectListView.Utilities.ColumnSelectionForm.resources
